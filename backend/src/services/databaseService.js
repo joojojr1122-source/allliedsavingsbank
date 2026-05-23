@@ -65,7 +65,11 @@ async function readDatabase() {
   const synced = await applySeedIfStale(database);
 
   if (synced !== database) {
-    await writeDatabase(synced);
+    try {
+      await writeDatabase(synced);
+    } catch (error) {
+      console.error("databaseService: could not persist seed refresh", error);
+    }
     return synced;
   }
 
@@ -76,7 +80,13 @@ async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
   if (hasRemoteDatabase()) {
-    await writeRemoteDatabase(database);
+    try {
+      await writeRemoteDatabase(database);
+    } catch (error) {
+      // Login and other flows call write after reads; a misconfigured KV/Upstash
+      // (common on demo projects) must not break sign-in.
+      console.error("databaseService: remote write failed (continuing without persist)", error);
+    }
     return;
   }
 
@@ -127,7 +137,12 @@ async function readRemoteDatabase() {
     const payload = await response.json();
 
     if (payload.result) {
-      return JSON.parse(payload.result);
+      try {
+        return JSON.parse(payload.result);
+      } catch (parseError) {
+        console.error("databaseService: remote JSON parse failed, using seed", parseError);
+        return readSeedDatabase();
+      }
     }
 
     return readSeedDatabase();
