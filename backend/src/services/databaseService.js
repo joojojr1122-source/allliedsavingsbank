@@ -2,6 +2,7 @@ const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
 
+const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
 const SEED_SCHEMA_VERSION = 3;
 const SEED_LOGIN_EMAIL = "daniel.nowak@outlook.com";
@@ -12,9 +13,19 @@ const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "bank-portal-databa
 const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
+let vercelDatabaseCache = null;
+
+function cloneSeedDatabase() {
+  return JSON.parse(JSON.stringify(SEED_DATABASE));
+}
+
 async function readSeedDatabase() {
-  const content = await fs.readFile(SEED_DATABASE_PATH, "utf8");
-  return JSON.parse(content);
+  try {
+    const content = await fs.readFile(SEED_DATABASE_PATH, "utf8");
+    return JSON.parse(content);
+  } catch (error) {
+    return cloneSeedDatabase();
+  }
 }
 
 function databaseNeedsSeedRefresh(database) {
@@ -40,6 +51,11 @@ async function readDatabase() {
 
   if (hasRemoteDatabase()) {
     database = await readRemoteDatabase();
+  } else if (process.env.VERCEL) {
+    if (!vercelDatabaseCache) {
+      vercelDatabaseCache = await readSeedDatabase();
+    }
+    database = vercelDatabaseCache;
   } else {
     await ensureDatabaseFile();
     const content = await fs.readFile(DATABASE_PATH, "utf8");
@@ -64,6 +80,11 @@ async function writeDatabase(database) {
     return;
   }
 
+  if (process.env.VERCEL) {
+    vercelDatabaseCache = database;
+    return;
+  }
+
   await ensureDatabaseFile();
   await fs.writeFile(DATABASE_PATH, JSON.stringify(database, null, 2));
 }
@@ -72,8 +93,8 @@ async function ensureDatabaseFile() {
   try {
     await fs.access(DATABASE_PATH);
   } catch (error) {
-    const seed = await fs.readFile(SEED_DATABASE_PATH, "utf8");
-    await fs.writeFile(DATABASE_PATH, seed);
+    const seed = await readSeedDatabase();
+    await fs.writeFile(DATABASE_PATH, JSON.stringify(seed, null, 2));
   }
 }
 
@@ -83,7 +104,7 @@ function hasRemoteDatabase() {
 
 function getDatabaseInfo() {
   return {
-    mode: hasRemoteDatabase() ? "remote" : "local",
+    mode: hasRemoteDatabase() ? "remote" : process.env.VERCEL ? "vercel-memory" : "local",
     key: REMOTE_DATABASE_KEY,
     persistent: hasRemoteDatabase(),
     schemaVersion: SEED_SCHEMA_VERSION,
@@ -92,23 +113,27 @@ function getDatabaseInfo() {
 }
 
 async function readRemoteDatabase() {
-  const response = await fetch(`${REMOTE_DATABASE_URL}/get/${encodeURIComponent(REMOTE_DATABASE_KEY)}`, {
-    headers: {
-      Authorization: `Bearer ${REMOTE_DATABASE_TOKEN}`
+  try {
+    const response = await fetch(`${REMOTE_DATABASE_URL}/get/${encodeURIComponent(REMOTE_DATABASE_KEY)}`, {
+      headers: {
+        Authorization: `Bearer ${REMOTE_DATABASE_TOKEN}`
+      }
+    });
+
+    if (!response.ok) {
+      return readSeedDatabase();
     }
-  });
 
-  if (!response.ok) {
-    throw new Error("Remote database read failed");
+    const payload = await response.json();
+
+    if (payload.result) {
+      return JSON.parse(payload.result);
+    }
+
+    return readSeedDatabase();
+  } catch (error) {
+    return readSeedDatabase();
   }
-
-  const payload = await response.json();
-
-  if (payload.result) {
-    return JSON.parse(payload.result);
-  }
-
-  return readSeedDatabase();
 }
 
 async function writeRemoteDatabase(database) {

@@ -71,7 +71,8 @@ async function login(req, res) {
       user: publicUser(loggedInUser || user)
     });
   } catch (error) {
-    sendJson(res, 500, { error: "Login failed" });
+    console.error("Login error:", error);
+    sendJson(res, 500, { error: error.message || "Login failed" });
   }
 }
 
