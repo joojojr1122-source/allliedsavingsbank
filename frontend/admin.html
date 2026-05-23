@@ -42,6 +42,13 @@
             <h1>Account Overview</h1>
           </div>
           <div class="dashboard-head__actions">
+            <select class="admin-search admin-filter" id="adminStatusFilter" aria-label="Filter accounts by status">
+              <option value="">All statuses</option>
+              <option value="Pending Approval">Pending Approval</option>
+              <option value="Active">Active</option>
+              <option value="Frozen">Frozen</option>
+              <option value="Rejected">Rejected</option>
+            </select>
             <input class="admin-search" id="adminSearch" placeholder="Search customers">
             <button class="text-button" id="adminRefreshButton" type="button">Refresh</button>
           </div>

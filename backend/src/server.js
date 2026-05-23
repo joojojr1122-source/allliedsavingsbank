@@ -4,6 +4,7 @@ const { URL } = require("url");
 const { handleAuthRoute } = require("./routes/authRoutes");
 const { handleAccountRoute } = require("./routes/accountRoutes");
 const { handleAdminRoute } = require("./routes/adminRoutes");
+const { getDatabaseInfo } = require("./services/databaseService");
 const { sendJson, sendStaticFile } = require("./utils/http");
 
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,22 @@ const FRONTEND_DIR = path.join(__dirname, "..", "..", "frontend");
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  if (req.method === "GET" && (url.pathname === "/health" || url.pathname === "/api/health")) {
+    sendJson(res, 200, {
+      ok: true,
+      service: "turkishbank-account-portal",
+      timestamp: new Date().toISOString(),
+      database: getDatabaseInfo(),
+      environment: {
+        node: process.version,
+        vercel: Boolean(process.env.VERCEL),
+        adminPasswordConfigured: Boolean(process.env.ADMIN_PASSWORD),
+        sessionSecretConfigured: Boolean(process.env.SESSION_SECRET)
+      }
+    });
+    return;
+  }
 
   if (url.pathname.startsWith("/api/auth")) {
     await handleAuthRoute(req, res, url);

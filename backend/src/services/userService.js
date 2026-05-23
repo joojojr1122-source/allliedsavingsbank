@@ -79,6 +79,11 @@ async function createUser(input) {
       failedLoginAttempts: 0,
       lockedUntil: ""
     },
+    preferences: {
+      emailAlerts: true,
+      smsAlerts: false,
+      statementFrequency: "Monthly"
+    },
     createdAt: new Date().toISOString()
   };
 
@@ -229,6 +234,8 @@ function isUserLocked(user) {
 }
 
 function publicUser(user) {
+  ensureAccountShape(user);
+
   return {
     id: user.id,
     firstName: user.firstName,
@@ -251,6 +258,12 @@ function publicUser(user) {
       failedLoginAttempts: Number(user.security?.failedLoginAttempts || 0),
       lockedUntil: user.security?.lockedUntil || ""
     },
+    preferences: {
+      emailAlerts: user.preferences?.emailAlerts !== false,
+      smsAlerts: Boolean(user.preferences?.smsAlerts),
+      statementFrequency: user.preferences?.statementFrequency || "Monthly"
+    },
+    notifications: buildNotifications(user),
     beneficiaries: user.beneficiaries || [],
     transactions: user.transactions || [],
     auditLog: (user.auditLog || []).slice(0, 20)
@@ -417,6 +430,11 @@ function ensureAccountShape(user) {
     failedLoginAttempts: 0,
     lockedUntil: ""
   };
+  user.preferences = user.preferences || {
+    emailAlerts: true,
+    smsAlerts: false,
+    statementFrequency: "Monthly"
+  };
   user.transactions = user.transactions || (user.account.status === "Active" ? [
     {
       id: crypto.randomUUID(),
@@ -441,12 +459,15 @@ async function updateUserProfile(userId, input) {
     throw statusError(404, "Account was not found");
   }
 
+  ensureAccountShape(user);
+
   const firstName = String(input.firstName || "").trim();
   const lastName = String(input.lastName || "").trim();
   const email = String(input.email || "").trim().toLowerCase();
   const phone = String(input.phone || "").trim();
   const address = String(input.address || "").trim();
   const product = String(input.product || "").trim() || user.account.type;
+  const statementFrequency = cleanName(input.statementFrequency || user.preferences?.statementFrequency || "Monthly");
 
   if (!firstName || !lastName || !email || !phone || !address) {
     throw statusError(400, "First name, last name, email, phone, and address are required");
@@ -469,9 +490,77 @@ async function updateUserProfile(userId, input) {
   user.account.type = cleanName(product);
   user.application.phone = cleanName(phone);
   user.application.address = cleanName(address);
+  user.preferences = user.preferences || {};
+  user.preferences.emailAlerts = input.emailAlerts === "on" || input.emailAlerts === true;
+  user.preferences.smsAlerts = input.smsAlerts === "on" || input.smsAlerts === true;
+  user.preferences.statementFrequency = ["Monthly", "Quarterly", "Annually"].includes(statementFrequency)
+    ? statementFrequency
+    : "Monthly";
+  appendAudit(user, "PROFILE_UPDATED");
 
   await writeDatabase(database);
   return user;
+}
+
+function buildNotifications(user) {
+  const notifications = [];
+
+  if (user.application?.status === "Pending Approval") {
+    notifications.push({
+      type: "Application",
+      title: "Application awaiting review",
+      message: "Your application is with the back office team. Online banking unlocks after approval.",
+      createdAt: user.application.submittedAt || user.createdAt || new Date().toISOString()
+    });
+  }
+
+  if (user.application?.status === "Approved") {
+    notifications.push({
+      type: "Application",
+      title: "Application approved",
+      message: "Your account is active and ready for payments, payees, statements, and account controls.",
+      createdAt: user.application.decidedAt || user.account.openedAt || user.createdAt || new Date().toISOString()
+    });
+  }
+
+  if (user.application?.status === "Rejected") {
+    notifications.push({
+      type: "Application",
+      title: "Application decision available",
+      message: user.application.decisionReason || "Your application could not be approved. Please contact support.",
+      createdAt: user.application.decidedAt || user.createdAt || new Date().toISOString()
+    });
+  }
+
+  if (user.account?.status === "Frozen") {
+    notifications.push({
+      type: "Security",
+      title: "Account temporarily frozen",
+      message: "Payments are paused while back office review is in progress.",
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  const pendingPayments = (user.transactions || []).filter((transaction) => transaction.status === "Pending").length;
+  if (pendingPayments) {
+    notifications.push({
+      type: "Payments",
+      title: `${pendingPayments} scheduled payment${pendingPayments === 1 ? "" : "s"}`,
+      message: "Scheduled payments can be cancelled from Recent Activity before processing.",
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  if (user.security?.lastLoginAt) {
+    notifications.push({
+      type: "Security",
+      title: "Recent login recorded",
+      message: `Last successful login: ${new Date(user.security.lastLoginAt).toLocaleString("en-GB")}.`,
+      createdAt: user.security.lastLoginAt
+    });
+  }
+
+  return notifications.slice(0, 6);
 }
 
 async function createBeneficiary(userId, input) {

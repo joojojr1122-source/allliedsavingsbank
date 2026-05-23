@@ -2,11 +2,28 @@ const { URL } = require("url");
 const { handleAuthRoute } = require("../backend/src/routes/authRoutes");
 const { handleAccountRoute } = require("../backend/src/routes/accountRoutes");
 const { handleAdminRoute } = require("../backend/src/routes/adminRoutes");
+const { getDatabaseInfo } = require("../backend/src/services/databaseService");
 const { sendJson } = require("../backend/src/utils/http");
 
 module.exports = async function handler(req, res) {
   const host = req.headers.host || "localhost";
   const url = new URL(req.url, `https://${host}`);
+
+  if (req.method === "GET" && (url.pathname === "/health" || url.pathname === "/api/health")) {
+    sendJson(res, 200, {
+      ok: true,
+      service: "turkishbank-account-portal",
+      timestamp: new Date().toISOString(),
+      database: getDatabaseInfo(),
+      environment: {
+        node: process.version,
+        vercel: Boolean(process.env.VERCEL),
+        adminPasswordConfigured: Boolean(process.env.ADMIN_PASSWORD),
+        sessionSecretConfigured: Boolean(process.env.SESSION_SECRET)
+      }
+    });
+    return;
+  }
 
   if (url.pathname.startsWith("/api/auth")) {
     await handleAuthRoute(req, res, url);

@@ -33,17 +33,23 @@ vercel.json
 - Separate dashboard page after login
 - Dedicated login, signup, loading, and confirmation pages
 - Account holder details, account number, sort code, IBAN, card status, and balance
+- Notification centre for application, security, and scheduled-payment updates
 - Deposits, withdrawals, and transfers
+- Transfer review step before money leaves the account
 - Saved payees
 - Daily transfer limit controls
+- Profile settings with alert preferences and statement frequency
 - Confirmation screens and transaction receipts
+- Printable transaction receipts
 - Back-office admin console
+- Back-office search and status filters
 - Admin approval, rejection, account freeze, and reactivation workflows
 - Customer security activity and back-office audit logs
 - Password visibility, strength feedback, and failed-login lockout
 - Scheduled transfers and pending payment states
 - Transaction history and CSV statement download
 - Backend API with JSON-file persistence
+- Health endpoint for deployment checks
 - Vercel deployment support
 
 ## Run It
@@ -83,6 +89,7 @@ The seeded data starts as a newly approved account with a £0.00 balance, no sav
 - `POST /api/admin/approve-account/:email`
 - `POST /api/admin/reject-account/:email`
 - `PATCH /api/admin/account-status/:email`
+- `GET /api/health`
 
 The backend stores account records in `backend/data/database.json`.
 
@@ -103,7 +110,10 @@ https://your-project.vercel.app/signup.html
 https://your-project.vercel.app/login.html
 https://your-project.vercel.app/dashboard.html
 https://your-project.vercel.app/admin.html
+https://your-project.vercel.app/api/health
 ```
+
+Use `/api/health` after each deployment to confirm the API is live, whether hosted persistence is configured, and whether production-only environment variables are present.
 
 Add these Vercel environment variables:
 

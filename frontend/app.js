@@ -49,7 +49,10 @@ const adminUsers = document.querySelector("#adminUsers");
 const adminTransactions = document.querySelector("#adminTransactions");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
 const adminSearch = document.querySelector("#adminSearch");
+const adminStatusFilter = document.querySelector("#adminStatusFilter");
 const auditList = document.querySelector("#auditList");
+const notificationList = document.querySelector("#notificationList");
+const notificationCount = document.querySelector("#notificationCount");
 const passwordToggles = document.querySelectorAll("[data-toggle-password]");
 const signupStepPanels = document.querySelectorAll("[data-step-panel]");
 const signupStepLabels = document.querySelectorAll(".step-indicator span");
@@ -78,6 +81,8 @@ let slideIndex = 0;
 let allTransactions = [];
 let currentUser = null;
 let latestAdminSummary = null;
+let sessionTimeoutWarningShown = false;
+let lastUserActivityAt = Date.now();
 const isDashboardPage = document.body.dataset.page === "dashboard";
 const isLoadingPage = document.body.dataset.page === "loading";
 const isConfirmationPage = document.body.dataset.page === "confirmation";
@@ -136,7 +141,9 @@ function showDashboard(user) {
   setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-GB") : "First access");
   setText("#failedAttemptsBadge", `${Number(user.security?.failedLoginAttempts || 0)} failed attempts`);
   setText("#securitySummary", user.security?.lastLoginAt ? "Recent sign-in recorded. Keep your password private." : "Your first online banking session is active.");
+  setText("#accountStatusBanner", buildAccountStatusMessage(user));
   renderAuditList(user.auditLog || []);
+  renderNotifications(user.notifications || []);
 
   if (cardStatusSelect) cardStatusSelect.value = user.account.cardStatus || "Active";
   if (dailyTransferLimitInput) dailyTransferLimitInput.value = user.account.dailyTransferLimit || 1000;
@@ -147,6 +154,33 @@ function showDashboard(user) {
   currentUser = user;
   setStatus("");
   loadPersistenceStatus();
+}
+
+function buildAccountStatusMessage(user) {
+  if (user.account.status === "Frozen") return "Account frozen. Payments and transfers are paused until back-office review is complete.";
+  if (user.account.status === "Pending Approval") return "Application submitted. Online banking activates after admin approval.";
+  if (user.account.status === "Rejected") return user.application?.decisionReason || "Application rejected. Please contact support for details.";
+  const pending = (user.transactions || []).filter((transaction) => transaction.status === "Pending").length;
+  return pending ? `${pending} scheduled payment${pending === 1 ? "" : "s"} awaiting processing.` : "Account active and ready for online banking.";
+}
+
+function renderNotifications(entries) {
+  if (!notificationList) return;
+  if (notificationCount) notificationCount.textContent = String(entries.length);
+
+  if (!entries.length) {
+    notificationList.innerHTML = emptyState("No notifications", "Important application, payment, and security updates will appear here.");
+    return;
+  }
+
+  notificationList.innerHTML = entries.map((entry) => `
+    <article class="notification-item">
+      <span>${escapeHtml(entry.type || "Update")}</span>
+      <strong>${escapeHtml(entry.title || "Account update")}</strong>
+      <p>${escapeHtml(entry.message || "")}</p>
+      <small>${entry.createdAt ? new Date(entry.createdAt).toLocaleString("en-GB") : "Just now"}</small>
+    </article>
+  `).join("");
 }
 
 function renderAuditList(entries) {
@@ -203,12 +237,14 @@ function openReceiptModal(receipt) {
         `).join("")}
       </dl>
       <div class="modal-actions">
+        <button class="text-button print-receipt-action" type="button">Print Receipt</button>
         <button class="primary-button modal-close-action" type="button">Done</button>
       </div>
     </div>
   `);
   modalPanel?.querySelector(".modal-close")?.addEventListener("click", closeModal);
   modalPanel?.querySelector(".modal-close-action")?.addEventListener("click", closeModal);
+  modalPanel?.querySelector(".print-receipt-action")?.addEventListener("click", () => window.print());
 }
 
 function showTransactionReceipt(user) {
@@ -229,11 +265,71 @@ function showTransactionReceipt(user) {
   });
 }
 
+function confirmTransferSubmission(payload) {
+  if (!currentUser || payload.type !== "Transfer") return Promise.resolve(true);
+
+  const amount = Number(payload.amount || 0);
+  const savedPayee = payload.beneficiaryId
+    ? (currentUser.beneficiaries || []).find((item) => item.id === payload.beneficiaryId)
+    : null;
+  const recipient = savedPayee || {
+    name: payload.recipientName || "New recipient",
+    accountNumber: payload.recipientAccountNumber || "",
+    sortCode: payload.recipientSortCode || ""
+  };
+  const transferLimit = Number(currentUser.account.dailyTransferLimit || 1000);
+  const usedToday = getTodaysTransferTotal(allTransactions);
+  const remaining = Math.max(transferLimit - usedToday - amount, 0);
+  const scheduled = payload.scheduledFor
+    ? new Date(payload.scheduledFor).toLocaleDateString("en-GB")
+    : "Today";
+
+  return new Promise((resolve) => {
+    openModal(`
+      <div class="modal-header">
+        <h2>Review Transfer</h2>
+        <button class="modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="receipt-modal">
+        <p class="receipt-status">Check the details before sending. The demo fee is GBP 0.00.</p>
+        <dl class="receipt-details">
+          <div><dt>Amount</dt><dd>${escapeHtml(formatMoney(amount, currentUser.account.currency))}</dd></div>
+          <div><dt>Recipient</dt><dd>${escapeHtml(recipient.name)}</dd></div>
+          <div><dt>Account</dt><dd>${escapeHtml(`${recipient.sortCode || ""} ${recipient.accountNumber || ""}`.trim())}</dd></div>
+          <div><dt>Reference</dt><dd>${escapeHtml(payload.description || "Transfer")}</dd></div>
+          <div><dt>Payment Date</dt><dd>${escapeHtml(scheduled)}</dd></div>
+          <div><dt>Remaining Daily Limit</dt><dd>${escapeHtml(formatMoney(remaining, currentUser.account.currency))}</dd></div>
+        </dl>
+        <div class="modal-actions">
+          <button class="primary-button confirm-transfer-btn" type="button">Confirm Transfer</button>
+          <button class="text-button modal-secondary" type="button">Edit Details</button>
+        </div>
+      </div>
+    `);
+
+    const finish = (value) => {
+      closeModal();
+      resolve(value);
+    };
+    modalPanel.querySelector(".modal-close")?.addEventListener("click", () => finish(false));
+    modalPanel.querySelector(".modal-secondary")?.addEventListener("click", () => finish(false));
+    modalPanel.querySelector(".confirm-transfer-btn")?.addEventListener("click", () => finish(true));
+  });
+}
+
+function getTodaysTransferTotal(transactions) {
+  const today = new Date().toISOString().slice(0, 10);
+  return (transactions || [])
+    .filter((transaction) => transaction.type === "Transfer")
+    .filter((transaction) => String(transaction.createdAt || "").slice(0, 10) === today)
+    .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
+}
+
 function renderTransactions(transactions, currency) {
   if (!transactionList) return;
   const visibleTransactions = transactions.filter((transaction) => transaction.type !== "Account Opening");
   if (!visibleTransactions.length) {
-    transactionList.innerHTML = `<p class="form-note">No account activity yet.</p>`;
+    transactionList.innerHTML = emptyState("No transactions yet", "Your deposits, transfers, withdrawals, and scheduled payments will appear here.", "Make First Deposit", "deposit");
     return;
   }
   transactionList.innerHTML = visibleTransactions.map((transaction) => {
@@ -277,7 +373,7 @@ function renderBeneficiaries(beneficiaries) {
   });
 
   if (!beneficiaries.length) {
-    beneficiaryList.innerHTML = `<p class="form-note">No saved payees yet.</p>`;
+    beneficiaryList.innerHTML = emptyState("No saved payees", "Save trusted recipients to make transfers faster and easier.", "Add Payee", "payee");
     return;
   }
 
@@ -290,6 +386,16 @@ function renderBeneficiaries(beneficiaries) {
       <button class="tx-remove-btn" type="button" data-beneficiary-delete="${escapeHtml(beneficiary.id)}">Remove</button>
     </article>
   `).join("");
+}
+
+function emptyState(title, message, actionLabel = "", action = "") {
+  return `
+    <div class="empty-state">
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(message)}</p>
+      ${actionLabel ? `<button class="text-button empty-state-action" type="button" data-empty-action="${escapeHtml(action)}">${escapeHtml(actionLabel)}</button>` : ""}
+    </div>
+  `;
 }
 
 function updateTransferFields() {
@@ -330,6 +436,12 @@ async function deleteTransaction(transactionId) {
 }
 
 transactionList?.addEventListener("click", async (e) => {
+  const emptyAction = e.target.closest("[data-empty-action]");
+  if (emptyAction) {
+    handleEmptyStateAction(emptyAction.dataset.emptyAction);
+    return;
+  }
+
   const btn = e.target.closest("[data-tx-delete]");
   if (!btn) return;
   const txId = btn.dataset.txDelete;
@@ -341,6 +453,20 @@ transactionList?.addEventListener("click", async (e) => {
   btn.textContent = "...";
   await deleteTransaction(txId);
 });
+
+function handleEmptyStateAction(action) {
+  if (action === "deposit" && txTypeSelect) {
+    txTypeSelect.value = "Deposit";
+    txTypeSelect.dispatchEvent(new Event("change"));
+    transactionForm?.scrollIntoView({ behavior: "smooth", block: "center" });
+    transactionForm?.querySelector('input[name="amount"]')?.focus();
+  }
+
+  if (action === "payee") {
+    beneficiaryForm?.scrollIntoView({ behavior: "smooth", block: "center" });
+    beneficiaryForm?.querySelector("input")?.focus();
+  }
+}
 
 function setText(selector, value) {
   const el = document.querySelector(selector);
@@ -428,6 +554,17 @@ function showSettingsModal() {
           <option value="Current Account" ${u.account.type === "Current Account" ? "selected" : ""}>Current Account</option>
           <option value="Basic Savings Account" ${u.account.type === "Basic Savings Account" ? "selected" : ""}>Basic Savings Account</option>
           <option value="Easy Access Deposit Account" ${u.account.type === "Easy Access Deposit Account" ? "selected" : ""}>Easy Access Deposit Account</option>
+        </select>
+      </label>
+      <div class="modal-check-grid">
+        <label class="modal-check"><input name="emailAlerts" type="checkbox" ${u.preferences?.emailAlerts !== false ? "checked" : ""}> Email alerts</label>
+        <label class="modal-check"><input name="smsAlerts" type="checkbox" ${u.preferences?.smsAlerts ? "checked" : ""}> SMS alerts</label>
+      </div>
+      <label>Statement frequency
+        <select name="statementFrequency">
+          <option ${u.preferences?.statementFrequency === "Monthly" ? "selected" : ""}>Monthly</option>
+          <option ${u.preferences?.statementFrequency === "Quarterly" ? "selected" : ""}>Quarterly</option>
+          <option ${u.preferences?.statementFrequency === "Annually" ? "selected" : ""}>Annually</option>
         </select>
       </label>
       <div class="modal-actions">
@@ -525,6 +662,51 @@ function hydrateLoginPage() {
   }
 }
 
+function startSessionWatch() {
+  if (!isDashboardPage) return;
+  ["click", "keydown", "mousemove", "touchstart"].forEach((eventName) => {
+    document.addEventListener(eventName, () => {
+      lastUserActivityAt = Date.now();
+      sessionTimeoutWarningShown = false;
+    }, { passive: true });
+  });
+
+  window.setInterval(() => {
+    if (!localStorage.getItem(tokenKey)) return;
+    const idleMs = Date.now() - lastUserActivityAt;
+
+    if (idleMs > 12 * 60 * 1000) {
+      localStorage.removeItem(tokenKey);
+      window.location.assign("/login.html");
+      return;
+    }
+
+    if (idleMs > 9 * 60 * 1000 && !sessionTimeoutWarningShown) {
+      sessionTimeoutWarningShown = true;
+      openModal(`
+        <div class="modal-header">
+          <h2>Session Timeout</h2>
+          <button class="modal-close" type="button" aria-label="Close">&times;</button>
+        </div>
+        <div class="receipt-modal">
+          <p class="receipt-status">You have been inactive for a while. Continue to keep this session open.</p>
+          <div class="modal-actions">
+            <button class="primary-button continue-session-btn" type="button">Continue Session</button>
+            <button class="text-button end-session-btn" type="button">Logout</button>
+          </div>
+        </div>
+      `);
+      modalPanel.querySelector(".modal-close")?.addEventListener("click", closeModal);
+      modalPanel.querySelector(".continue-session-btn")?.addEventListener("click", () => {
+        lastUserActivityAt = Date.now();
+        sessionTimeoutWarningShown = false;
+        closeModal();
+      });
+      modalPanel.querySelector(".end-session-btn")?.addEventListener("click", () => logoutButton?.click());
+    }
+  }, 30000);
+}
+
 function setModalStatus(el, msg) {
   if (el) el.textContent = msg;
 }
@@ -601,15 +783,24 @@ function renderAdminSummary() {
 
   const data = latestAdminSummary;
   const searchTerm = (adminSearch?.value || "").trim().toLowerCase();
-  const users = searchTerm
-    ? data.users.filter((user) => [user.name, user.email, user.accountNumber, user.status].join(" ").toLowerCase().includes(searchTerm))
-    : data.users;
+  const statusTerm = adminStatusFilter?.value || "";
+  const users = data.users
+    .filter((user) => !statusTerm || user.status === statusTerm)
+    .filter((user) => !searchTerm || [
+      user.name,
+      user.email,
+      user.accountNumber,
+      user.status,
+      user.applicationStatus,
+      user.product
+    ].join(" ").toLowerCase().includes(searchTerm));
 
   adminMetrics.innerHTML = [
     ["Accounts", data.totals.accounts],
     ["Pending", data.totals.pending || 0],
     ["Active", data.totals.active || 0],
     ["Frozen", data.totals.frozen || 0],
+    ["Rejected", data.totals.rejected || 0],
     ["Total Balance", formatMoney(data.totals.balance, "GBP")],
     ["Transactions", data.totals.transactions],
     ["Storage", data.database.persistent ? "Persistent" : "Session"]
@@ -621,6 +812,7 @@ function renderAdminSummary() {
         <strong>${escapeHtml(user.name)}</strong>
         <span>${escapeHtml(user.email)} &middot; ${escapeHtml(user.accountNumber || "Pending account")} &middot; ${escapeHtml(user.status)}</span>
         <span>Application: ${escapeHtml(user.applicationStatus || "Not started")}${user.decisionReason ? ` &middot; ${escapeHtml(user.decisionReason)}` : ""}</span>
+        <span>${escapeHtml(user.product || "Current Account")} &middot; Last login ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("en-GB") : "not yet"}</span>
         <div class="audit-mini">
           ${(user.auditLog || []).slice(0, 3).map((entry) => `<small>${escapeHtml(formatAuditAction(entry.action))} &middot; ${new Date(entry.createdAt).toLocaleDateString("en-GB")}</small>`).join("")}
         </div>
@@ -633,7 +825,7 @@ function renderAdminSummary() {
         ${user.status === "Frozen" ? `<button class="primary-button admin-action-btn" data-admin-action="reactivate" data-email="${escapeHtml(user.email)}" type="button">Reactivate</button>` : ""}
       </div>
     </article>
-  `).join("") || `<p class="form-note">No accounts yet.</p>`;
+  `).join("") || emptyState("No matching accounts", "Try changing the status filter or search term.");
 
   adminTransactions.innerHTML = data.recentTransactions.map((transaction) => `
     <article class="admin-row">
@@ -686,6 +878,7 @@ adminRefreshButton?.addEventListener("click", async () => {
 });
 
 adminSearch?.addEventListener("input", renderAdminSummary);
+adminStatusFilter?.addEventListener("change", renderAdminSummary);
 
 adminUsers?.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-admin-action]");
@@ -794,6 +987,12 @@ if (beneficiaryForm) {
 }
 
 beneficiaryList?.addEventListener("click", async (event) => {
+  const emptyAction = event.target.closest("[data-empty-action]");
+  if (emptyAction) {
+    handleEmptyStateAction(emptyAction.dataset.emptyAction);
+    return;
+  }
+
   const button = event.target.closest("[data-beneficiary-delete]");
   if (!button) return;
   setStatus("Removing payee...");
@@ -1081,11 +1280,18 @@ newsletterForm?.addEventListener("submit", (event) => {
 
 transactionForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  setStatus("Processing transaction...");
+  const payload = formToJson(transactionForm);
+  const confirmed = await confirmTransferSubmission(payload);
+  if (!confirmed) {
+    setStatus("Transfer details ready to edit.");
+    return;
+  }
+
+  setStatus(payload.type === "Transfer" ? "Sending transfer..." : "Processing transaction...");
   try {
     const data = await apiRequest("/api/account/transactions", {
       method: "POST",
-      body: JSON.stringify(formToJson(transactionForm))
+      body: JSON.stringify(payload)
     });
     transactionForm.reset();
     showDashboard(data.user);
@@ -1125,5 +1331,6 @@ updateTransferFields();
 showSignupStep(0);
 renderSlide();
 hydrateLoginPage();
+startSessionWatch();
 restoreSession();
 
