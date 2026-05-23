@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "updatedAt": "2026-05-23T00:00:00.000Z",
+  "users": [
+    {
+      "id": "d4ef6676-41e3-4242-8c76-24e8cb5eaad2",
+      "firstName": "David",
+      "lastName": "Arthur",
+      "email": "joojojr1122@gmail.com",
+      "password": "3917a8de5b99391f6625e39c5322b8c4:15e4a8d3ed8072f061b32558624e373f2d358a2b7f7d14aaeedebcfefe7e009450924e01bfeff38e4e8ec80af383ce149fec337d984362276c7d25a7a2c3d797",
+      "application": {
+        "product": "Current Account",
+        "phone": "5713060632",
+        "address": "221 well borought street",
+        "dateOfBirth": "1995-05-25",
+        "employmentStatus": "Employed",
+        "status": "Approved - Local Demo",
+        "submittedAt": "2026-05-23T09:49:00.767Z"
+      },
+      "account": {
+        "type": "Current Account",
+        "number": "80420288",
+        "sortCode": "23-75-48",
+        "currency": "GBP",
+        "balance": 0,
+        "openedAt": "2026-05-23T09:49:00.767Z",
+        "status": "Active",
+        "iban": "GB82TBUK23754880420288",
+        "dailyTransferLimit": 1000,
+        "cardStatus": "Active",
+        "overdraft": 0
+      },
+      "beneficiaries": [],
+      "transactions": [
+        {
+          "id": "opening-d4ef6676",
+          "type": "Account Opening",
+          "description": "Account opened through online application",
+          "amount": 0,
+          "balanceAfter": 0,
+          "createdAt": "2026-05-23T09:49:00.767Z",
+          "status": "Completed",
+          "reference": "OPENING"
+        }
+      ],
+      "auditLog": [
+        {
+          "id": "audit-d4ef6676",
+          "action": "ACCOUNT_OPENED",
+          "createdAt": "2026-05-23T09:49:00.767Z"
+        }
+      ],
+      "createdAt": "2026-05-23T09:49:00.767Z"
+    }
+  ]
+}

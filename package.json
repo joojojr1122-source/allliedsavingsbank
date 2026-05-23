@@ -1,0 +1,20 @@
+{
+  "name": "turkishbank-school-account",
+  "version": "1.0.0",
+  "description": "School project banking-style account portal with signup, login, and a zero-dollar starting balance.",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "node backend/src/server.js",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "school-project",
+    "banking-portal",
+    "frontend",
+    "backend"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true
+}

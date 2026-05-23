@@ -1,0 +1,6 @@
+server.out.log
+server.err.log
+smoke-homepage.png
+start-app.ps1
+start-app.bat
+start-app-background.ps1

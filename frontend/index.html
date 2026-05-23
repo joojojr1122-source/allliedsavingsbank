@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - TurkishBank UK</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="top-strip">
+      <div class="wrap top-strip__inner">
+        <span>020 7403 5656</span>
+        <div class="top-strip__right">
+          <nav aria-label="Important links">
+            <a href="https://www.turkishbank.co.uk/important-links/">Important Links</a>
+            <a href="https://www.turkishbank.co.uk/legal/">Legal</a>
+            <a href="https://www.turkishbank.co.uk/interest-rates/">Interest Rates</a>
+            <a href="https://www.turkishbank.co.uk/fees-commisions/">Fees &amp; Commisions</a>
+            <a href="https://www.turkishbank.co.uk/other/">Other</a>
+            <a href="https://www.turkishbank.co.uk/cookie-policy/">Cookie Policy</a>
+          </nav>
+          <div class="internet-drop">
+            <span>Internet Banking</span>
+            <button data-show-login>Consumer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="TurkishBank UK home">
+          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+        </a>
+
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="https://www.turkishbank.co.uk/about-us/">About Us</a>
+          <a href="https://www.turkishbank.co.uk/personal/">Personal</a>
+          <a href="https://www.turkishbank.co.uk/business/">Business</a>
+          <a href="https://www.turkishbank.co.uk/global/">Global</a>
+          <a href="#portal" data-show-login>Online Banking</a>
+        </nav>
+      </div>
+      <div class="red-rule"></div>
+      <div class="wrap nav-row" aria-label="Secondary navigation">
+        <a href="https://www.turkishbank.co.uk/about-us/">About Us</a>
+        <a href="https://www.turkishbank.co.uk/personal/">Personal</a>
+        <a href="https://www.turkishbank.co.uk/business/">Business</a>
+        <a href="https://www.turkishbank.co.uk/global/">Global</a>
+        <button data-open-auth>Internet Banking</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero__inner">
+          <h1>Internet Banking</h1>
+        </div>
+        <button class="slider-arrow slider-arrow--left" aria-label="Previous slide">Previous</button>
+        <button class="slider-arrow slider-arrow--right" aria-label="Next slide">Next</button>
+        <div class="slider-dots" aria-hidden="true">
+          <span class="is-active"></span>
+          <span></span>
+          <span></span>
+        </div>
+      </section>
+
+      <section class="quick-links wrap" aria-label="Quick links">
+        <a href="#portal" data-show-signup>Consumer</a>
+        <a href="https://www.turkishbank.co.uk/personal/deposit-product/">Deposit Product</a>
+        <a href="https://www.turkishbank.co.uk/personal/cards/contactless-debit-card/">Debit Cards</a>
+        <a href="https://www.turkishbank.co.uk/personal/property-landing/">Mortgage</a>
+      </section>
+
+      <section class="wrap info-grid">
+        <section class="info-block">
+          <h2>ABOUT US</h2>
+          <p>TurkishBank Group, operates in 3 countries including Turkey, North Cyprus and the UK.</p>
+        </section>
+
+        <section class="info-block">
+          <h2>WHAT'S NEW</h2>
+          <h3>Recent Posts</h3>
+          <a class="post-link" href="https://www.turkishbank.co.uk/palmers-green-subesinin-harringay-subesi-ile-birlesmesi-hakkinda/">
+            <strong>Palmers Green Branch and Harringay Branch merger announcement</strong>
+            <span>05/06/2025</span>
+          </a>
+          <a class="post-link" href="https://www.turkishbank.co.uk/international-banker-interview/">
+            <strong>International Banker Interview</strong>
+            <span>04/05/2022</span>
+          </a>
+          <a class="post-link" href="https://www.turkishbank.co.uk/ebrd-channels-more-resources-to-support-trade-finance-in-cyprus-through-turkish-bank-ltd/">
+            <strong>EBRD channels more resources to support trade finance in Cyprus through Turkish Bank Ltd</strong>
+            <span>05/25/2017</span>
+          </a>
+          <a class="post-link" href="https://www.turkishbank.co.uk/use-the-power-of-contactless-in-turkishbank-cards/">
+            <strong>Use the power of contactless in Turkishbank Cards</strong>
+            <span>04/20/2017</span>
+          </a>
+        </section>
+      </section>
+
+      <section class="utility-band">
+        <div class="wrap utility-grid">
+          <section>
+            <h2>SEARCH BRANCH</h2>
+            <form class="inline-form" id="branchForm">
+              <span class="form-step">1</span>
+              <select aria-label="Branch type">
+                <option>Select An Option</option>
+                <option>Head Office &amp; London Branch</option>
+                <option>Global Banking Department</option>
+                <option>Customer Contact Center</option>
+                <option>Harringay Branch</option>
+                <option>Palmers Green Branch</option>
+                <option>Commercial Branch</option>
+              </select>
+              <select aria-label="Branch category">
+                <option>sube</option>
+                <option>London Branch</option>
+                <option>Harringay Branch</option>
+                <option>Palmers Green Branch</option>
+              </select>
+              <input aria-label="Search branch keyword">
+              <button type="submit">FIND IT</button>
+            </form>
+            <p class="inline-result" id="branchResult"></p>
+          </section>
+          <section>
+            <h2>CONTACT US</h2>
+            <p>Leave your E-Mail address to be informed about new product and services and to receive our monthly economy reports.</p>
+            <p class="disclaimer">Disclaimer: * All reports are prepared in Turkish by our group bank TurkishBank A.S.</p>
+            <form class="inline-form" id="newsletterForm">
+              <span class="form-step">1 Step 1</span>
+              <input type="email" placeholder="E-Mail" aria-label="E-Mail" required>
+              <button type="submit">Sign Up</button>
+            </form>
+            <p class="inline-result" id="newsletterResult"></p>
+          </section>
+        </div>
+      </section>
+
+      <section class="wrap portal-layout portal-closed" id="portal">
+        <aside class="side-menu">
+          <h2>PERSONAL</h2>
+          <a href="https://www.turkishbank.co.uk/personal/deposit-product/">Deposit Product</a>
+          <a href="https://www.turkishbank.co.uk/personal/direct-saving/">Direct Saving</a>
+          <a href="https://www.turkishbank.co.uk/personal/property-landing/">Property Lending</a>
+          <a href="https://www.turkishbank.co.uk/personal/cards/">Cards</a>
+          <a href="#portal" data-show-login>Online Banking</a>
+          <a href="https://www.turkishbank.co.uk/interest-rates/">Interest Rates</a>
+          <a href="https://www.turkishbank.co.uk/personal/others/">Others</a>
+        </aside>
+
+        <section class="auth-panel" aria-live="polite">
+          <div class="panel-tabs">
+            <button class="tab is-active" data-tab="signup">Open Account</button>
+            <button class="tab" data-tab="login">Login</button>
+          </div>
+
+          <form class="auth-form" id="signupForm">
+            <h2>Apply for a Personal Account</h2>
+            <p class="form-note">Open a local personal account in your name with a starting balance of £0.00.</p>
+            <label>
+              Product
+              <select name="product" required>
+                <option value="Current Account">Current Account</option>
+                <option value="Basic Savings Account">Basic Savings Account</option>
+                <option value="Easy Access Deposit Account">Easy Access Deposit Account</option>
+              </select>
+            </label>
+            <label>
+              First name
+              <input name="firstName" autocomplete="given-name" required>
+            </label>
+            <label>
+              Last name
+              <input name="lastName" autocomplete="family-name" required>
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Phone
+              <input name="phone" type="tel" autocomplete="tel" required>
+            </label>
+            <label>
+              Date of birth
+              <input name="dateOfBirth" type="date" required>
+            </label>
+            <label>
+              Residential address
+              <input name="address" autocomplete="street-address" required>
+            </label>
+            <label>
+              Employment status
+              <select name="employmentStatus" required>
+                <option value="">Select An Option</option>
+                <option>Student</option>
+                <option>Employed</option>
+                <option>Self-employed</option>
+                <option>Unemployed</option>
+                <option>Retired</option>
+              </select>
+            </label>
+            <label>
+              Create online banking password
+              <input name="password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <label class="checkbox-label">
+              <input name="agreeTerms" type="checkbox" required>
+              I confirm this is a localhost school-project application and understand no real banking service is being opened.
+            </label>
+            <button class="primary-button" type="submit">Submit Application</button>
+          </form>
+
+          <form class="auth-form is-hidden" id="loginForm">
+            <h2>Consumer Login</h2>
+            <p class="form-note">Login is available only after completing the account application.</p>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button class="primary-button" type="submit">Login</button>
+          </form>
+
+          <section class="dashboard is-hidden" id="dashboard">
+            <div class="dashboard-head">
+              <div>
+                <p class="eyebrow" id="accountProduct">Current Account</p>
+                <h2 id="accountName">Account Holder</h2>
+              </div>
+              <div class="dashboard-head__actions">
+                <button class="text-button" id="settingsButton">My Details</button>
+                <button class="text-button" id="changePasswordButton">Change Password</button>
+                <button class="text-button" id="logoutButton">Logout</button>
+              </div>
+            </div>
+
+            <p class="demo-note" id="accountStatusBanner">
+              Account opened locally in demo mode - this is a school project.
+            </p>
+
+            <div class="balance-box">
+              <span>Available Balance</span>
+              <strong id="accountBalance">£0.00</strong>
+            </div>
+
+            <div class="account-summary" id="accountSummary">
+              <dl class="account-details">
+                <div>
+                  <dt>Account Number</dt>
+                  <dd id="accountNumber">00000000</dd>
+                </div>
+                <div>
+                  <dt>Sort Code</dt>
+                  <dd id="sortCode">00-00-00</dd>
+                </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd id="accountStatus">Active</dd>
+                </div>
+                <div>
+                  <dt>Opened</dt>
+                  <dd id="accountOpened">—</dd>
+                </div>
+                <div>
+                  <dt>Currency</dt>
+                  <dd id="accountCurrency">GBP</dd>
+                </div>
+                <div>
+                  <dt>Card</dt>
+                  <dd id="cardStatus">Active</dd>
+                </div>
+              </dl>
+              <dl class="account-details">
+                <div>
+                  <dt>IBAN</dt>
+                  <dd id="accountIban">GB00TBUK00000000</dd>
+                </div>
+                <div>
+                  <dt>Product</dt>
+                  <dd id="accountProductDetail">Current Account</dd>
+                </div>
+                <div>
+                  <dt>Email</dt>
+                  <dd id="accountEmail">—</dd>
+                </div>
+                <div>
+                  <dt>Phone</dt>
+                  <dd id="accountPhone">—</dd>
+                </div>
+                <div>
+                  <dt>Address</dt>
+                  <dd id="accountAddress">—</dd>
+                </div>
+              </dl>
+            </div>
+
+            <section class="controls-panel">
+              <div>
+                <h3>Account Controls</h3>
+                <p>Manage simple demo security settings for this account.</p>
+              </div>
+              <form id="controlsForm">
+                <label>
+                  Card status
+                  <select name="cardStatus" id="cardStatusSelect">
+                    <option>Active</option>
+                    <option>Frozen</option>
+                  </select>
+                </label>
+                <label>
+                  Transfer limit
+                  <input name="dailyTransferLimit" id="dailyTransferLimitInput" type="number" min="50" max="5000" step="50">
+                </label>
+                <button class="primary-button" type="submit">Save</button>
+              </form>
+            </section>
+
+            <div class="quick-actions">
+              <button class="quick-action-btn" data-quick-action="deposit" title="Deposit">
+                <span class="qa-icon">&#8593;</span> Deposit
+              </button>
+              <button class="quick-action-btn" data-quick-action="withdrawal" title="Withdrawal">
+                <span class="qa-icon">&#8595;</span> Withdrawal
+              </button>
+              <button class="quick-action-btn" data-quick-action="transfer" title="Transfer">
+                <span class="qa-icon">&#10142;</span> Transfer
+              </button>
+              <button class="quick-action-btn is-outline" id="showAllTransactionsBtn" title="Full History">
+                <span class="qa-icon">&#128196;</span> Full History
+              </button>
+            </div>
+
+            <div class="banking-workspace">
+              <section class="money-actions">
+                <h3>Payments &amp; Transfers</h3>
+                <form id="transactionForm">
+                  <label>
+                    Action
+                    <select name="type" id="txType" required>
+                      <option>Deposit</option>
+                      <option>Withdrawal</option>
+                      <option>Transfer</option>
+                    </select>
+                  </label>
+                  <label>
+                    Amount
+                    <input name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+                  </label>
+                  <label>
+                    Reference
+                    <input name="description" placeholder="Payment reference" required>
+                  </label>
+                  <div class="transfer-fields is-hidden" id="transferFields">
+                    <label>
+                      Saved payee
+                      <select name="beneficiaryId" id="beneficiarySelect">
+                        <option value="">Use new recipient details</option>
+                      </select>
+                    </label>
+                    <label>
+                      Recipient name
+                      <input name="recipientName" placeholder="Full name or business">
+                    </label>
+                    <label>
+                      Account number
+                      <input name="recipientAccountNumber" inputmode="numeric" maxlength="8" placeholder="12345678">
+                    </label>
+                    <label>
+                      Sort code
+                      <input name="recipientSortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56">
+                    </label>
+                  </div>
+                  <button class="primary-button" type="submit">Submit</button>
+                </form>
+              </section>
+
+              <section class="payee-panel">
+                <h3>Payees</h3>
+                <form id="beneficiaryForm">
+                  <label>
+                    Name
+                    <input name="name" placeholder="Recipient name" required>
+                  </label>
+                  <label>
+                    Account number
+                    <input name="accountNumber" inputmode="numeric" maxlength="8" placeholder="12345678" required>
+                  </label>
+                  <label>
+                    Sort code
+                    <input name="sortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56" required>
+                  </label>
+                  <label>
+                    Nickname
+                    <input name="nickname" placeholder="Optional">
+                  </label>
+                  <button class="primary-button" type="submit">Add Payee</button>
+                </form>
+                <div class="payee-list" id="beneficiaryList"></div>
+              </section>
+
+              <section class="activity-panel">
+                <h3>Recent Activity</h3>
+                <div class="tx-toolbar">
+                  <select id="txFilterType" class="tx-filter">
+                    <option value="">All types</option>
+                    <option>Deposit</option>
+                    <option>Withdrawal</option>
+                    <option>Transfer</option>
+                    <option>Reversal</option>
+                  </select>
+                  <input type="text" id="txFilterDesc" class="tx-filter tx-filter--search" placeholder="Search reference...">
+                  <button class="text-button tx-download" type="button" id="downloadStatementBtn">Download CSV</button>
+                </div>
+                <div class="transaction-list" id="transactionList"></div>
+              </section>
+            </div>
+          </section>
+
+          <p class="status" id="statusMessage"></p>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop is-hidden" id="modalBackdrop">
+      <div class="modal" id="modalPanel"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
