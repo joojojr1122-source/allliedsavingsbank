@@ -64,12 +64,20 @@ Then open:
 http://localhost:3000
 ```
 
-## Demo Access
+## Local development access
 
-- Customer: `aylin.demo@example.com` / `DemoPass123`
-- Admin console: `/admin.html` with password `admin12345`
+These credentials apply to the seeded local database only. Change them before any public deployment.
 
-The seeded data starts as a newly approved account with a £0.00 balance, no saved payees, and no customer-made transactions.
+- Customer: `a.demir@outlook.com` / `DemoPass123`
+- Back office: `/ops.html` with password `admin12345` (local only unless `ADMIN_PASSWORD` is set)
+
+The seeded account includes realistic balances, payees, transaction history, and one scheduled payment.
+
+To rebuild the seed file:
+
+```bash
+node scripts/build-seed-database.js
+```
 
 ## API
 
@@ -122,7 +130,7 @@ SESSION_SECRET=use-a-long-random-secret
 ADMIN_PASSWORD=choose-your-admin-password
 ```
 
-If `ADMIN_PASSWORD` is not set, the demo fallback is `admin12345`.
+If `ADMIN_PASSWORD` is not set, local development accepts `admin12345`. Production deployments must set `ADMIN_PASSWORD` or back-office sign-in is disabled.
 
 ## Hosted Persistence
 

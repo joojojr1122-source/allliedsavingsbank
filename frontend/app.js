@@ -66,17 +66,18 @@ const passwordStrengthBar = document.querySelector("#passwordStrengthBar");
 const slides = [
   {
     title: "Internet Banking",
-    image: "https://www.turkishbank.co.uk/wp-content/uploads/2025/07/slider-en-1.jpg"
+    image: "/assets/slider-en-1.jpg"
   },
   {
     title: "Deposit Product",
-    image: "https://www.turkishbank.co.uk/wp-content/uploads/2025/07/slider-en-1.jpg"
+    image: "/assets/slider-bm0.png"
   },
   {
     title: "Debit Cards",
-    image: "https://www.turkishbank.co.uk/wp-content/uploads/2025/07/slider-en-1.jpg"
+    image: "/assets/slider-cards.png"
   }
 ];
+let sensitiveDetailsVisible = false;
 let slideIndex = 0;
 let allTransactions = [];
 let currentUser = null;
@@ -115,13 +116,16 @@ function showDashboard(user) {
   dashboard?.classList.remove("is-hidden");
   tabs.forEach((tab) => tab.classList.remove("is-active"));
 
-  setText("#accountName", user.firstName);
+  setText("#accountName", `${user.firstName} ${user.lastName}`.trim());
   setText("#accountProduct", user.account.type);
-  setText("#accountBalance", formatMoney(user.account.balance, user.account.currency));
-  setText("#accountNumber", user.account.number);
-  setText("#sortCode", user.account.sortCode);
+  const availableBalance = getAvailableBalance(user);
+  setText("#accountBalance", formatMoney(availableBalance, user.account.currency));
+  setText("#ledgerBalance", formatMoney(user.account.balance, user.account.currency));
+  setText("#accountNumber", sensitiveDetailsVisible ? user.account.number : maskAccountNumber(user.account.number));
+  setText("#sortCode", sensitiveDetailsVisible ? user.account.sortCode : maskSortCode(user.account.sortCode));
   setText("#accountStatus", user.account.status || "Active");
-  setText("#accountIban", user.account.iban || `GB82TBUK237548${user.account.number}`);
+  const iban = user.account.iban || `GB82TBUK237548${user.account.number}`;
+  setText("#accountIban", formatIbanDisplay(iban, sensitiveDetailsVisible));
   setText("#accountProductDetail", user.account.type);
   setText("#accountEmail", user.email || "-");
   setText("#accountPhone", user.application?.phone || "-");
@@ -132,13 +136,15 @@ function showDashboard(user) {
   setText("#accountOpened", openedDate);
   setText("#accountCurrency", user.account.currency || "GBP");
   setText("#accountAddress", user.application?.address || "-");
-  setText("#cardStatus", user.account.cardStatus || "Active");
+  const cardLastFour = user.account.cardLastFour || String(user.account.number).slice(-4);
+  setText("#cardStatus", `${user.account.cardStatus || "Active"} · Exp ${user.account.cardExpiry || "—"}`);
   setText("#dailyTransferLimit", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
-  setText("#cardPreviewName", user.firstName);
-  setText("#cardPreviewNumber", `**** **** **** ${String(user.account.number).slice(-4)}`);
+  setText("#dailyTransferLimitMetric", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
+  setText("#cardPreviewName", `${user.firstName} ${user.lastName}`.trim().toUpperCase());
+  setText("#cardPreviewNumber", `•••• •••• •••• ${cardLastFour}`);
   setText("#savedPayeesCount", String((user.beneficiaries || []).length));
   setText("#pendingPayments", String((user.transactions || []).filter((t) => t.status === "Pending").length));
-  setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-GB") : "First access");
+  setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-GB") : "—");
   setText("#failedAttemptsBadge", `${Number(user.security?.failedLoginAttempts || 0)} failed attempts`);
   setText("#securitySummary", user.security?.lastLoginAt ? "Recent sign-in recorded. Keep your password private." : "Your first online banking session is active.");
   setText("#accountStatusBanner", buildAccountStatusMessage(user));
@@ -153,7 +159,8 @@ function showDashboard(user) {
   renderBeneficiaries(user.beneficiaries || []);
   currentUser = user;
   setStatus("");
-  loadPersistenceStatus();
+  updateSensitiveToggleButtons();
+  bindSortCodeInputs();
 }
 
 function buildAccountStatusMessage(user) {
@@ -169,7 +176,7 @@ function renderNotifications(entries) {
   if (notificationCount) notificationCount.textContent = String(entries.length);
 
   if (!entries.length) {
-    notificationList.innerHTML = emptyState("No notifications", "Important application, payment, and security updates will appear here.");
+    notificationList.innerHTML = emptyState("No new notifications", "Payment, security, and service updates will appear here when there is something you need to review.");
     return;
   }
 
@@ -202,21 +209,20 @@ function renderAuditList(entries) {
   `;
 }
 
-async function loadPersistenceStatus() {
-  try {
-    const data = await apiRequest("/api/admin/persistence", { auth: false });
-    setText("#storageMode", data.database.persistent ? "Persistent" : "Session");
-  } catch (error) {
-    setText("#storageMode", "Unavailable");
-  }
-}
-
 function buildDashboardUrl() {
   return "/dashboard.html";
 }
 
+const loadingMessages = [
+  "Checking your sign-in details...",
+  "Preparing your accounts...",
+  "Loading payments and statements...",
+  "Applying security checks..."
+];
+
 function goToLoading(message, next = buildDashboardUrl()) {
-  sessionStorage.setItem("bankLoadingMessage", message);
+  const copy = message || loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  sessionStorage.setItem("bankLoadingMessage", copy);
   window.location.assign(`/loading.html?next=${encodeURIComponent(next)}`);
 }
 
@@ -254,7 +260,11 @@ function showTransactionReceipt(user) {
 
   openReceiptModal({
     title: `${transaction.type} Confirmation`,
-    status: transaction.status === "Pending" ? "Payment scheduled and awaiting processing." : "Transaction completed successfully.",
+    status: transaction.status === "Pending"
+      ? "Payment scheduled. Funds will leave your account on the date shown."
+      : transaction.type === "Transfer"
+        ? "Payment sent. Faster Payments usually arrive within 2 hours."
+        : "Transaction completed successfully.",
     rows: [
       { label: "Reference", value: transaction.reference || "Completed" },
       { label: "Amount", value: formatMoney(Math.abs(transaction.amount), user.account.currency) },
@@ -291,12 +301,12 @@ function confirmTransferSubmission(payload) {
         <button class="modal-close" type="button" aria-label="Close">&times;</button>
       </div>
       <div class="receipt-modal">
-        <p class="receipt-status">Check the details before sending. The demo fee is GBP 0.00.</p>
+        <p class="receipt-status">Review the payment below. Payment fee: ${escapeHtml(formatMoney(0, currentUser.account.currency))}. Funds usually arrive within 2 hours for Faster Payments.</p>
         <dl class="receipt-details">
           <div><dt>Amount</dt><dd>${escapeHtml(formatMoney(amount, currentUser.account.currency))}</dd></div>
           <div><dt>Recipient</dt><dd>${escapeHtml(recipient.name)}</dd></div>
           <div><dt>Account</dt><dd>${escapeHtml(`${recipient.sortCode || ""} ${recipient.accountNumber || ""}`.trim())}</dd></div>
-          <div><dt>Reference</dt><dd>${escapeHtml(payload.description || "Transfer")}</dd></div>
+          <div><dt>Reference</dt><dd>${escapeHtml((payload.description || "Transfer").slice(0, 18))}</dd></div>
           <div><dt>Payment Date</dt><dd>${escapeHtml(scheduled)}</dd></div>
           <div><dt>Remaining Daily Limit</dt><dd>${escapeHtml(formatMoney(remaining, currentUser.account.currency))}</dd></div>
         </dl>
@@ -329,15 +339,15 @@ function renderTransactions(transactions, currency) {
   if (!transactionList) return;
   const visibleTransactions = transactions.filter((transaction) => transaction.type !== "Account Opening");
   if (!visibleTransactions.length) {
-    transactionList.innerHTML = emptyState("No transactions yet", "Your deposits, transfers, withdrawals, and scheduled payments will appear here.", "Make First Deposit", "deposit");
+    transactionList.innerHTML = emptyState("No payments in the last 90 days", "Deposits, transfers, card payments, and scheduled payments will appear here.", "Make a payment", "deposit");
     return;
   }
   transactionList.innerHTML = visibleTransactions.map((transaction) => {
     const isPositive = transaction.amount >= 0;
     const amountClass = isPositive ? "is-positive" : "is-negative";
-    const date = new Date(transaction.createdAt).toLocaleDateString("en-US", {
-      month: "short",
+    const date = new Date(transaction.createdAt).toLocaleDateString("en-GB", {
       day: "numeric",
+      month: "short",
       year: "numeric"
     });
     const removeTitle = transaction.status === "Pending" ? "Cancel payment" : "Reverse transaction";
@@ -477,6 +487,85 @@ function formatMoney(value, currency) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: currency || "GBP" }).format(value);
 }
 
+function maskAccountNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) return "···· ····";
+  return `···· ···· ${digits.slice(-4)}`;
+}
+
+function maskSortCode(value) {
+  const formatted = String(value || "").trim();
+  if (!formatted) return "··-··-··";
+  const parts = formatted.split("-");
+  if (parts.length === 3) {
+    return `··-··-${parts[2]}`;
+  }
+  return "··-··-··";
+}
+
+function formatIbanDisplay(iban, revealed) {
+  const compact = String(iban || "").replace(/\s/g, "").toUpperCase();
+  if (!compact) return "—";
+  if (!revealed) {
+    return `${compact.slice(0, 4)} **** **** ${compact.slice(-4)}`;
+  }
+  return compact.replace(/(.{4})/g, "$1 ").trim();
+}
+
+function getAvailableBalance(user) {
+  const balance = Number(user.account.balance || 0);
+  const reserved = (user.transactions || [])
+    .filter((transaction) => transaction.status === "Pending" && Number(transaction.amount) < 0)
+    .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
+  return Number((balance - reserved).toFixed(2));
+}
+
+function updateSensitiveToggleButtons() {
+  document.querySelectorAll("[data-sensitive-toggle]").forEach((button) => {
+    button.textContent = sensitiveDetailsVisible ? "Hide" : "Show";
+    button.setAttribute("aria-pressed", sensitiveDetailsVisible ? "true" : "false");
+  });
+}
+
+function bindSortCodeInputs() {
+  document.querySelectorAll('input[name="sortCode"], input[name="recipientSortCode"]').forEach((input) => {
+    if (input.dataset.sortBound === "true") return;
+    input.dataset.sortBound = "true";
+    input.addEventListener("blur", () => {
+      const digits = input.value.replace(/\D/g, "").slice(0, 6);
+      if (digits.length === 6) {
+        input.value = `${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4, 6)}`;
+      }
+    });
+  });
+}
+
+function bindSensitiveDetailControls() {
+  document.querySelectorAll("[data-sensitive-toggle]").forEach((button) => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      sensitiveDetailsVisible = !sensitiveDetailsVisible;
+      if (currentUser) showDashboard(currentUser);
+    });
+  });
+
+  const copyButton = document.querySelector("#copyIbanButton");
+  if (copyButton && copyButton.dataset.bound !== "true") {
+    copyButton.dataset.bound = "true";
+    copyButton.addEventListener("click", async () => {
+      if (!currentUser) return;
+      const iban = currentUser.account.iban || `GB82TBUK237548${currentUser.account.number}`;
+      try {
+        await navigator.clipboard.writeText(iban.replace(/\s/g, ""));
+        setStatus("IBAN copied to clipboard.", true);
+      } catch (error) {
+        setStatus("Unable to copy IBAN on this device.");
+      }
+    });
+  }
+}
+
 async function apiRequest(path, options = {}) {
   const token = localStorage.getItem(tokenKey);
   const { auth = true, ...fetchOptions } = options;
@@ -506,8 +595,23 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
+const auditActionLabels = {
+  LOGIN_SUCCESS: "Successful sign-in",
+  LOGIN_FAILED: "Unsuccessful sign-in attempt",
+  TRANSFER_CREATED: "Faster Payment sent",
+  SCHEDULED_TRANSFER_CREATED: "Payment scheduled",
+  SCHEDULED_TRANSFER_COMPLETED: "Scheduled payment completed",
+  SCHEDULED_TRANSFER_FAILED: "Scheduled payment failed",
+  SCHEDULED_TRANSFER_UPDATED: "Scheduled payment updated",
+  CARD_USED: "Card activity",
+  ACCOUNT_APPROVED: "Account approved",
+  APPLICATION_SUBMITTED: "Application submitted",
+  ACCOUNT_FROZEN: "Account frozen",
+  ACCOUNT_REACTIVATED: "Account reactivated"
+};
+
 function formatAuditAction(action) {
-  return String(action || "Activity")
+  return auditActionLabels[action] || String(action || "Activity")
     .toLowerCase()
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -657,9 +761,27 @@ function hydrateLoginPage() {
   if (pendingEmail) {
     const emailInput = loginForm.querySelector('input[name="email"]');
     if (emailInput) emailInput.value = pendingEmail;
-    setStatus("Your account has been opened. Login with the password you created.", true);
+    setStatus("Your account has been opened. Sign in with the password you created.", true);
     sessionStorage.removeItem("pendingLoginEmail");
   }
+
+  document.querySelector("#forgotDetailsLink")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    openModal(`
+      <div class="modal-header">
+        <h2>Forgotten your details?</h2>
+        <button class="modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="receipt-modal">
+        <p class="receipt-status">If you cannot sign in, contact our customer service team on 020 7403 5656. For security, we cannot reset passwords online in this channel.</p>
+        <div class="modal-actions">
+          <button class="primary-button modal-close-action" type="button">Close</button>
+        </div>
+      </div>
+    `);
+    modalPanel?.querySelector(".modal-close")?.addEventListener("click", closeModal);
+    modalPanel?.querySelector(".modal-close-action")?.addEventListener("click", closeModal);
+  });
 }
 
 function startSessionWatch() {
@@ -689,7 +811,7 @@ function startSessionWatch() {
           <button class="modal-close" type="button" aria-label="Close">&times;</button>
         </div>
         <div class="receipt-modal">
-          <p class="receipt-status">You have been inactive for a while. Continue to keep this session open.</p>
+          <p class="receipt-status">You will be signed out in about 3 minutes due to inactivity. Select continue to stay signed in.</p>
           <div class="modal-actions">
             <button class="primary-button continue-session-btn" type="button">Continue Session</button>
             <button class="text-button end-session-btn" type="button">Logout</button>
@@ -1127,7 +1249,7 @@ loginForm?.addEventListener("submit", async (event) => {
     });
     localStorage.setItem(tokenKey, data.token);
     loginForm.reset();
-    goToLoading("Verifying credentials and preparing your dashboard...");
+    goToLoading();
   } catch (error) {
     setStatus(error.message);
   }
@@ -1167,7 +1289,7 @@ async function restoreSession() {
     window.setTimeout(() => {
       sessionStorage.removeItem("bankLoadingMessage");
       window.location.assign(next);
-    }, 1200);
+    }, 1800);
     return;
   }
 
@@ -1207,8 +1329,8 @@ function renderConfirmationPage() {
   confirmationPanel.innerHTML = `
     <div class="receipt-card">
       <p class="eyebrow">Application Submitted</p>
-      <h1>Waiting for admin approval</h1>
-      <p class="form-note">Your application has been received. An administrator must approve it before online banking access is available.</p>
+      <h1>Application received</h1>
+      <p class="form-note">Your application has been received and is being reviewed. We will email you when online banking access is available.</p>
       <dl class="receipt-details">
         <div>
           <dt>Applicant</dt>
@@ -1241,7 +1363,6 @@ function renderConfirmationPage() {
       <p class="status-check-result" id="applicationStatusResult"></p>
       <div class="modal-actions">
         <a class="primary-button receipt-link" href="/login.html">Go to Login</a>
-        <a class="text-button receipt-link" href="/admin.html">Admin Console</a>
       </div>
     </div>
   `;
@@ -1331,6 +1452,8 @@ updateTransferFields();
 showSignupStep(0);
 renderSlide();
 hydrateLoginPage();
+bindSensitiveDetailControls();
+bindSortCodeInputs();
 startSessionWatch();
 restoreSession();
 

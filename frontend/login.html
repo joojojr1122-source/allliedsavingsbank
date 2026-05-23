@@ -11,7 +11,7 @@
     <header class="site-header auth-header">
       <div class="wrap header-main">
         <a class="brand" href="/" aria-label="TurkishBank UK home">
-          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+          <img src="/assets/logo-tb-uk.png" alt="TurkishBank">
         </a>
         <nav class="main-nav" aria-label="Account navigation">
           <a href="/">Home</a>
@@ -45,12 +45,20 @@
                 <button class="password-toggle" type="button" data-toggle-password>Show</button>
               </span>
             </label>
-            <button class="primary-button" type="submit">Login</button>
-            <p class="form-note auth-switch">Need an account? <a href="/signup.html">Open one now</a>.</p>
+            <button class="primary-button" type="submit">Sign in</button>
+            <p class="form-note auth-switch">
+              <a href="#" id="forgotDetailsLink">Forgotten your details?</a>
+              &middot;
+              Need an account? <a href="/signup.html">Open one now</a>.
+            </p>
           </form>
           <p class="status" id="statusMessage"></p>
         </section>
       </section>
+      <footer class="auth-security-footer wrap">
+        <p><span aria-hidden="true">&#128274;</span> Secure sign-in. Never share your password or security codes with anyone, including bank staff.</p>
+        <p class="form-note">This is a simulated banking environment for demonstration purposes only.</p>
+      </footer>
     </main>
 
     <div class="modal-backdrop is-hidden" id="modalBackdrop">

@@ -32,6 +32,14 @@
       "dest": "/frontend/favicon.svg"
     },
     {
+      "src": "/robots.txt",
+      "dest": "/frontend/robots.txt"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/frontend/assets/$1"
+    },
+    {
       "src": "/dashboard(?:\\.html)?",
       "dest": "/frontend/dashboard.html"
     },
@@ -58,6 +66,10 @@
     {
       "src": "/admin(?:\\.html)?",
       "dest": "/frontend/admin.html"
+    },
+    {
+      "src": "/ops(?:\\.html)?",
+      "dest": "/frontend/ops.html"
     },
     {
       "src": "/(.*)",

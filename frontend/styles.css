@@ -18,9 +18,10 @@ body {
   margin: 0;
   color: var(--text);
   background: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
   font-size: 13px;
   line-height: 1.55;
+  font-variant-numeric: tabular-nums;
 }
 
 a {
@@ -212,7 +213,7 @@ button {
   min-height: 466px;
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0)),
-    url("https://www.turkishbank.co.uk/wp-content/uploads/2025/07/slider-en-1.jpg") center center/cover no-repeat;
+    url("/assets/slider-en-1.jpg") center center/cover no-repeat;
   color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -312,7 +313,7 @@ button {
   box-shadow: 0 15px 28px rgba(0, 0, 0, 0.18);
 }
 
-.quick-links a {
+.quick-link {
   min-height: 78px;
   display: grid;
   place-items: center;
@@ -324,9 +325,38 @@ button {
   text-transform: uppercase;
 }
 
-.quick-links a:nth-child(even) {
+.quick-link:nth-child(even) {
   background: #C8BEB3;
   color: #333333;
+}
+
+.quick-link--banking {
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  background: #333F48;
+}
+
+.quick-link--banking h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.quick-link--banking button {
+  min-height: 30px;
+  border: 0;
+  background: var(--red);
+  color: #ffffff;
+  padding: 0 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.quick-link--banking button:hover {
+  background: #A39382;
 }
 
 .info-grid {
@@ -1221,7 +1251,7 @@ button {
   display: none;
 }
 
-/* ── Modal ─────────────────────────────────────────────── */
+/* Modal */
 
 .modal-backdrop {
   position: fixed;
@@ -1947,4 +1977,46 @@ button {
   .admin-row {
     grid-template-columns: 1fr;
   }
+}
+
+.balance-box__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.balance-box__secondary {
+  font-size: 28px !important;
+  opacity: 0.88;
+}
+
+.detail-row__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sensitive-toggle {
+  min-height: auto;
+  padding: 0;
+  font-size: 12px;
+}
+
+.auth-security-footer {
+  margin: 28px auto 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.auth-security-footer p {
+  margin: 0 0 8px;
+}
+
+.transaction-item strong,
+.transaction-item span,
+.dashboard-metrics strong,
+.balance-box strong {
+  font-variant-numeric: tabular-nums;
 }

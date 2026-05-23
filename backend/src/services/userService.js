@@ -79,6 +79,15 @@ async function createUser(input) {
       failedLoginAttempts: 0,
       lockedUntil: ""
     },
+    passwordReset: {
+      token: "",
+      expiresAt: "",
+      requestedAt: ""
+    },
+    notificationState: {
+      readIds: [],
+      readAtById: {}
+    },
     preferences: {
       emailAlerts: true,
       smsAlerts: false,
@@ -95,7 +104,8 @@ async function createUser(input) {
 
 async function findUserByEmail(email) {
   const database = await readDatabase();
-  const user = database.users.find((item) => item.email === email);
+  const value = String(email || "").trim().toLowerCase();
+  const user = database.users.find((item) => item.email === value);
   return ensureAccountShape(user);
 }
 
@@ -200,7 +210,16 @@ async function updateAccountStatusAsAdmin(email, status, note = "") {
 async function getUserById(id) {
   const database = await readDatabase();
   const user = database.users.find((item) => item.id === id);
-  return ensureAccountShape(user);
+
+  if (!user) return null;
+
+  ensureAccountShape(user);
+
+  if (settleDueScheduledTransfers(user)) {
+    await writeDatabase(database);
+  }
+
+  return user;
 }
 
 async function recordSuccessfulLogin(userId) {
@@ -277,7 +296,12 @@ function publicUser(user) {
     notifications: buildNotifications(user),
     beneficiaries: user.beneficiaries || [],
     transactions: user.transactions || [],
-    auditLog: (user.auditLog || []).slice(0, 20)
+    auditLog: (user.auditLog || []).slice(0, 20),
+    passwordReset: {
+      token: "",
+      expiresAt: "",
+      requestedAt: ""
+    }
   };
 }
 
@@ -290,6 +314,7 @@ async function createTransaction(userId, input) {
   }
 
   ensureAccountShape(user);
+  settleDueScheduledTransfers(user);
 
   if (user.account.status !== "Active") {
     throw statusError(403, "This account is not active");
@@ -300,6 +325,9 @@ async function createTransaction(userId, input) {
   const amount = Number(input.amount);
   const beneficiaryId = cleanName(input.beneficiaryId);
   const scheduledFor = String(input.scheduledFor || "").trim();
+  const category = cleanName(input.category) || (type === "Transfer" ? "Transfer" : type);
+  const tags = cleanTags(input.tags);
+  const repeatFrequency = normalizeRepeatFrequency(input.repeatFrequency);
 
   if (!["Deposit", "Withdrawal", "Transfer"].includes(type)) {
     throw statusError(400, "Choose a valid transaction type");
@@ -333,20 +361,79 @@ async function createTransaction(userId, input) {
   if (!isScheduledTransfer) {
     user.account.balance = nextBalance;
   }
+
   user.transactions = user.transactions || [];
   user.transactions.unshift({
     id: crypto.randomUUID(),
     type,
     description,
+    category,
+    tags,
     amount: Number(signedAmount.toFixed(2)),
     balanceAfter: isScheduledTransfer ? user.account.balance : nextBalance,
     createdAt: new Date().toISOString(),
     scheduledFor: isScheduledTransfer ? scheduledFor : "",
     status: isScheduledTransfer ? "Pending" : "Completed",
-    reference: createReference(type),
-    beneficiary
+    reference: createReference(type, user.account.number),
+    beneficiary,
+    repeatFrequency: type === "Transfer" ? repeatFrequency : "Once",
+    processedAt: "",
+    lastEditedAt: ""
   });
   appendAudit(user, isScheduledTransfer ? "SCHEDULED_TRANSFER_CREATED" : type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
+
+  await writeDatabase(database);
+  return user;
+}
+
+async function updateScheduledTransaction(userId, transactionId, input) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  const transaction = (user.transactions || []).find((item) => item.id === transactionId);
+
+  if (!transaction) {
+    throw statusError(404, "Transaction not found");
+  }
+
+  if (transaction.type !== "Transfer" || transaction.status !== "Pending") {
+    throw statusError(400, "Only pending scheduled transfers can be edited");
+  }
+
+  const amount = Number(input.amount ?? Math.abs(Number(transaction.amount || 0)));
+  const description = cleanName(input.description || transaction.description);
+  const scheduledFor = String(input.scheduledFor || transaction.scheduledFor || "").trim();
+  const beneficiaryId = cleanName(input.beneficiaryId || transaction.beneficiary?.id || "");
+  const category = cleanName(input.category || transaction.category || "Transfer");
+  const tags = cleanTags(input.tags || transaction.tags || []);
+  const repeatFrequency = normalizeRepeatFrequency(input.repeatFrequency || transaction.repeatFrequency || "Once");
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw statusError(400, "Enter an amount greater than 0");
+  }
+
+  const beneficiary = getTransferBeneficiary(user, {
+    recipientName: input.recipientName || transaction.beneficiary?.name || "",
+    recipientAccountNumber: input.recipientAccountNumber || transaction.beneficiary?.accountNumber || "",
+    recipientSortCode: input.recipientSortCode || transaction.beneficiary?.sortCode || ""
+  }, beneficiaryId);
+
+  transaction.amount = Number((-amount).toFixed(2));
+  transaction.description = description || transaction.description;
+  transaction.category = category;
+  transaction.tags = tags;
+  transaction.scheduledFor = scheduledFor;
+  transaction.repeatFrequency = repeatFrequency;
+  transaction.beneficiary = beneficiary;
+  transaction.lastEditedAt = new Date().toISOString();
+
+  appendAudit(user, "SCHEDULED_TRANSFER_UPDATED", transaction.reference || "");
 
   await writeDatabase(database);
   return user;
@@ -379,6 +466,23 @@ function cleanName(value) {
   return String(value || "").trim().replace(/\s+/g, " ");
 }
 
+function cleanTags(value) {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map((tag) => cleanName(tag)).filter(Boolean))].slice(0, 5);
+  }
+
+  return String(value || "")
+    .split(",")
+    .map((tag) => cleanName(tag))
+    .filter(Boolean)
+    .slice(0, 5);
+}
+
+function normalizeRepeatFrequency(value) {
+  const frequency = cleanName(value || "Once");
+  return ["Once", "Weekly", "Monthly"].includes(frequency) ? frequency : "Once";
+}
+
 function createAccountNumber(offset) {
   return String(80420000 + offset + Math.floor(Math.random() * 899)).padStart(8, "0");
 }
@@ -387,8 +491,25 @@ function createIban(offset, accountNumber) {
   return `GB${String(82 + offset).padStart(2, "0")}TBUK237548${accountNumber}`;
 }
 
-function createReference(type) {
-  return `${type.slice(0, 3).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+function createReference(type, accountNumber = "") {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = now.toLocaleString("en-GB", { month: "short" }).toUpperCase();
+  const suffix = String(accountNumber || "").slice(-6) || now.toISOString().slice(11, 17).replace(/:/g, "");
+
+  if (type === "Transfer") {
+    return `FP${day}${month}${suffix}`;
+  }
+
+  if (type === "Deposit") {
+    return `CR${day}${month}${suffix}`;
+  }
+
+  if (type === "Withdrawal") {
+    return `DB${day}${month}${suffix}`;
+  }
+
+  return `${type.slice(0, 3).toUpperCase()}-${suffix}`;
 }
 
 function formatSortCode(value) {
@@ -405,8 +526,87 @@ function getTodaysTransferTotal(transactions) {
 
   return transactions
     .filter((transaction) => transaction.type === "Transfer")
+    .filter((transaction) => !["Failed", "Cancelled"].includes(transaction.status))
     .filter((transaction) => String(transaction.createdAt || "").slice(0, 10) === today)
     .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
+}
+
+function settleDueScheduledTransfers(user, now = new Date()) {
+  ensureAccountShape(user);
+
+  if (user.account.status !== "Active") {
+    return false;
+  }
+
+  const today = now.toISOString().slice(0, 10);
+  let changed = false;
+
+  (user.transactions || [])
+    .filter((transaction) => (
+      transaction.type === "Transfer" &&
+      transaction.status === "Pending" &&
+      transaction.scheduledFor &&
+      transaction.scheduledFor <= today
+    ))
+    .forEach((transaction) => {
+      const amount = Number(transaction.amount || 0);
+      const nextBalance = Number((Number(user.account.balance || 0) + amount).toFixed(2));
+
+      transaction.processedAt = now.toISOString();
+
+      if (nextBalance < 0) {
+        transaction.status = "Failed";
+        transaction.balanceAfter = Number(user.account.balance || 0);
+        appendAudit(user, "SCHEDULED_TRANSFER_FAILED", transaction.reference || "");
+      } else {
+        user.account.balance = nextBalance;
+        transaction.status = "Completed";
+        transaction.balanceAfter = nextBalance;
+        appendAudit(user, "SCHEDULED_TRANSFER_COMPLETED", transaction.reference || "");
+
+        if (shouldRepeatTransfer(transaction)) {
+          user.transactions.unshift(buildRecurringTransfer(transaction, now));
+        }
+      }
+
+      changed = true;
+    });
+
+  return changed;
+}
+
+function buildRecurringTransfer(transaction, now) {
+  return {
+    id: crypto.randomUUID(),
+    type: "Transfer",
+    description: transaction.description,
+    category: transaction.category || "Transfer",
+    tags: transaction.tags || [],
+    amount: Number(transaction.amount || 0),
+    balanceAfter: Number(transaction.balanceAfter || 0),
+    createdAt: now.toISOString(),
+    scheduledFor: getNextScheduledDate(transaction.scheduledFor, transaction.repeatFrequency),
+    status: "Pending",
+    reference: createReference("Transfer", user.account.number),
+    beneficiary: transaction.beneficiary || null,
+    repeatFrequency: transaction.repeatFrequency || "Once",
+    processedAt: "",
+    lastEditedAt: ""
+  };
+}
+
+function shouldRepeatTransfer(transaction) {
+  return ["Weekly", "Monthly"].includes(transaction.repeatFrequency);
+}
+
+function getNextScheduledDate(dateValue, repeatFrequency) {
+  const baseDate = dateValue ? new Date(`${dateValue}T00:00:00.000Z`) : new Date();
+  if (repeatFrequency === "Weekly") {
+    baseDate.setDate(baseDate.getDate() + 7);
+  } else if (repeatFrequency === "Monthly") {
+    baseDate.setMonth(baseDate.getMonth() + 1);
+  }
+  return baseDate.toISOString().slice(0, 10);
 }
 
 function appendAudit(user, action, note = "") {
@@ -440,6 +640,15 @@ function ensureAccountShape(user) {
     lastLoginAt: "",
     failedLoginAttempts: 0,
     lockedUntil: ""
+  };
+  user.passwordReset = user.passwordReset || {
+    token: "",
+    expiresAt: "",
+    requestedAt: ""
+  };
+  user.notificationState = user.notificationState || {
+    readIds: [],
+    readAtById: {}
   };
   user.preferences = user.preferences || {
     emailAlerts: true,
@@ -513,11 +722,83 @@ async function updateUserProfile(userId, input) {
   return user;
 }
 
+async function requestPasswordReset(email) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    return null;
+  }
+
+  ensureAccountShape(user);
+  const token = crypto.randomBytes(24).toString("hex");
+  user.passwordReset = {
+    token,
+    expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    requestedAt: new Date().toISOString()
+  };
+  appendAudit(user, "PASSWORD_RESET_REQUESTED");
+  await writeDatabase(database);
+  return token;
+}
+
+async function resetPassword(email, token, newPassword) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  if (!user.passwordReset?.token || user.passwordReset.token !== token) {
+    throw statusError(400, "Password reset link is invalid");
+  }
+
+  if (!user.passwordReset.expiresAt || new Date(user.passwordReset.expiresAt).getTime() < Date.now()) {
+    throw statusError(400, "Password reset link has expired");
+  }
+
+  validatePassword(String(newPassword || ""), "New password");
+  user.password = hashPassword(String(newPassword || ""));
+  user.passwordReset = {
+    token: "",
+    expiresAt: "",
+    requestedAt: ""
+  };
+  appendAudit(user, "PASSWORD_RESET_COMPLETED");
+  await writeDatabase(database);
+  return user;
+}
+
+async function markNotificationsRead(userId, notificationIds) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+  const ids = Array.isArray(notificationIds) ? notificationIds : [];
+  user.notificationState.readIds = [...new Set([...(user.notificationState.readIds || []), ...ids])];
+  user.notificationState.readAtById = user.notificationState.readAtById || {};
+  ids.forEach((id) => {
+    user.notificationState.readAtById[id] = new Date().toISOString();
+  });
+  appendAudit(user, "NOTIFICATIONS_MARKED_READ");
+  await writeDatabase(database);
+  return user;
+}
+
 function buildNotifications(user) {
   const notifications = [];
+  const readIds = new Set(user.notificationState?.readIds || []);
 
   if (user.application?.status === "Pending Approval") {
     notifications.push({
+      id: `application-pending-${user.id}`,
       type: "Application",
       title: "Application awaiting review",
       message: "Your application is with the back office team. Online banking unlocks after approval.",
@@ -527,6 +808,7 @@ function buildNotifications(user) {
 
   if (user.application?.status === "Approved") {
     notifications.push({
+      id: `application-approved-${user.id}`,
       type: "Application",
       title: "Application approved",
       message: "Your account is active and ready for payments, payees, statements, and account controls.",
@@ -536,6 +818,7 @@ function buildNotifications(user) {
 
   if (user.application?.status === "Rejected") {
     notifications.push({
+      id: `application-rejected-${user.id}`,
       type: "Application",
       title: "Application decision available",
       message: user.application.decisionReason || "Your application could not be approved. Please contact support.",
@@ -545,6 +828,7 @@ function buildNotifications(user) {
 
   if (user.account?.status === "Frozen") {
     notifications.push({
+      id: `account-frozen-${user.id}`,
       type: "Security",
       title: "Account temporarily frozen",
       message: "Payments are paused while back office review is in progress.",
@@ -555,6 +839,7 @@ function buildNotifications(user) {
   const pendingPayments = (user.transactions || []).filter((transaction) => transaction.status === "Pending").length;
   if (pendingPayments) {
     notifications.push({
+      id: `pending-payments-${user.id}-${pendingPayments}`,
       type: "Payments",
       title: `${pendingPayments} scheduled payment${pendingPayments === 1 ? "" : "s"}`,
       message: "Scheduled payments can be cancelled from Recent Activity before processing.",
@@ -564,6 +849,7 @@ function buildNotifications(user) {
 
   if (user.security?.lastLoginAt) {
     notifications.push({
+      id: `recent-login-${user.security.lastLoginAt}`,
       type: "Security",
       title: "Recent login recorded",
       message: `Last successful login: ${new Date(user.security.lastLoginAt).toLocaleString("en-GB")}.`,
@@ -571,7 +857,11 @@ function buildNotifications(user) {
     });
   }
 
-  return notifications.slice(0, 6);
+  return notifications.slice(0, 6).map((notification) => ({
+    ...notification,
+    readAt: readIds.has(notification.id) ? user.notificationState?.readAtById?.[notification.id] || notification.createdAt : "",
+    isRead: readIds.has(notification.id)
+  }));
 }
 
 async function createBeneficiary(userId, input) {
@@ -654,7 +944,7 @@ async function updateAccountControls(userId, input) {
   }
 
   if (!Number.isFinite(dailyTransferLimit) || dailyTransferLimit < 50 || dailyTransferLimit > 5000) {
-    throw statusError(400, "Daily transfer limit must be between £50 and £5,000");
+    throw statusError(400, "Daily transfer limit must be between GBP 50 and GBP 5,000");
   }
 
   user.account.cardStatus = cardStatus;
@@ -702,6 +992,8 @@ module.exports = {
   updateAccountStatusAsAdmin,
   createUser,
   createTransaction,
+  updateScheduledTransaction,
+  settleDueScheduledTransfers,
   createBeneficiary,
   deleteBeneficiary,
   findUserByEmail,
@@ -711,8 +1003,10 @@ module.exports = {
   recordFailedLogin,
   recordSuccessfulLogin,
   updateUserProfile,
+  requestPasswordReset,
+  resetPassword,
+  markNotificationsRead,
   updateAccountControls,
   changePassword,
   publicUser
 };
-

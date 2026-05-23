@@ -1,0 +1,320 @@
+const fs = require("fs");
+const path = require("path");
+
+const passwordHash =
+  "f47c2f66b4a2e9b1d4d369bd5ee4e4e8:4d964fdbaf7033ac783cfc43afb8e3c8c4b39618503d677dbed42ec02002895d178e35c09fc57c10cf0bd3e86a15e8067e2fec1bb41478b4f40eee197922fdb2";
+
+function fpRef(day) {
+  return `FP${day}MAY804207`;
+}
+
+const beneficiaries = [
+  {
+    id: "payee-landlord-001",
+    name: "James Smith",
+    nickname: "Landlord",
+    accountNumber: "60112233",
+    sortCode: "20-00-00",
+    createdAt: "2025-02-10T10:00:00.000Z"
+  },
+  {
+    id: "payee-savings-001",
+    name: "Aylin Demir",
+    nickname: "Savings pot",
+    accountNumber: "99112233",
+    sortCode: "23-75-48",
+    createdAt: "2025-03-18T11:15:00.000Z"
+  }
+];
+
+const transactions = [
+  {
+    id: "tx-opening-001",
+    type: "Account Opening",
+    description: "Account opened",
+    amount: 0,
+    balanceAfter: 0,
+    createdAt: "2024-11-12T09:15:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "OPENING",
+    category: "Account",
+    tags: []
+  },
+  {
+    id: "tx-salary-001",
+    type: "Deposit",
+    description: "Salary - NORTH LONDON MEDIA LTD",
+    amount: 2850,
+    balanceAfter: 2850,
+    createdAt: "2026-05-01T08:12:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "SALARY-MAY26",
+    category: "Income",
+    tags: ["salary"]
+  },
+  {
+    id: "tx-rent-001",
+    type: "Transfer",
+    description: "Monthly rent",
+    amount: -950,
+    balanceAfter: 1900,
+    createdAt: "2026-05-02T09:05:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: fpRef("02"),
+    category: "Housing",
+    tags: ["rent"],
+    beneficiary: { name: "James Smith", accountNumber: "60112233", sortCode: "20-00-00" }
+  },
+  {
+    id: "tx-tesco-001",
+    type: "Withdrawal",
+    description: "TESCO STORES 2847 LONDON",
+    amount: -45.67,
+    balanceAfter: 1854.33,
+    createdAt: "2026-05-04T17:22:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "CARD-440128",
+    category: "Shopping",
+    tags: ["card"]
+  },
+  {
+    id: "tx-savings-001",
+    type: "Transfer",
+    description: "Transfer to savings pot",
+    amount: -200,
+    balanceAfter: 1654.33,
+    createdAt: "2026-05-06T20:41:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: fpRef("06"),
+    category: "Savings",
+    tags: [],
+    beneficiary: { name: "Aylin Demir", accountNumber: "99112233", sortCode: "23-75-48" }
+  },
+  {
+    id: "tx-council-001",
+    type: "Withdrawal",
+    description: "HACKNEY COUNCIL DD",
+    amount: -142.5,
+    balanceAfter: 1511.83,
+    createdAt: "2026-05-08T06:30:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "DD-COUNCIL-MAY",
+    category: "Bills",
+    tags: ["direct-debit"]
+  },
+  {
+    id: "tx-failed-dd-001",
+    type: "Withdrawal",
+    description: "STREAMPLUS ENTERTAINMENT",
+    amount: -19.99,
+    balanceAfter: 1511.83,
+    createdAt: "2026-05-10T11:02:00.000Z",
+    scheduledFor: "",
+    status: "Failed",
+    reference: "DD-FAILED-0510",
+    category: "Subscriptions",
+    tags: ["failed"]
+  },
+  {
+    id: "tx-coffee-001",
+    type: "Withdrawal",
+    description: "PRET A MANGER VICTORIA",
+    amount: -8.45,
+    balanceAfter: 1503.38,
+    createdAt: "2026-05-12T08:19:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "CARD-440992",
+    category: "Food",
+    tags: ["card"]
+  },
+  {
+    id: "tx-refund-001",
+    type: "Deposit",
+    description: "Refund - AMAZON UK MARKETPLACE",
+    amount: 34.99,
+    balanceAfter: 1538.37,
+    createdAt: "2026-05-14T14:08:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "REF-AMZ-9931",
+    category: "Shopping",
+    tags: []
+  },
+  {
+    id: "tx-utilities-001",
+    type: "Transfer",
+    description: "British Gas payment",
+    amount: -86.2,
+    balanceAfter: 1452.17,
+    createdAt: "2026-05-16T10:33:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: fpRef("16"),
+    category: "Bills",
+    tags: []
+  },
+  {
+    id: "tx-gym-001",
+    type: "Withdrawal",
+    description: "PUREGYM MONTHLY",
+    amount: -32.99,
+    balanceAfter: 1419.18,
+    createdAt: "2026-05-18T05:55:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "SO-GYM-0518",
+    category: "Lifestyle",
+    tags: ["standing-order"]
+  },
+  {
+    id: "tx-salary-002",
+    type: "Deposit",
+    description: "Salary - NORTH LONDON MEDIA LTD",
+    amount: 2850,
+    balanceAfter: 4269.18,
+    createdAt: "2026-05-20T08:11:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "SALARY-ADJ-0520",
+    category: "Income",
+    tags: ["salary"]
+  },
+  {
+    id: "tx-transfer-out-001",
+    type: "Transfer",
+    description: "Payment to James Smith",
+    amount: -950,
+    balanceAfter: 3319.18,
+    createdAt: "2026-05-21T09:18:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: fpRef("21"),
+    category: "Housing",
+    tags: ["rent"],
+    beneficiary: { name: "James Smith", accountNumber: "60112233", sortCode: "20-00-00" }
+  },
+  {
+    id: "tx-shopping-001",
+    type: "Withdrawal",
+    description: "SAINSBURYS SUPERSTORES",
+    amount: -71.55,
+    balanceAfter: 3247.63,
+    createdAt: "2026-05-22T16:44:00.000Z",
+    scheduledFor: "",
+    status: "Completed",
+    reference: "CARD-441220",
+    category: "Shopping",
+    tags: ["card"]
+  },
+  {
+    id: "tx-pending-001",
+    type: "Transfer",
+    description: "Insurance renewal",
+    amount: -150,
+    balanceAfter: 3247.63,
+    createdAt: "2026-05-23T12:10:00.000Z",
+    scheduledFor: "2026-05-24",
+    status: "Pending",
+    reference: fpRef("24P"),
+    category: "Insurance",
+    tags: ["scheduled"],
+    beneficiary: { name: "Aviva Insurance", accountNumber: "44556677", sortCode: "30-96-23" }
+  }
+];
+
+const database = {
+  schemaVersion: 2,
+  updatedAt: new Date().toISOString(),
+  users: [
+    {
+      id: "acct-aylin-001",
+      firstName: "Aylin",
+      lastName: "Demir",
+      email: "a.demir@outlook.com",
+      password: passwordHash,
+      application: {
+        product: "Current Account",
+        phone: "07700 900111",
+        address: "14 Green Lanes, London N16 9BS",
+        dateOfBirth: "1999-04-18",
+        employmentStatus: "Employed",
+        status: "Approved",
+        decisionReason: "",
+        submittedAt: "2024-11-08T11:20:00.000Z",
+        decidedAt: "2024-11-12T09:00:00.000Z"
+      },
+      account: {
+        type: "Current Account",
+        number: "80420742",
+        sortCode: "23-75-48",
+        currency: "GBP",
+        balance: 3247.63,
+        availableBalance: 3097.63,
+        openedAt: "2024-11-12T09:15:00.000Z",
+        status: "Active",
+        iban: "GB82TBUK23754880420742",
+        dailyTransferLimit: 2500,
+        cardStatus: "Active",
+        cardLastFour: "4821",
+        cardExpiry: "08/28",
+        overdraft: 0
+      },
+      beneficiaries,
+      transactions,
+      notificationState: {
+        readIds: ["application-approved-acct-aylin-001"],
+        readAtById: {
+          "application-approved-acct-aylin-001": "2024-11-12T10:00:00.000Z"
+        }
+      },
+      preferences: {
+        emailAlerts: true,
+        smsAlerts: true,
+        statementFrequency: "Monthly"
+      },
+      auditLog: [
+        {
+          id: "audit-login-001",
+          action: "LOGIN_SUCCESS",
+          note: "Web browser",
+          createdAt: "2026-05-22T18:42:00.000Z"
+        },
+        {
+          id: "audit-card-001",
+          action: "CARD_USED",
+          note: "Card ending 4821 used at SAINSBURYS SUPERSTORES",
+          createdAt: "2026-05-22T16:44:00.000Z"
+        },
+        {
+          id: "audit-transfer-001",
+          action: "TRANSFER_CREATED",
+          note: fpRef("21"),
+          createdAt: "2026-05-21T09:18:00.000Z"
+        },
+        {
+          id: "audit-approved-001",
+          action: "ACCOUNT_APPROVED",
+          note: "",
+          createdAt: "2024-11-12T09:00:00.000Z"
+        }
+      ],
+      security: {
+        lastLoginAt: "2026-05-22T18:42:00.000Z",
+        failedLoginAttempts: 0,
+        lockedUntil: ""
+      },
+      createdAt: "2024-11-08T11:20:00.000Z"
+    }
+  ]
+};
+
+const target = path.join(__dirname, "..", "backend", "data", "database.json");
+fs.writeFileSync(target, `${JSON.stringify(database, null, 2)}\n`);
+console.log(`Wrote seed database to ${target}`);

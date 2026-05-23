@@ -3,8 +3,17 @@ const { approvePendingAccount, publicUser, rejectPendingAccount, updateAccountSt
 const { readJsonBody, sendJson } = require("../utils/http");
 
 function isAdminRequest(req) {
-  const configuredPassword = process.env.ADMIN_PASSWORD || "admin12345";
+  const configuredPassword = process.env.ADMIN_PASSWORD;
   const providedPassword = req.headers["x-admin-password"] || "";
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === "production");
+
+  if (!configuredPassword) {
+    if (isProduction) {
+      return false;
+    }
+    return providedPassword === "admin12345";
+  }
+
   return providedPassword === configuredPassword;
 }
 

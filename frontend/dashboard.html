@@ -29,7 +29,7 @@
     <header class="site-header">
       <div class="wrap header-main">
         <a class="brand" href="/" aria-label="TurkishBank UK home">
-          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+          <img src="/assets/logo-tb-uk.png" alt="TurkishBank">
         </a>
 
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
@@ -92,38 +92,46 @@
 
             <section class="new-account-panel">
               <div>
-                <p class="eyebrow">New Account</p>
-                <h3>Welcome to online banking</h3>
-                <p>Your account is open with a clean starting balance. Add a payee or make your first deposit when you are ready.</p>
+                <p class="eyebrow">Debit card</p>
+                <h3>Your TurkishBank debit card</h3>
+                <p>Use your card in shops and online. Card controls and limits are managed below.</p>
               </div>
               <div class="card-preview">
                 <span>TurkishBank</span>
                 <strong id="cardPreviewName">Account Holder</strong>
-                <small id="cardPreviewNumber">•••• •••• •••• 0000</small>
+                <small id="cardPreviewNumber">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 0000</small>
               </div>
             </section>
 
             <div class="balance-box">
-              <span>Available Balance</span>
-              <strong id="accountBalance">&pound;0.00</strong>
+              <div class="balance-box__grid">
+                <div>
+                  <span>Available balance</span>
+                  <strong id="accountBalance">&pound;0.00</strong>
+                </div>
+                <div>
+                  <span>Account balance</span>
+                  <strong class="balance-box__secondary" id="ledgerBalance">&pound;0.00</strong>
+                </div>
+              </div>
             </div>
 
             <section class="dashboard-metrics">
               <article>
-                <span>Recent Login</span>
-                <strong id="lastLoginAt">First access</strong>
+                <span>Recent login</span>
+                <strong id="lastLoginAt">&mdash;</strong>
               </article>
               <article>
-                <span>Pending Payments</span>
+                <span>Pending payments</span>
                 <strong id="pendingPayments">0</strong>
               </article>
               <article>
-                <span>Saved Payees</span>
+                <span>Saved payees</span>
                 <strong id="savedPayeesCount">0</strong>
               </article>
               <article>
-                <span>Storage</span>
-                <strong id="storageMode">Checking</strong>
+                <span>Daily transfer limit</span>
+                <strong id="dailyTransferLimitMetric">&mdash;</strong>
               </article>
             </section>
 
@@ -141,13 +149,19 @@
 
             <div class="account-summary" id="accountSummary">
               <dl class="account-details">
-                <div>
-                  <dt>Account Number</dt>
-                  <dd id="accountNumber">00000000</dd>
+                <div class="detail-row">
+                  <dt>Account number</dt>
+                  <dd class="detail-row__value">
+                    <span id="accountNumber">···· ···· 0000</span>
+                    <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
+                  </dd>
                 </div>
-                <div>
-                  <dt>Sort Code</dt>
-                  <dd id="sortCode">00-00-00</dd>
+                <div class="detail-row">
+                  <dt>Sort code</dt>
+                  <dd class="detail-row__value">
+                    <span id="sortCode">··-··-··</span>
+                    <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
+                  </dd>
                 </div>
                 <div>
                   <dt>Status</dt>
@@ -167,9 +181,13 @@
                 </div>
               </dl>
               <dl class="account-details">
-                <div>
+                <div class="detail-row">
                   <dt>IBAN</dt>
-                  <dd id="accountIban">GB00TBUK00000000</dd>
+                  <dd class="detail-row__value">
+                    <span id="accountIban">GB00 **** **** 0000</span>
+                    <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
+                    <button class="text-button" type="button" id="copyIbanButton">Copy</button>
+                  </dd>
                 </div>
                 <div>
                   <dt>Product</dt>
@@ -244,7 +262,7 @@
                   </label>
                   <label>
                     Reference
-                    <input name="description" placeholder="Payment reference" required>
+                    <input name="description" placeholder="Payment reference" maxlength="18" required>
                   </label>
                   <div class="transfer-fields is-hidden" id="transferFields">
                     <label>

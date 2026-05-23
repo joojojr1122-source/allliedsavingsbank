@@ -7,7 +7,9 @@ const {
   isUserLocked,
   publicUser,
   recordFailedLogin,
-  recordSuccessfulLogin
+  recordSuccessfulLogin,
+  requestPasswordReset,
+  resetPassword
 } = require("../services/userService");
 const { createSession, deleteSession, getTokenFromRequest, getUserIdFromRequest } = require("../services/sessionService");
 const { verifyPassword } = require("../utils/security");
@@ -102,6 +104,52 @@ async function handleChangePassword(req, res) {
   }
 }
 
+async function requestPasswordResetController(req, res) {
+  try {
+    const body = await readJsonBody(req);
+    const email = String(body.email || "").trim().toLowerCase();
+
+    if (!email) {
+      sendJson(res, 400, { error: "Email is required" });
+      return;
+    }
+
+    const token = await requestPasswordReset(email);
+
+    if (!token) {
+      sendJson(res, 200, { ok: true, message: "If that email exists, a reset link has been generated." });
+      return;
+    }
+
+    sendJson(res, 200, {
+      ok: true,
+      message: "Password reset link generated.",
+      resetToken: process.env.VERCEL ? undefined : token
+    });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Password reset request failed" });
+  }
+}
+
+async function resetPasswordController(req, res) {
+  try {
+    const body = await readJsonBody(req);
+    const email = String(body.email || "").trim().toLowerCase();
+    const token = String(body.token || "").trim();
+    const newPassword = String(body.newPassword || "");
+
+    if (!email || !token || !newPassword) {
+      sendJson(res, 400, { error: "Email, token, and new password are required" });
+      return;
+    }
+
+    await resetPassword(email, token, newPassword);
+    sendJson(res, 200, { ok: true });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Password reset failed" });
+  }
+}
+
 async function getApplicationStatus(req, res, url) {
   const email = String(url.searchParams.get("email") || "").trim().toLowerCase();
 
@@ -134,5 +182,7 @@ module.exports = {
   signup,
   login,
   logout,
-  handleChangePassword
+  handleChangePassword,
+  requestPasswordResetController,
+  resetPasswordController
 };

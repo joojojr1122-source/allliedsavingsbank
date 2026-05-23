@@ -6,8 +6,10 @@ const {
   createTransaction,
   deleteBeneficiary: removeBeneficiary,
   getUserById,
+  markNotificationsRead,
   publicUser,
   updateAccountControls: saveAccountControls,
+  updateScheduledTransaction,
   updateUserProfile
 } = require("../services/userService");
 const { getUserIdFromRequest } = require("../services/sessionService");
@@ -47,6 +49,28 @@ async function postTransaction(req, res) {
   }
 }
 
+async function updateScheduledPayment(req, res) {
+  const userId = getUserIdFromRequest(req);
+
+  if (!userId) {
+    sendJson(res, 401, { error: "You need to login first" });
+    return;
+  }
+
+  if (!req.transactionId) {
+    sendJson(res, 400, { error: "Transaction ID is required" });
+    return;
+  }
+
+  try {
+    const body = await readJsonBody(req);
+    const user = await updateScheduledTransaction(userId, req.transactionId, body);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Scheduled payment update failed" });
+  }
+}
+
 async function listTransactions(req, res) {
   const userId = getUserIdFromRequest(req);
 
@@ -55,8 +79,7 @@ async function listTransactions(req, res) {
     return;
   }
 
-  const database = await readDatabase();
-  const user = database.users.find((item) => item.id === userId);
+  const user = await getUserById(userId);
 
   if (!user) {
     sendJson(res, 401, { error: "Session is no longer valid" });
@@ -218,13 +241,33 @@ async function updateAccountControls(req, res) {
   }
 }
 
+async function markNotificationsAsRead(req, res) {
+  const userId = getUserIdFromRequest(req);
+
+  if (!userId) {
+    sendJson(res, 401, { error: "You need to login first" });
+    return;
+  }
+
+  try {
+    const body = await readJsonBody(req);
+    const ids = Array.isArray(body.notificationIds) ? body.notificationIds : [];
+    const user = await markNotificationsRead(userId, ids);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Notification update failed" });
+  }
+}
+
 module.exports = {
   addBeneficiary,
   deleteBeneficiary,
   getCurrentAccount,
   postTransaction,
+  updateScheduledPayment,
   listTransactions,
   deleteTransaction,
   updateAccountControls,
+  markNotificationsAsRead,
   updateProfile
 };

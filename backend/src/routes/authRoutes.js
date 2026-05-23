@@ -3,7 +3,9 @@ const {
   signup,
   login,
   logout,
-  handleChangePassword
+  handleChangePassword,
+  requestPasswordResetController,
+  resetPasswordController
 } = require("../controllers/authController");
 const { sendJson } = require("../utils/http");
 
@@ -30,6 +32,16 @@ async function handleAuthRoute(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/auth/change-password") {
     await handleChangePassword(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/auth/request-password-reset") {
+    await requestPasswordResetController(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/auth/reset-password") {
+    await resetPasswordController(req, res);
     return;
   }
 
