@@ -154,8 +154,11 @@ async function createTransaction(userId, input) {
   if (type === "Transfer") {
     beneficiary = getTransferBeneficiary(user, input, beneficiaryId);
 
-    if (amount > Number(user.account.dailyTransferLimit || 1000)) {
-      throw statusError(400, `Transfers are limited to ${formatLimit(user.account.dailyTransferLimit || 1000)} per payment`);
+    const transferLimit = Number(user.account.dailyTransferLimit || 1000);
+    const usedToday = getTodaysTransferTotal(user.transactions || []);
+
+    if (usedToday + amount > transferLimit) {
+      throw statusError(400, `Daily transfers are limited to ${formatLimit(transferLimit)}. You have ${formatLimit(Math.max(transferLimit - usedToday, 0))} remaining today`);
     }
   }
 
@@ -231,6 +234,15 @@ function formatSortCode(value) {
 
 function formatLimit(value) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
+}
+
+function getTodaysTransferTotal(transactions) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return transactions
+    .filter((transaction) => transaction.type === "Transfer")
+    .filter((transaction) => String(transaction.createdAt || "").slice(0, 10) === today)
+    .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
 }
 
 function appendAudit(user, action) {
