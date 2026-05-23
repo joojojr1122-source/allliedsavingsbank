@@ -604,6 +604,7 @@ const auditActionLabels = {
   SCHEDULED_TRANSFER_FAILED: "Scheduled payment failed",
   SCHEDULED_TRANSFER_UPDATED: "Scheduled payment updated",
   CARD_USED: "Card activity",
+  DEPOSIT_CREATED: "Incoming payment received",
   ACCOUNT_APPROVED: "Account approved",
   APPLICATION_SUBMITTED: "Application submitted",
   ACCOUNT_FROZEN: "Account frozen",

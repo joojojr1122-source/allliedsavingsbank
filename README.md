@@ -68,10 +68,10 @@ http://localhost:3000
 
 These credentials apply to the seeded local database only. Change them before any public deployment.
 
-- Customer: `a.demir@outlook.com` / `DemoPass123`
+- Customer: `daniel.nowak@outlook.com` / `Nowak@4142`
 - Back office: `/ops.html` with password `admin12345` (local only unless `ADMIN_PASSWORD` is set)
 
-The seeded account includes realistic balances, payees, transaction history, and one scheduled payment.
+The seeded account is held by **DANIEL NOWAK** with a £7,600,000.00 balance from a one-time **Vanmas DMCC** payment received on Wednesday 21 May 2026.
 
 To rebuild the seed file:
 
