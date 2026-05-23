@@ -1,4 +1,4 @@
-const tokenKey = "schoolBankToken";
+const tokenKey = "bankPortalToken";
 
 const signupForm = document.querySelector("#signupForm");
 const loginForm = document.querySelector("#loginForm");
@@ -608,7 +608,7 @@ branchForm?.addEventListener("submit", (event) => {
 newsletterForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const email = newsletterForm.querySelector("input")?.value.trim() || "";
-  newsletterResult.textContent = `Thank you. ${email} has been added to this local demo contact list.`;
+  newsletterResult.textContent = `Thank you. ${email} has been added to the contact list.`;
   newsletterForm.reset();
 });
 

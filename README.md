@@ -1,6 +1,6 @@
-# TurkishBank-Style School Account Portal
+# TurkishBank Account Portal
 
-This is a local school-project prototype inspired by the TurkishBank UK public website. It is not a real banking system and must not be used to collect real financial information.
+A banking-style account portal with signup, login, account dashboard, payments, transfers, payees, account controls, and CSV statement download.
 
 ## Project Structure
 
@@ -16,20 +16,28 @@ backend/
     server.js
 frontend/
   app.js
+  dashboard.html
   index.html
   styles.css
+api/
+  index.js
 package.json
+vercel.json
 ```
 
 ## Features
 
-- TurkishBank-style public homepage and account portal
-- Signup for a new local account
-- Every new account starts with `$0.00`
+- Public homepage and account portal
+- Signup for a new account
 - Login and logout
-- Dashboard showing account holder, account number, sort code, and balance
+- Separate dashboard page after login
+- Account holder details, account number, sort code, IBAN, card status, and balance
+- Deposits, withdrawals, and transfers
+- Saved payees
+- Daily transfer limit controls
+- Transaction history and CSV statement download
 - Backend API with JSON-file persistence
-- No external packages required
+- Vercel deployment support
 
 ## Run It
 
@@ -48,27 +56,33 @@ http://localhost:3000
 - `POST /api/auth/signup`
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
+- `POST /api/auth/change-password`
 - `GET /api/account/me`
+- `PATCH /api/account/me`
+- `PATCH /api/account/controls`
+- `POST /api/account/transactions`
+- `GET /api/account/transactions`
+- `DELETE /api/account/transaction/:id`
+- `POST /api/account/beneficiaries`
+- `DELETE /api/account/beneficiaries/:id`
 
-The backend stores demo users in `backend/data/database.json`.
+The backend stores account records in `backend/data/database.json`.
 
 ## Deploy to Vercel
 
-This project includes `vercel.json` and `api/index.js` so Vercel can serve the frontend and run the API as a serverless function.
+This repository includes `vercel.json` and `api/index.js` so Vercel can serve the frontend and run the API as a serverless function.
 
 ```bash
 npx vercel
 npx vercel --prod
 ```
 
-For the online demo, add a Vercel environment variable named `SESSION_SECRET` with any long random value.
+Add a Vercel environment variable named `SESSION_SECRET` with a long random value.
 
-For persistent demo data on Vercel, connect a Redis/Upstash-style REST database and add:
+For persistent hosted data, connect a Redis/Upstash-style REST database and add:
 
 ```text
 KV_REST_API_URL=your-rest-url
 KV_REST_API_TOKEN=your-rest-token
-BANK_DATABASE_KEY=school-bank-database
+BANK_DATABASE_KEY=bank-portal-database
 ```
-
-Without those database variables, the online version uses Vercel's temporary serverless filesystem. It is enough to test signup/login online, but accounts can reset after a cold start or redeploy. This is still a school/demo banking portal, not a real financial system.

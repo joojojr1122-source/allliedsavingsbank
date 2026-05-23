@@ -31,5 +31,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`School banking portal running at http://localhost:${PORT}`);
+  console.log(`Banking portal running at http://localhost:${PORT}`);
 });

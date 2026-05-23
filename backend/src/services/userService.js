@@ -27,7 +27,7 @@ async function createUser(input) {
   }
 
   if (!agreeTerms) {
-    throw statusError(400, "You must confirm this is a localhost school-project application");
+    throw statusError(400, "You must agree to the account terms");
   }
 
   const database = await readDatabase();
@@ -50,7 +50,7 @@ async function createUser(input) {
       address,
       dateOfBirth,
       employmentStatus,
-      status: "Approved - Local Demo",
+      status: "Approved",
       submittedAt: new Date().toISOString()
     },
     account: {
@@ -119,7 +119,7 @@ function publicUser(user) {
       address: user.application?.address || "",
       dateOfBirth: user.application?.dateOfBirth || "",
       employmentStatus: user.application?.employmentStatus || "",
-      status: user.application?.status || "Approved - Local Demo",
+      status: user.application?.status || "Approved",
       submittedAt: user.application?.submittedAt || user.createdAt || ""
     },
     account: user.account,

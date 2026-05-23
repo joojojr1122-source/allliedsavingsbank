@@ -4,9 +4,9 @@ const path = require("path");
 
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
 const DATABASE_PATH = process.env.VERCEL
-  ? path.join(os.tmpdir(), "school-bank-database.json")
+  ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
-const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "school-bank-database";
+const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "bank-portal-database";
 const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || "";
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || "";
 

@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 const sessions = new Map();
-const TOKEN_SECRET = process.env.SESSION_SECRET || "local-school-bank-demo-secret";
+const TOKEN_SECRET = process.env.SESSION_SECRET || "local-bank-portal-session-secret";
 
 function createSession(userId) {
   if (process.env.VERCEL) {
