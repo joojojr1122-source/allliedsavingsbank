@@ -22,9 +22,7 @@ async function createUser(input) {
     throw statusError(400, "Enter a valid email address");
   }
 
-  if (password.length < 8) {
-    throw statusError(400, "Password must be at least 8 characters");
-  }
+  validatePassword(password);
 
   if (!agreeTerms) {
     throw statusError(400, "You must agree to the account terms");
@@ -50,7 +48,8 @@ async function createUser(input) {
       address,
       dateOfBirth,
       employmentStatus,
-      status: "Approved",
+      status: "Pending Approval",
+      decisionReason: "",
       submittedAt: new Date().toISOString()
     },
     account: {
@@ -59,30 +58,19 @@ async function createUser(input) {
       sortCode: "23-75-48",
       currency: "GBP",
       balance: 0,
-      openedAt: new Date().toISOString(),
-      status: "Active",
+      openedAt: "",
+      status: "Pending Approval",
       iban: createIban(database.users.length, accountNumber),
       dailyTransferLimit: 1000,
       cardStatus: "Active",
       overdraft: 0
     },
     beneficiaries: [],
-    transactions: [
-      {
-        id: crypto.randomUUID(),
-        type: "Account Opening",
-        description: "Account opened through online application",
-        amount: 0,
-        balanceAfter: 0,
-        createdAt: new Date().toISOString(),
-        status: "Completed",
-        reference: "OPENING"
-      }
-    ],
+    transactions: [],
     auditLog: [
       {
         id: crypto.randomUUID(),
-        action: "ACCOUNT_OPENED",
+        action: "APPLICATION_SUBMITTED",
         createdAt: new Date().toISOString()
       }
     ],
@@ -104,6 +92,93 @@ async function findUserByEmail(email) {
   const database = await readDatabase();
   const user = database.users.find((item) => item.email === email);
   return ensureAccountShape(user);
+}
+
+async function approvePendingAccount(email) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    throw statusError(404, "Application was not found");
+  }
+
+  ensureAccountShape(user);
+
+  if (user.account.status === "Active") {
+    return user;
+  }
+
+  const openedAt = new Date().toISOString();
+  user.application.status = "Approved";
+  user.application.decisionReason = "";
+  user.application.decidedAt = openedAt;
+  user.account.status = "Active";
+  user.account.openedAt = openedAt;
+  user.transactions = user.transactions || [];
+  user.transactions.unshift({
+    id: crypto.randomUUID(),
+    type: "Account Opening",
+    description: "Account opened after application approval",
+    amount: 0,
+    balanceAfter: 0,
+    createdAt: openedAt,
+    status: "Completed",
+    reference: "OPENING"
+  });
+  appendAudit(user, "ACCOUNT_APPROVED");
+
+  await writeDatabase(database);
+  return user;
+}
+
+async function rejectPendingAccount(email, reason) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    throw statusError(404, "Application was not found");
+  }
+
+  ensureAccountShape(user);
+
+  if (user.account.status === "Active") {
+    throw statusError(400, "Active accounts cannot be rejected");
+  }
+
+  user.application.status = "Rejected";
+  user.application.decisionReason = cleanName(reason) || "Application did not pass review checks.";
+  user.application.decidedAt = new Date().toISOString();
+  user.account.status = "Rejected";
+  appendAudit(user, "APPLICATION_REJECTED", user.application.decisionReason);
+
+  await writeDatabase(database);
+  return user;
+}
+
+async function updateAccountStatusAsAdmin(email, status, note = "") {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  if (!["Active", "Frozen"].includes(status)) {
+    throw statusError(400, "Choose Active or Frozen");
+  }
+
+  if (user.account.status === "Rejected" || user.account.status === "Pending Approval") {
+    throw statusError(400, "Only approved accounts can be frozen or reactivated");
+  }
+
+  user.account.status = status;
+  user.application.status = status === "Active" ? "Approved" : "Frozen";
+  appendAudit(user, status === "Frozen" ? "ACCOUNT_FROZEN" : "ACCOUNT_REACTIVATED", cleanName(note));
+
+  await writeDatabase(database);
+  return user;
 }
 
 async function getUserById(id) {
@@ -165,7 +240,9 @@ function publicUser(user) {
       address: user.application?.address || "",
       dateOfBirth: user.application?.dateOfBirth || "",
       employmentStatus: user.application?.employmentStatus || "",
-      status: user.application?.status || "Approved",
+      status: user.application?.status || "Pending Approval",
+      decisionReason: user.application?.decisionReason || "",
+      decidedAt: user.application?.decidedAt || "",
       submittedAt: user.application?.submittedAt || user.createdAt || ""
     },
     account: user.account,
@@ -175,7 +252,8 @@ function publicUser(user) {
       lockedUntil: user.security?.lockedUntil || ""
     },
     beneficiaries: user.beneficiaries || [],
-    transactions: user.transactions || []
+    transactions: user.transactions || [],
+    auditLog: (user.auditLog || []).slice(0, 20)
   };
 }
 
@@ -187,10 +265,17 @@ async function createTransaction(userId, input) {
     throw statusError(404, "Account was not found");
   }
 
+  ensureAccountShape(user);
+
+  if (user.account.status !== "Active") {
+    throw statusError(403, "This account is not active");
+  }
+
   const type = cleanName(input.type);
   const description = cleanName(input.description) || type;
   const amount = Number(input.amount);
   const beneficiaryId = cleanName(input.beneficiaryId);
+  const scheduledFor = String(input.scheduledFor || "").trim();
 
   if (!["Deposit", "Withdrawal", "Transfer"].includes(type)) {
     throw statusError(400, "Choose a valid transaction type");
@@ -213,27 +298,31 @@ async function createTransaction(userId, input) {
     }
   }
 
+  const isScheduledTransfer = type === "Transfer" && scheduledFor && scheduledFor > new Date().toISOString().slice(0, 10);
   const signedAmount = type === "Deposit" ? amount : -amount;
   const nextBalance = Number((user.account.balance + signedAmount).toFixed(2));
 
-  if (nextBalance < 0) {
+  if (!isScheduledTransfer && nextBalance < 0) {
     throw statusError(400, "Insufficient available balance");
   }
 
-  user.account.balance = nextBalance;
+  if (!isScheduledTransfer) {
+    user.account.balance = nextBalance;
+  }
   user.transactions = user.transactions || [];
   user.transactions.unshift({
     id: crypto.randomUUID(),
     type,
     description,
     amount: Number(signedAmount.toFixed(2)),
-    balanceAfter: nextBalance,
+    balanceAfter: isScheduledTransfer ? user.account.balance : nextBalance,
     createdAt: new Date().toISOString(),
-    status: "Completed",
+    scheduledFor: isScheduledTransfer ? scheduledFor : "",
+    status: isScheduledTransfer ? "Pending" : "Completed",
     reference: createReference(type),
     beneficiary
   });
-  appendAudit(user, type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
+  appendAudit(user, isScheduledTransfer ? "SCHEDULED_TRANSFER_CREATED" : type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
 
   await writeDatabase(database);
   return user;
@@ -296,11 +385,12 @@ function getTodaysTransferTotal(transactions) {
     .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
 }
 
-function appendAudit(user, action) {
+function appendAudit(user, action, note = "") {
   user.auditLog = user.auditLog || [];
   user.auditLog.unshift({
     id: crypto.randomUUID(),
     action,
+    note,
     createdAt: new Date().toISOString()
   });
   user.auditLog = user.auditLog.slice(0, 100);
@@ -311,7 +401,7 @@ function ensureAccountShape(user) {
     return user;
   }
 
-  user.account.status = user.account.status || "Active";
+  user.account.status = user.account.status || "Pending Approval";
   user.account.currency = user.account.currency || "GBP";
   user.account.iban = user.account.iban || `GB82TBUK237548${user.account.number}`;
   user.account.dailyTransferLimit = user.account.dailyTransferLimit || 1000;
@@ -319,12 +409,15 @@ function ensureAccountShape(user) {
   user.account.overdraft = Number(user.account.overdraft || 0);
   user.beneficiaries = user.beneficiaries || [];
   user.auditLog = user.auditLog || [];
+  user.application = user.application || {};
+  user.application.status = user.application.status || (user.account.status === "Active" ? "Approved" : user.account.status);
+  user.application.decisionReason = user.application.decisionReason || "";
   user.security = user.security || {
     lastLoginAt: "",
     failedLoginAttempts: 0,
     lockedUntil: ""
   };
-  user.transactions = user.transactions || [
+  user.transactions = user.transactions || (user.account.status === "Active" ? [
     {
       id: crypto.randomUUID(),
       type: "Account Opening",
@@ -335,7 +428,7 @@ function ensureAccountShape(user) {
       status: "Completed",
       reference: "OPENING"
     }
-  ];
+  ] : []);
 
   return user;
 }
@@ -484,12 +577,17 @@ async function changePassword(userId, currentPassword, newPassword) {
     throw statusError(401, "Current password is incorrect");
   }
 
-  if (newPassword.length < 8) {
-    throw statusError(400, "New password must be at least 8 characters");
-  }
+  validatePassword(newPassword, "New password");
 
   user.password = hashPassword(newPassword);
+  appendAudit(user, "PASSWORD_CHANGED");
   await writeDatabase(database);
+}
+
+function validatePassword(password, label = "Password") {
+  if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+    throw statusError(400, `${label} must be at least 10 characters and include uppercase, lowercase, and a number`);
+  }
 }
 
 function statusError(status, message) {
@@ -499,6 +597,9 @@ function statusError(status, message) {
 }
 
 module.exports = {
+  approvePendingAccount,
+  rejectPendingAccount,
+  updateAccountStatusAsAdmin,
   createUser,
   createTransaction,
   createBeneficiary,
@@ -513,3 +614,4 @@ module.exports = {
   changePassword,
   publicUser
 };
+

@@ -32,7 +32,11 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  const requestedPath = url.pathname === "/" ? "/index.html" : url.pathname;
+  const requestedPath = url.pathname === "/"
+    ? "/index.html"
+    : url.pathname === "/favicon.ico"
+      ? "/favicon.svg"
+      : url.pathname;
   sendStaticFile(res, FRONTEND_DIR, requestedPath);
 });
 

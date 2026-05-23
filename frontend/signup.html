@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Account - TurkishBank UK</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body data-page="auth">
@@ -93,14 +94,14 @@
               <label>
                 Create online banking password
                 <span class="password-field">
-                  <input name="password" type="password" autocomplete="new-password" minlength="8" required>
+                  <input name="password" type="password" autocomplete="new-password" minlength="10" required>
                   <button class="password-toggle" type="button" data-toggle-password>Show</button>
                 </span>
               </label>
               <div class="password-strength">
                 <span id="passwordStrengthBar"></span>
               </div>
-              <p class="form-note" id="passwordStrengthText">Use at least 8 characters with letters and numbers.</p>
+              <p class="form-note" id="passwordStrengthText">Use at least 10 characters with uppercase, lowercase, and numbers.</p>
               <label class="checkbox-label">
                 <input name="agreeTerms" type="checkbox" required>
                 I confirm the information provided is accurate and agree to the account terms.

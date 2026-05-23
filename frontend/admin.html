@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - TurkishBank UK</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body data-page="admin">
@@ -40,7 +41,10 @@
             <p class="eyebrow">Back Office</p>
             <h1>Account Overview</h1>
           </div>
-          <button class="text-button" id="adminRefreshButton" type="button">Refresh</button>
+          <div class="dashboard-head__actions">
+            <input class="admin-search" id="adminSearch" placeholder="Search customers">
+            <button class="text-button" id="adminRefreshButton" type="button">Refresh</button>
+          </div>
         </div>
         <section class="dashboard-metrics" id="adminMetrics"></section>
         <section class="admin-grid">

@@ -1485,6 +1485,52 @@ button {
   font-size: 12px;
 }
 
+.admin-search {
+  min-height: 38px;
+  width: min(260px, 100%);
+  border: 1px solid #cccccc;
+  padding: 0 11px;
+}
+
+.audit-list {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #dddddd;
+}
+
+.audit-list h4 {
+  margin: 0;
+  color: #333333;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.audit-list article,
+.audit-mini {
+  display: grid;
+  gap: 3px;
+}
+
+.audit-list article {
+  padding: 9px 10px;
+  background: #ffffff;
+  border: 1px solid #e1e1e1;
+}
+
+.audit-list strong {
+  color: #333333;
+  font-size: 13px;
+}
+
+.audit-list span,
+.audit-mini small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .footer-grid {
   display: grid;
   grid-template-columns: 1.05fr 1fr 1.1fr 0.82fr 1.2fr;
@@ -1538,6 +1584,51 @@ button {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   color: #c8c8c8;
   font-size: 12px;
+}
+
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-action-btn {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+
+.receipt-link.primary-button {
+  display: inline-grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.status-check-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 18px;
+}
+
+.status-check-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 800;
+}
+
+.status-check-form input {
+  min-height: 42px;
+  border: 1px solid #cccccc;
+  padding: 0 11px;
+}
+
+.status-check-result {
+  min-height: 22px;
+  margin: 12px 0 0;
+  color: var(--muted);
 }
 
 @media (max-width: 980px) {

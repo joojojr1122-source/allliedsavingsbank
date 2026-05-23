@@ -21,6 +21,18 @@ function sendJson(res, statusCode, body) {
 }
 
 function readJsonBody(req) {
+  if (req.body && typeof req.body === "object") {
+    return Promise.resolve(req.body);
+  }
+
+  if (typeof req.body === "string") {
+    try {
+      return Promise.resolve(req.body ? JSON.parse(req.body) : {});
+    } catch (error) {
+      return Promise.reject(statusError(400, "Invalid JSON body"));
+    }
+  }
+
   return new Promise((resolve, reject) => {
     let rawBody = "";
 
@@ -56,6 +68,24 @@ function sendStaticFile(res, rootDirectory, requestedPath) {
 
   fs.readFile(filePath, (error, content) => {
     if (error) {
+      const extension = path.extname(filePath).toLowerCase();
+
+      if (!extension || extension === ".html") {
+        const indexPath = path.join(rootDirectory, "index.html");
+        fs.readFile(indexPath, (indexError, indexContent) => {
+          if (indexError) {
+            sendJson(res, 404, { error: "Page not found" });
+            return;
+          }
+
+          res.writeHead(200, {
+            "Content-Type": MIME_TYPES[".html"]
+          });
+          res.end(indexContent);
+        });
+        return;
+      }
+
       sendJson(res, 404, { error: "Page not found" });
       return;
     }

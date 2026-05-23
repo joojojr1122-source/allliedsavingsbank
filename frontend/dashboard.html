@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - TurkishBank UK</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body data-page="dashboard">
@@ -123,6 +124,7 @@
                 <span>Session Protected</span>
                 <span id="failedAttemptsBadge">0 failed attempts</span>
               </div>
+              <div class="audit-list" id="auditList"></div>
             </section>
 
             <div class="account-summary" id="accountSummary">
@@ -250,6 +252,10 @@
                     <label>
                       Sort code
                       <input name="recipientSortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56">
+                    </label>
+                    <label>
+                      Schedule date
+                      <input name="scheduledFor" type="date">
                     </label>
                   </div>
                   <button class="primary-button" type="submit">Submit</button>

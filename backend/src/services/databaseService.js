@@ -7,8 +7,8 @@ const DATABASE_PATH = process.env.VERCEL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
 const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "bank-portal-database";
-const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || "";
-const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || "";
+const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
+const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
 async function readDatabase() {
   if (hasRemoteDatabase()) {

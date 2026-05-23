@@ -34,13 +34,29 @@ async function login(req, res) {
     const user = await findUserByEmail(email);
 
     if (isUserLocked(user)) {
-      sendJson(res, 423, { error: "Account is temporarily locked. Please try again later." });
+      const unlockTime = new Date(user.security.lockedUntil).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+      sendJson(res, 423, { error: `Account is temporarily locked. Try again after ${unlockTime}.` });
       return;
     }
 
     if (!user || !verifyPassword(password, user.password)) {
       if (user) await recordFailedLogin(email);
       sendJson(res, 401, { error: "Email or password is incorrect" });
+      return;
+    }
+
+    if (user.account?.status === "Frozen") {
+      sendJson(res, 403, { error: "This account is frozen. Contact support or an administrator." });
+      return;
+    }
+
+    if (user.account?.status === "Rejected") {
+      sendJson(res, 403, { error: `Your application was rejected. ${user.application?.decisionReason || "Please contact support for details."}` });
+      return;
+    }
+
+    if (user.account?.status !== "Active") {
+      sendJson(res, 403, { error: "Your account application must be approved before you can login" });
       return;
     }
 
@@ -85,7 +101,35 @@ async function handleChangePassword(req, res) {
   }
 }
 
+async function getApplicationStatus(req, res, url) {
+  const email = String(url.searchParams.get("email") || "").trim().toLowerCase();
+
+  if (!email) {
+    sendJson(res, 400, { error: "Email is required" });
+    return;
+  }
+
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    sendJson(res, 404, { error: "No application was found for that email" });
+    return;
+  }
+
+  sendJson(res, 200, {
+    application: {
+      name: `${user.firstName} ${user.lastName}`,
+      product: user.account?.type || user.application?.product || "Current Account",
+      status: user.application?.status || user.account?.status || "Pending Approval",
+      decisionReason: user.application?.decisionReason || "",
+      submittedAt: user.application?.submittedAt || "",
+      decidedAt: user.application?.decidedAt || ""
+    }
+  });
+}
+
 module.exports = {
+  getApplicationStatus,
   signup,
   login,
   logout,

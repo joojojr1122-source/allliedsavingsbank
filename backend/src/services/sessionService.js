@@ -2,6 +2,7 @@ const crypto = require("crypto");
 
 const sessions = new Map();
 const TOKEN_SECRET = process.env.SESSION_SECRET || "local-bank-portal-session-secret";
+const SESSION_TTL_MS = 30 * 60 * 1000;
 
 function createSession(userId) {
   if (process.env.VERCEL) {
@@ -31,10 +32,17 @@ function getUserIdFromRequest(req) {
 
   if (process.env.VERCEL) {
     const payload = token ? verifyToken(token) : null;
+    if (!payload || Date.now() - Number(payload.createdAt || 0) > SESSION_TTL_MS) {
+      return null;
+    }
     return payload ? payload.userId : null;
   }
 
   const session = token ? sessions.get(token) : null;
+  if (token && session && Date.now() - session.createdAt > SESSION_TTL_MS) {
+    sessions.delete(token);
+    return null;
+  }
   return session ? session.userId : null;
 }
 

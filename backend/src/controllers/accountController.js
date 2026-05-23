@@ -116,6 +116,24 @@ async function deleteTransaction(req, res) {
     return;
   }
 
+  if (tx.status === "Pending") {
+    user.transactions.splice(txIndex, 1);
+    user.transactions.unshift({
+      id: crypto.randomUUID(),
+      type: "Cancelled Payment",
+      description: `Cancelled: ${tx.description}`,
+      amount: 0,
+      balanceAfter: user.account.balance,
+      createdAt: new Date().toISOString(),
+      status: "Cancelled",
+      reference: tx.reference || "CANCELLED"
+    });
+
+    await writeDatabase(database);
+    sendJson(res, 200, { user: publicUser(user) });
+    return;
+  }
+
   user.account.balance = Number((user.account.balance - tx.amount).toFixed(2));
   user.transactions.splice(txIndex, 1);
 

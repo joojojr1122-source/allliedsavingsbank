@@ -48,6 +48,8 @@ const adminMetrics = document.querySelector("#adminMetrics");
 const adminUsers = document.querySelector("#adminUsers");
 const adminTransactions = document.querySelector("#adminTransactions");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
+const adminSearch = document.querySelector("#adminSearch");
+const auditList = document.querySelector("#auditList");
 const passwordToggles = document.querySelectorAll("[data-toggle-password]");
 const signupStepPanels = document.querySelectorAll("[data-step-panel]");
 const signupStepLabels = document.querySelectorAll(".step-indicator span");
@@ -75,6 +77,7 @@ const slides = [
 let slideIndex = 0;
 let allTransactions = [];
 let currentUser = null;
+let latestAdminSummary = null;
 const isDashboardPage = document.body.dataset.page === "dashboard";
 const isLoadingPage = document.body.dataset.page === "loading";
 const isConfirmationPage = document.body.dataset.page === "confirmation";
@@ -107,7 +110,7 @@ function showDashboard(user) {
   dashboard?.classList.remove("is-hidden");
   tabs.forEach((tab) => tab.classList.remove("is-active"));
 
-  setText("#accountName", `${user.firstName} ${user.lastName}`);
+  setText("#accountName", user.firstName);
   setText("#accountProduct", user.account.type);
   setText("#accountBalance", formatMoney(user.account.balance, user.account.currency));
   setText("#accountNumber", user.account.number);
@@ -115,24 +118,25 @@ function showDashboard(user) {
   setText("#accountStatus", user.account.status || "Active");
   setText("#accountIban", user.account.iban || `GB82TBUK237548${user.account.number}`);
   setText("#accountProductDetail", user.account.type);
-  setText("#accountEmail", user.email || "—");
-  setText("#accountPhone", user.application?.phone || "—");
+  setText("#accountEmail", user.email || "-");
+  setText("#accountPhone", user.application?.phone || "-");
 
   const openedDate = user.account.openedAt
     ? new Date(user.account.openedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-    : "—";
+    : "-";
   setText("#accountOpened", openedDate);
   setText("#accountCurrency", user.account.currency || "GBP");
   setText("#accountAddress", user.application?.address || "-");
   setText("#cardStatus", user.account.cardStatus || "Active");
   setText("#dailyTransferLimit", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
-  setText("#cardPreviewName", `${user.firstName} ${user.lastName}`);
-  setText("#cardPreviewNumber", `•••• •••• •••• ${String(user.account.number).slice(-4)}`);
+  setText("#cardPreviewName", user.firstName);
+  setText("#cardPreviewNumber", `**** **** **** ${String(user.account.number).slice(-4)}`);
   setText("#savedPayeesCount", String((user.beneficiaries || []).length));
   setText("#pendingPayments", String((user.transactions || []).filter((t) => t.status === "Pending").length));
   setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-GB") : "First access");
   setText("#failedAttemptsBadge", `${Number(user.security?.failedLoginAttempts || 0)} failed attempts`);
   setText("#securitySummary", user.security?.lastLoginAt ? "Recent sign-in recorded. Keep your password private." : "Your first online banking session is active.");
+  renderAuditList(user.auditLog || []);
 
   if (cardStatusSelect) cardStatusSelect.value = user.account.cardStatus || "Active";
   if (dailyTransferLimitInput) dailyTransferLimitInput.value = user.account.dailyTransferLimit || 1000;
@@ -143,6 +147,25 @@ function showDashboard(user) {
   currentUser = user;
   setStatus("");
   loadPersistenceStatus();
+}
+
+function renderAuditList(entries) {
+  if (!auditList) return;
+
+  if (!entries.length) {
+    auditList.innerHTML = `<p class="form-note">No security events recorded yet.</p>`;
+    return;
+  }
+
+  auditList.innerHTML = `
+    <h4>Recent security activity</h4>
+    ${entries.slice(0, 4).map((entry) => `
+      <article>
+        <strong>${escapeHtml(formatAuditAction(entry.action))}</strong>
+        <span>${new Date(entry.createdAt).toLocaleString("en-GB")}${entry.note ? ` - ${escapeHtml(entry.note)}` : ""}</span>
+      </article>
+    `).join("")}
+  `;
 }
 
 async function loadPersistenceStatus() {
@@ -195,11 +218,12 @@ function showTransactionReceipt(user) {
 
   openReceiptModal({
     title: `${transaction.type} Confirmation`,
-    status: "Transaction completed successfully.",
+    status: transaction.status === "Pending" ? "Payment scheduled and awaiting processing." : "Transaction completed successfully.",
     rows: [
       { label: "Reference", value: transaction.reference || "Completed" },
       { label: "Amount", value: formatMoney(Math.abs(transaction.amount), user.account.currency) },
       { label: "Balance After", value: formatMoney(transaction.balanceAfter, user.account.currency) },
+      ...(transaction.scheduledFor ? [{ label: "Scheduled For", value: new Date(transaction.scheduledFor).toLocaleDateString("en-GB") }] : []),
       { label: "Date", value: new Date(transaction.createdAt).toLocaleString("en-GB") }
     ]
   });
@@ -207,11 +231,12 @@ function showTransactionReceipt(user) {
 
 function renderTransactions(transactions, currency) {
   if (!transactionList) return;
-  if (!transactions.length) {
+  const visibleTransactions = transactions.filter((transaction) => transaction.type !== "Account Opening");
+  if (!visibleTransactions.length) {
     transactionList.innerHTML = `<p class="form-note">No account activity yet.</p>`;
     return;
   }
-  transactionList.innerHTML = transactions.map((transaction) => {
+  transactionList.innerHTML = visibleTransactions.map((transaction) => {
     const isPositive = transaction.amount >= 0;
     const amountClass = isPositive ? "is-positive" : "is-negative";
     const date = new Date(transaction.createdAt).toLocaleDateString("en-US", {
@@ -219,16 +244,15 @@ function renderTransactions(transactions, currency) {
       day: "numeric",
       year: "numeric"
     });
-    const removable = transaction.type !== "Account Opening";
-    const removeBtn = removable
-      ? `<button class="tx-remove-btn" data-tx-delete="${escapeHtml(transaction.id)}" title="Remove transaction">&#128465;</button>`
-      : "";
+    const removeTitle = transaction.status === "Pending" ? "Cancel payment" : "Reverse transaction";
+    const removeBtn = `<button class="tx-remove-btn" data-tx-delete="${escapeHtml(transaction.id)}" title="${removeTitle}">&#128465;</button>`;
     return `
       <article class="transaction-item" data-tx-id="${escapeHtml(transaction.id)}">
         <div>
           <strong>${escapeHtml(transaction.type)}</strong>
           <span>${escapeHtml(transaction.description)}</span>
           <small>${date} &middot; ${escapeHtml(transaction.status)} &middot; ${escapeHtml(transaction.reference || "PENDING")}</small>
+          ${transaction.scheduledFor ? `<small>Scheduled for ${new Date(transaction.scheduledFor).toLocaleDateString("en-GB")}</small>` : ""}
           ${transaction.beneficiary ? `<small>To ${escapeHtml(transaction.beneficiary.name)} &middot; ${escapeHtml(transaction.beneficiary.sortCode)} ${escapeHtml(transaction.beneficiary.accountNumber)}</small>` : ""}
         </div>
         <div class="tx-item-right">
@@ -273,7 +297,7 @@ function updateTransferFields() {
   const isTransfer = txTypeSelect.value === "Transfer";
   transferFields.classList.toggle("is-hidden", !isTransfer);
   transferFields.querySelectorAll("input").forEach((input) => {
-    input.required = isTransfer && !beneficiarySelect?.value;
+    input.required = isTransfer && input.name !== "scheduledFor" && !beneficiarySelect?.value;
   });
 }
 
@@ -310,9 +334,11 @@ transactionList?.addEventListener("click", async (e) => {
   if (!btn) return;
   const txId = btn.dataset.txDelete;
   if (!txId) return;
-  if (!window.confirm("Remove this transaction?")) return;
+  const transaction = allTransactions.find((item) => item.id === txId);
+  const prompt = transaction?.status === "Pending" ? "Cancel this scheduled payment?" : "Reverse this transaction?";
+  if (!window.confirm(prompt)) return;
   btn.disabled = true;
-  btn.textContent = "…";
+  btn.textContent = "...";
   await deleteTransaction(txId);
 });
 
@@ -352,6 +378,14 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function formatAuditAction(action) {
+  return String(action || "Activity")
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 function openModal(contentHtml) {
@@ -437,8 +471,8 @@ function showChangePasswordModal() {
     </div>
     <form id="passwordForm">
       <label>Current password<input name="currentPassword" type="password" autocomplete="current-password" required></label>
-      <label>New password<input name="newPassword" type="password" autocomplete="new-password" minlength="8" required></label>
-      <label>Confirm new password<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>New password<input name="newPassword" type="password" autocomplete="new-password" minlength="10" required></label>
+      <label>Confirm new password<input name="confirmPassword" type="password" autocomplete="new-password" minlength="10" required></label>
       <div class="modal-actions">
         <button class="primary-button" type="submit">Update Password</button>
         <button class="text-button modal-secondary" type="button">Cancel</button>
@@ -461,7 +495,7 @@ function showChangePasswordModal() {
       setModalStatus(statusEl, "New passwords do not match.");
       return;
     }
-    setModalStatus(statusEl, "Updating…");
+    setModalStatus(statusEl, "Updating...");
     try {
       await apiRequest("/api/auth/change-password", {
         method: "POST",
@@ -478,6 +512,19 @@ function showChangePasswordModal() {
   });
 }
 
+function hydrateLoginPage() {
+  if (!loginForm) return;
+
+  const pendingEmail = sessionStorage.getItem("pendingLoginEmail");
+
+  if (pendingEmail) {
+    const emailInput = loginForm.querySelector('input[name="email"]');
+    if (emailInput) emailInput.value = pendingEmail;
+    setStatus("Your account has been opened. Login with the password you created.", true);
+    sessionStorage.removeItem("pendingLoginEmail");
+  }
+}
+
 function setModalStatus(el, msg) {
   if (el) el.textContent = msg;
 }
@@ -486,7 +533,7 @@ function updatePasswordStrength(password) {
   if (!passwordStrengthText || !passwordStrengthBar) return;
 
   const checks = [
-    password.length >= 8,
+    password.length >= 10,
     /[A-Z]/.test(password),
     /[a-z]/.test(password),
     /\d/.test(password),
@@ -542,25 +589,49 @@ function renderSignupReview() {
 async function loadAdminSummary(password) {
   if (!adminMetrics || !adminUsers || !adminTransactions) return;
 
-  const data = await apiRequest("/api/admin/summary", {
+  latestAdminSummary = await apiRequest("/api/admin/summary", {
     auth: false,
     headers: { "X-Admin-Password": password }
   });
+  renderAdminSummary();
+}
+
+function renderAdminSummary() {
+  if (!latestAdminSummary || !adminMetrics || !adminUsers || !adminTransactions) return;
+
+  const data = latestAdminSummary;
+  const searchTerm = (adminSearch?.value || "").trim().toLowerCase();
+  const users = searchTerm
+    ? data.users.filter((user) => [user.name, user.email, user.accountNumber, user.status].join(" ").toLowerCase().includes(searchTerm))
+    : data.users;
 
   adminMetrics.innerHTML = [
     ["Accounts", data.totals.accounts],
+    ["Pending", data.totals.pending || 0],
+    ["Active", data.totals.active || 0],
+    ["Frozen", data.totals.frozen || 0],
     ["Total Balance", formatMoney(data.totals.balance, "GBP")],
     ["Transactions", data.totals.transactions],
     ["Storage", data.database.persistent ? "Persistent" : "Session"]
   ].map(([label, value]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`).join("");
 
-  adminUsers.innerHTML = data.users.map((user) => `
+  adminUsers.innerHTML = users.map((user) => `
     <article class="admin-row">
       <div>
         <strong>${escapeHtml(user.name)}</strong>
-        <span>${escapeHtml(user.email)} &middot; ${escapeHtml(user.accountNumber)}</span>
+        <span>${escapeHtml(user.email)} &middot; ${escapeHtml(user.accountNumber || "Pending account")} &middot; ${escapeHtml(user.status)}</span>
+        <span>Application: ${escapeHtml(user.applicationStatus || "Not started")}${user.decisionReason ? ` &middot; ${escapeHtml(user.decisionReason)}` : ""}</span>
+        <div class="audit-mini">
+          ${(user.auditLog || []).slice(0, 3).map((entry) => `<small>${escapeHtml(formatAuditAction(entry.action))} &middot; ${new Date(entry.createdAt).toLocaleDateString("en-GB")}</small>`).join("")}
+        </div>
       </div>
-      <div>${formatMoney(user.balance, "GBP")}</div>
+      <div class="admin-row-actions">
+        <span>${formatMoney(user.balance, "GBP")}</span>
+        ${user.status === "Pending Approval" ? `<button class="primary-button admin-action-btn" data-admin-action="approve" data-email="${escapeHtml(user.email)}" type="button">Approve</button>` : ""}
+        ${user.status === "Pending Approval" ? `<button class="text-button admin-action-btn" data-admin-action="reject" data-email="${escapeHtml(user.email)}" type="button">Reject</button>` : ""}
+        ${user.status === "Active" ? `<button class="text-button admin-action-btn" data-admin-action="freeze" data-email="${escapeHtml(user.email)}" type="button">Freeze</button>` : ""}
+        ${user.status === "Frozen" ? `<button class="primary-button admin-action-btn" data-admin-action="reactivate" data-email="${escapeHtml(user.email)}" type="button">Reactivate</button>` : ""}
+      </div>
     </article>
   `).join("") || `<p class="form-note">No accounts yet.</p>`;
 
@@ -612,6 +683,66 @@ adminRefreshButton?.addEventListener("click", async () => {
   const password = sessionStorage.getItem("adminPassword");
   if (!password) return;
   await loadAdminSummary(password);
+});
+
+adminSearch?.addEventListener("input", renderAdminSummary);
+
+adminUsers?.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-admin-action]");
+  if (!button) return;
+
+  const password = sessionStorage.getItem("adminPassword");
+  const email = button.dataset.email;
+  const action = button.dataset.adminAction;
+
+  if (!password || !email || !action) return;
+
+  button.disabled = true;
+  const originalLabel = button.textContent;
+  button.textContent = "Working...";
+
+  try {
+    if (action === "approve") {
+      await apiRequest(`/api/admin/approve-account/${encodeURIComponent(email)}`, {
+        auth: false,
+        method: "POST",
+        headers: { "X-Admin-Password": password }
+      });
+    }
+
+    if (action === "reject") {
+      const reason = window.prompt("Reason for rejection", "Identity checks could not be completed.");
+      if (reason === null) {
+        button.disabled = false;
+        button.textContent = originalLabel;
+        return;
+      }
+      await apiRequest(`/api/admin/reject-account/${encodeURIComponent(email)}`, {
+        auth: false,
+        method: "POST",
+        headers: { "X-Admin-Password": password },
+        body: JSON.stringify({ reason })
+      });
+    }
+
+    if (action === "freeze" || action === "reactivate") {
+      await apiRequest(`/api/admin/account-status/${encodeURIComponent(email)}`, {
+        auth: false,
+        method: "PATCH",
+        headers: { "X-Admin-Password": password },
+        body: JSON.stringify({
+          status: action === "freeze" ? "Frozen" : "Active",
+          note: action === "freeze" ? "Manual back-office security hold." : "Back-office review completed."
+        })
+      });
+    }
+
+    await loadAdminSummary(password);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = originalLabel;
+    if (adminStatus) adminStatus.textContent = error.message;
+  }
 });
 if (mobileMenuToggle) {
   mobileMenuToggle.addEventListener("click", () => {
@@ -673,7 +804,7 @@ beneficiaryList?.addEventListener("click", async (event) => {
     showDashboard(data.user);
     setStatus("Payee removed.", true);
   } catch (error) {
-    setStatus(error.message);
+    setStatus(error.message.includes("approved") ? "Your application is still waiting for admin approval." : error.message);
   }
 });
 
@@ -707,7 +838,7 @@ if (showAllTransactionsBtn) {
   showAllTransactionsBtn.addEventListener("click", async () => {
     if (!currentUser) return;
     showAllTransactionsBtn.disabled = true;
-    showAllTransactionsBtn.textContent = "Loading…";
+    showAllTransactionsBtn.textContent = "Loading...";
     try {
       const data = await apiRequest(
         `/api/account/transactions?limit=500&type=${encodeURIComponent(txFilterType?.value || "")}`
@@ -736,7 +867,7 @@ quickActionButtons.forEach((btn) => {
   });
 });
 
-// ── Tab / auth / logout / restoreSession (unchanged) ───────────────────────
+// -- Tab / auth / logout / restoreSession (unchanged) -----------------------
 
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => showTab(tab.dataset.tab));
@@ -772,9 +903,10 @@ signupForm?.addEventListener("submit", async (event) => {
       method: "POST",
       body: JSON.stringify(formToJson(signupForm))
     });
-    localStorage.setItem(tokenKey, data.token);
+    localStorage.removeItem(tokenKey);
     sessionStorage.setItem("accountConfirmation", JSON.stringify({
       name: `${data.user.firstName} ${data.user.lastName}`,
+      email: data.user.email,
       accountNumber: data.user.account.number,
       sortCode: data.user.account.sortCode,
       product: data.user.account.type
@@ -817,6 +949,11 @@ logoutButton?.addEventListener("click", async () => {
 });
 
 async function restoreSession() {
+  if (isConfirmationPage) {
+    renderConfirmationPage();
+    return;
+  }
+
   if (!localStorage.getItem(tokenKey)) {
     if (isDashboardPage || isLoadingPage) window.location.assign("/login.html");
     return;
@@ -832,11 +969,6 @@ async function restoreSession() {
       sessionStorage.removeItem("bankLoadingMessage");
       window.location.assign(next);
     }, 1200);
-    return;
-  }
-
-  if (isConfirmationPage) {
-    renderConfirmationPage();
     return;
   }
 
@@ -875,17 +1007,21 @@ function renderConfirmationPage() {
 
   confirmationPanel.innerHTML = `
     <div class="receipt-card">
-      <p class="eyebrow">Application Approved</p>
-      <h1>Your account is ready</h1>
-      <p class="form-note">A confirmation has been prepared for your records. You can continue to online banking now.</p>
+      <p class="eyebrow">Application Submitted</p>
+      <h1>Waiting for admin approval</h1>
+      <p class="form-note">Your application has been received. An administrator must approve it before online banking access is available.</p>
       <dl class="receipt-details">
         <div>
-          <dt>Name</dt>
+          <dt>Applicant</dt>
           <dd>${escapeHtml(details?.name || "Account Holder")}</dd>
         </div>
         <div>
           <dt>Product</dt>
           <dd>${escapeHtml(details?.product || "Current Account")}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>${escapeHtml(details?.email || "Use your application email")}</dd>
         </div>
         <div>
           <dt>Account Number</dt>
@@ -896,22 +1032,43 @@ function renderConfirmationPage() {
           <dd>${escapeHtml(details?.sortCode || "Available in dashboard")}</dd>
         </div>
       </dl>
+      <form class="status-check-form" id="applicationStatusForm">
+        <label>
+          Check application status
+          <input name="email" type="email" value="${escapeHtml(details?.email || "")}" placeholder="Email used for application" required>
+        </label>
+        <button class="primary-button" type="submit">Check Status</button>
+      </form>
+      <p class="status-check-result" id="applicationStatusResult"></p>
       <div class="modal-actions">
-        <button class="primary-button" id="continueToDashboard" type="button">Continue to Dashboard</button>
-        <a class="text-button receipt-link" href="/login.html">Return to Login</a>
+        <a class="primary-button receipt-link" href="/login.html">Go to Login</a>
+        <a class="text-button receipt-link" href="/admin.html">Admin Console</a>
       </div>
     </div>
   `;
 
-  confirmationPanel.querySelector("#continueToDashboard")?.addEventListener("click", () => {
-    sessionStorage.removeItem("accountConfirmation");
-    goToLoading("Finalising account access...");
+  const statusForm = confirmationPanel.querySelector("#applicationStatusForm");
+  const statusResult = confirmationPanel.querySelector("#applicationStatusResult");
+
+  statusForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = formToJson(statusForm).email;
+    statusResult.textContent = "Checking...";
+    try {
+      const data = await apiRequest(`/api/auth/application-status?email=${encodeURIComponent(email)}`, { auth: false });
+      const app = data.application;
+      const decided = app.decidedAt ? ` Reviewed ${new Date(app.decidedAt).toLocaleString("en-GB")}.` : "";
+      const reason = app.decisionReason ? ` ${app.decisionReason}` : "";
+      statusResult.textContent = `${app.name} - ${app.product}: ${app.status}.${decided}${reason}`;
+    } catch (error) {
+      statusResult.textContent = error.message;
+    }
   });
 }
 
 branchForm?.addEventListener("submit", (event) => {
   event.preventDefault();
-  const selectedBranch = branchForm.querySelectorAll("select")[0]?.value || "—";
+  const selectedBranch = branchForm.querySelectorAll("select")[0]?.value || "-";
   branchResult.textContent = `${selectedBranch} selected. Branch details would open from TurkishBank UK in the live site.`;
 });
 
@@ -924,7 +1081,7 @@ newsletterForm?.addEventListener("submit", (event) => {
 
 transactionForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  setStatus("Processing transaction…");
+  setStatus("Processing transaction...");
   try {
     const data = await apiRequest("/api/account/transactions", {
       method: "POST",
@@ -932,14 +1089,15 @@ transactionForm?.addEventListener("submit", async (event) => {
     });
     transactionForm.reset();
     showDashboard(data.user);
-    setStatus("Transaction completed.", true);
+    const latestTransaction = data.user.transactions?.[0];
+    setStatus(latestTransaction?.status === "Pending" ? "Payment scheduled." : "Transaction completed.", true);
     showTransactionReceipt(data.user);
   } catch (error) {
     setStatus(error.message);
   }
 });
 
-// ── Slider ─────────────────────────────────────────────────────────────────
+// -- Slider -----------------------------------------------------------------
 
 function renderSlide() {
   if (!hero || !heroTitle) return;
@@ -966,4 +1124,6 @@ sliderDots.forEach((dot, index) => {
 updateTransferFields();
 showSignupStep(0);
 renderSlide();
+hydrateLoginPage();
 restoreSession();
+

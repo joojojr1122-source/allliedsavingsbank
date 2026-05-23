@@ -1,10 +1,58 @@
 const { getDatabaseInfo, readDatabase } = require("../services/databaseService");
-const { sendJson } = require("../utils/http");
+const { approvePendingAccount, publicUser, rejectPendingAccount, updateAccountStatusAsAdmin } = require("../services/userService");
+const { readJsonBody, sendJson } = require("../utils/http");
 
 function isAdminRequest(req) {
   const configuredPassword = process.env.ADMIN_PASSWORD || "admin12345";
   const providedPassword = req.headers["x-admin-password"] || "";
   return providedPassword === configuredPassword;
+}
+
+async function approveAccountAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminApprovalEmail || "";
+    const user = await approvePendingAccount(email);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Approval failed" });
+  }
+}
+
+async function rejectAccountAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const body = await readJsonBody(req);
+    const email = req.adminApprovalEmail || "";
+    const user = await rejectPendingAccount(email, body.reason);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Rejection failed" });
+  }
+}
+
+async function updateAccountStatus(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const body = await readJsonBody(req);
+    const email = req.adminApprovalEmail || "";
+    const user = await updateAccountStatusAsAdmin(email, body.status, body.note);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Status update failed" });
+  }
 }
 
 async function getAdminSummary(req, res) {
@@ -22,6 +70,10 @@ async function getAdminSummary(req, res) {
     totals: {
       users: users.length,
       accounts: users.length,
+      pending: users.filter((user) => user.account?.status === "Pending Approval").length,
+      active: users.filter((user) => user.account?.status === "Active").length,
+      frozen: users.filter((user) => user.account?.status === "Frozen").length,
+      rejected: users.filter((user) => user.account?.status === "Rejected").length,
       balance: users.reduce((total, user) => total + Number(user.account?.balance || 0), 0),
       transactions: transactions.length
     },
@@ -33,8 +85,12 @@ async function getAdminSummary(req, res) {
       accountNumber: user.account?.number || "",
       balance: Number(user.account?.balance || 0),
       status: user.account?.status || "Active",
+      applicationStatus: user.application?.status || "",
+      decisionReason: user.application?.decisionReason || "",
+      submittedAt: user.application?.submittedAt || user.createdAt || "",
       openedAt: user.account?.openedAt || user.createdAt || "",
-      lastLoginAt: user.security?.lastLoginAt || ""
+      lastLoginAt: user.security?.lastLoginAt || "",
+      auditLog: (user.auditLog || []).slice(0, 5)
     })).sort((a, b) => String(b.openedAt).localeCompare(String(a.openedAt))),
     recentTransactions: transactions
       .map((transaction) => ({
@@ -56,6 +112,9 @@ async function getPersistenceStatus(req, res) {
 }
 
 module.exports = {
+  approveAccountAsAdmin,
+  rejectAccountAsAdmin,
+  updateAccountStatus,
   getAdminSummary,
   getPersistenceStatus
 };

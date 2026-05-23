@@ -1,4 +1,5 @@
 const {
+  getApplicationStatus,
   signup,
   login,
   logout,
@@ -7,6 +8,11 @@ const {
 const { sendJson } = require("../utils/http");
 
 async function handleAuthRoute(req, res, url) {
+  if (req.method === "GET" && url.pathname === "/api/auth/application-status") {
+    await getApplicationStatus(req, res, url);
+    return;
+  }
+
   if (req.method === "POST" && url.pathname === "/api/auth/signup") {
     await signup(req, res);
     return;
