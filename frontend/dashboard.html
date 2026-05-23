@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TurkishBank UK</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body data-page="dashboard">
+    <div class="top-strip">
+      <div class="wrap top-strip__inner">
+        <span>020 7403 5656</span>
+        <div class="top-strip__right">
+          <nav aria-label="Important links">
+            <a href="https://www.turkishbank.co.uk/important-links/">Important Links</a>
+            <a href="https://www.turkishbank.co.uk/legal/">Legal</a>
+            <a href="https://www.turkishbank.co.uk/interest-rates/">Interest Rates</a>
+            <a href="https://www.turkishbank.co.uk/fees-commisions/">Fees &amp; Commissions</a>
+          </nav>
+          <div class="internet-drop">
+            <span>Internet Banking</span>
+            <button type="button" onclick="document.querySelector('#logoutButton')?.click()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="TurkishBank UK home">
+          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+        </a>
+
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="/">Home</a>
+          <a href="https://www.turkishbank.co.uk/personal/">Personal</a>
+          <a href="https://www.turkishbank.co.uk/business/">Business</a>
+          <a href="https://www.turkishbank.co.uk/global/">Global</a>
+          <a href="/dashboard.html">Online Banking</a>
+        </nav>
+      </div>
+      <div class="red-rule"></div>
+    </header>
+
+    <main>
+      <section class="wrap portal-layout is-open dashboard-page" id="portal">
+        <aside class="side-menu">
+          <h2>ACCOUNT</h2>
+          <a href="#accountSummary">Account Summary</a>
+          <a href="#transactionForm">Payments &amp; Transfers</a>
+          <a href="#beneficiaryForm">Payees</a>
+          <a href="#transactionList">Recent Activity</a>
+          <a href="/">Back to Home</a>
+        </aside>
+
+        <section class="auth-panel" aria-live="polite">
+          <section class="dashboard" id="dashboard">
+            <div class="dashboard-head">
+              <div>
+                <p class="eyebrow" id="accountProduct">Current Account</p>
+                <h2 id="accountName">Account Holder</h2>
+              </div>
+              <div class="dashboard-head__actions">
+                <button class="text-button" id="settingsButton">My Details</button>
+                <button class="text-button" id="changePasswordButton">Change Password</button>
+                <button class="text-button" id="logoutButton">Logout</button>
+              </div>
+            </div>
+
+            <p class="demo-note" id="accountStatusBanner">
+              Account opened locally in demo mode - this is a school project.
+            </p>
+
+            <div class="balance-box">
+              <span>Available Balance</span>
+              <strong id="accountBalance">&pound;0.00</strong>
+            </div>
+
+            <div class="account-summary" id="accountSummary">
+              <dl class="account-details">
+                <div>
+                  <dt>Account Number</dt>
+                  <dd id="accountNumber">00000000</dd>
+                </div>
+                <div>
+                  <dt>Sort Code</dt>
+                  <dd id="sortCode">00-00-00</dd>
+                </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd id="accountStatus">Active</dd>
+                </div>
+                <div>
+                  <dt>Opened</dt>
+                  <dd id="accountOpened">&mdash;</dd>
+                </div>
+                <div>
+                  <dt>Currency</dt>
+                  <dd id="accountCurrency">GBP</dd>
+                </div>
+                <div>
+                  <dt>Card</dt>
+                  <dd id="cardStatus">Active</dd>
+                </div>
+              </dl>
+              <dl class="account-details">
+                <div>
+                  <dt>IBAN</dt>
+                  <dd id="accountIban">GB00TBUK00000000</dd>
+                </div>
+                <div>
+                  <dt>Product</dt>
+                  <dd id="accountProductDetail">Current Account</dd>
+                </div>
+                <div>
+                  <dt>Email</dt>
+                  <dd id="accountEmail">&mdash;</dd>
+                </div>
+                <div>
+                  <dt>Phone</dt>
+                  <dd id="accountPhone">&mdash;</dd>
+                </div>
+                <div>
+                  <dt>Address</dt>
+                  <dd id="accountAddress">&mdash;</dd>
+                </div>
+              </dl>
+            </div>
+
+            <section class="controls-panel">
+              <div>
+                <h3>Account Controls</h3>
+                <p>Manage simple demo security settings for this account.</p>
+              </div>
+              <form id="controlsForm">
+                <label>
+                  Card status
+                  <select name="cardStatus" id="cardStatusSelect">
+                    <option>Active</option>
+                    <option>Frozen</option>
+                  </select>
+                </label>
+                <label>
+                  Transfer limit
+                  <input name="dailyTransferLimit" id="dailyTransferLimitInput" type="number" min="50" max="5000" step="50">
+                </label>
+                <button class="primary-button" type="submit">Save</button>
+              </form>
+            </section>
+
+            <div class="quick-actions">
+              <button class="quick-action-btn" data-quick-action="deposit" title="Deposit">
+                <span class="qa-icon">&#8593;</span> Deposit
+              </button>
+              <button class="quick-action-btn" data-quick-action="withdrawal" title="Withdrawal">
+                <span class="qa-icon">&#8595;</span> Withdrawal
+              </button>
+              <button class="quick-action-btn" data-quick-action="transfer" title="Transfer">
+                <span class="qa-icon">&#10142;</span> Transfer
+              </button>
+              <button class="quick-action-btn is-outline" id="showAllTransactionsBtn" title="Full History">
+                <span class="qa-icon">&#128196;</span> Full History
+              </button>
+            </div>
+
+            <div class="banking-workspace">
+              <section class="money-actions">
+                <h3>Payments &amp; Transfers</h3>
+                <form id="transactionForm">
+                  <label>
+                    Action
+                    <select name="type" id="txType" required>
+                      <option>Deposit</option>
+                      <option>Withdrawal</option>
+                      <option>Transfer</option>
+                    </select>
+                  </label>
+                  <label>
+                    Amount
+                    <input name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+                  </label>
+                  <label>
+                    Reference
+                    <input name="description" placeholder="Payment reference" required>
+                  </label>
+                  <div class="transfer-fields is-hidden" id="transferFields">
+                    <label>
+                      Saved payee
+                      <select name="beneficiaryId" id="beneficiarySelect">
+                        <option value="">Use new recipient details</option>
+                      </select>
+                    </label>
+                    <label>
+                      Recipient name
+                      <input name="recipientName" placeholder="Full name or business">
+                    </label>
+                    <label>
+                      Account number
+                      <input name="recipientAccountNumber" inputmode="numeric" maxlength="8" placeholder="12345678">
+                    </label>
+                    <label>
+                      Sort code
+                      <input name="recipientSortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56">
+                    </label>
+                  </div>
+                  <button class="primary-button" type="submit">Submit</button>
+                </form>
+              </section>
+
+              <section class="payee-panel">
+                <h3>Payees</h3>
+                <form id="beneficiaryForm">
+                  <label>
+                    Name
+                    <input name="name" placeholder="Recipient name" required>
+                  </label>
+                  <label>
+                    Account number
+                    <input name="accountNumber" inputmode="numeric" maxlength="8" placeholder="12345678" required>
+                  </label>
+                  <label>
+                    Sort code
+                    <input name="sortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56" required>
+                  </label>
+                  <label>
+                    Nickname
+                    <input name="nickname" placeholder="Optional">
+                  </label>
+                  <button class="primary-button" type="submit">Add Payee</button>
+                </form>
+                <div class="payee-list" id="beneficiaryList"></div>
+              </section>
+
+              <section class="activity-panel">
+                <h3>Recent Activity</h3>
+                <div class="tx-toolbar">
+                  <select id="txFilterType" class="tx-filter">
+                    <option value="">All types</option>
+                    <option>Deposit</option>
+                    <option>Withdrawal</option>
+                    <option>Transfer</option>
+                    <option>Reversal</option>
+                  </select>
+                  <input type="text" id="txFilterDesc" class="tx-filter tx-filter--search" placeholder="Search reference...">
+                  <button class="text-button tx-download" type="button" id="downloadStatementBtn">Download CSV</button>
+                </div>
+                <div class="transaction-list" id="transactionList"></div>
+              </section>
+            </div>
+          </section>
+
+          <p class="status" id="statusMessage"></p>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop is-hidden" id="modalBackdrop">
+      <div class="modal" id="modalPanel"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

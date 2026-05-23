@@ -56,13 +56,16 @@ const slides = [
 let slideIndex = 0;
 let allTransactions = [];
 let currentUser = null;
+const isDashboardPage = document.body.dataset.page === "dashboard";
 
 function setStatus(message, isSuccess = false) {
+  if (!statusMessage) return;
   statusMessage.textContent = message;
   statusMessage.classList.toggle("is-success", isSuccess);
 }
 
 function showTab(name) {
+  if (!portal || !signupForm || !loginForm || !dashboard) return;
   portal.classList.add("is-open");
   tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === name));
   signupForm.classList.toggle("is-hidden", name !== "signup");
@@ -73,10 +76,10 @@ function showTab(name) {
 }
 
 function showDashboard(user) {
-  portal.classList.add("is-open");
-  signupForm.classList.add("is-hidden");
-  loginForm.classList.add("is-hidden");
-  dashboard.classList.remove("is-hidden");
+  portal?.classList.add("is-open");
+  signupForm?.classList.add("is-hidden");
+  loginForm?.classList.add("is-hidden");
+  dashboard?.classList.remove("is-hidden");
   tabs.forEach((tab) => tab.classList.remove("is-active"));
 
   setText("#accountName", `${user.firstName} ${user.lastName}`);
@@ -258,17 +261,19 @@ function escapeHtml(value) {
 }
 
 function openModal(contentHtml) {
+  if (!modalPanel || !modalBackdrop) return;
   modalPanel.innerHTML = contentHtml;
   modalBackdrop.classList.remove("is-hidden");
   document.body.style.overflow = "hidden";
 }
 
 function closeModal() {
+  if (!modalBackdrop) return;
   modalBackdrop.classList.add("is-hidden");
   document.body.style.overflow = "";
 }
 
-modalBackdrop.addEventListener("click", (e) => {
+modalBackdrop?.addEventListener("click", (e) => {
   if (e.target === modalBackdrop) closeModal();
 });
 
@@ -528,7 +533,7 @@ loginButtons.forEach((button) => {
   });
 });
 
-signupForm.addEventListener("submit", async (event) => {
+signupForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   setStatus("Opening your account...");
   try {
@@ -538,14 +543,13 @@ signupForm.addEventListener("submit", async (event) => {
     });
     localStorage.setItem(tokenKey, data.token);
     signupForm.reset();
-    showDashboard(data.user);
-    setStatus("Your account is open. Your starting balance is £0.00.", true);
+    window.location.assign("/dashboard.html");
   } catch (error) {
     setStatus(error.message);
   }
 });
 
-loginForm.addEventListener("submit", async (event) => {
+loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   setStatus("Signing in...");
   try {
@@ -555,46 +559,60 @@ loginForm.addEventListener("submit", async (event) => {
     });
     localStorage.setItem(tokenKey, data.token);
     loginForm.reset();
-    showDashboard(data.user);
+    window.location.assign("/dashboard.html");
   } catch (error) {
     setStatus(error.message);
   }
 });
 
-logoutButton.addEventListener("click", async () => {
+logoutButton?.addEventListener("click", async () => {
   try {
     await apiRequest("/api/auth/logout", { method: "POST" });
   } finally {
     localStorage.removeItem(tokenKey);
-    showTab("login");
-    setStatus("You have been logged out.", true);
+    if (isDashboardPage) {
+      window.location.assign("/#portal");
+    } else {
+      showTab("login");
+      setStatus("You have been logged out.", true);
+    }
   }
 });
 
 async function restoreSession() {
-  if (!localStorage.getItem(tokenKey)) return;
+  if (!localStorage.getItem(tokenKey)) {
+    if (isDashboardPage) window.location.assign("/#portal");
+    return;
+  }
+
+  if (!isDashboardPage) {
+    window.location.assign("/dashboard.html");
+    return;
+  }
+
   try {
     const data = await apiRequest("/api/account/me");
     showDashboard(data.user);
   } catch (error) {
     localStorage.removeItem(tokenKey);
+    if (isDashboardPage) window.location.assign("/#portal");
   }
 }
 
-branchForm.addEventListener("submit", (event) => {
+branchForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const selectedBranch = branchForm.querySelectorAll("select")[0]?.value || "—";
   branchResult.textContent = `${selectedBranch} selected. Branch details would open from TurkishBank UK in the live site.`;
 });
 
-newsletterForm.addEventListener("submit", (event) => {
+newsletterForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const email = newsletterForm.querySelector("input")?.value.trim() || "";
   newsletterResult.textContent = `Thank you. ${email} has been added to this local demo contact list.`;
   newsletterForm.reset();
 });
 
-transactionForm.addEventListener("submit", async (event) => {
+transactionForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   setStatus("Processing transaction…");
   try {
@@ -613,6 +631,7 @@ transactionForm.addEventListener("submit", async (event) => {
 // ── Slider ─────────────────────────────────────────────────────────────────
 
 function renderSlide() {
+  if (!hero || !heroTitle) return;
   const slide = slides[slideIndex];
   hero.style.backgroundImage = `linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0)), url("${slide.image}")`;
   heroTitle.textContent = slide.title;

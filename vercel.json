@@ -24,6 +24,10 @@
       "dest": "/frontend/app.js"
     },
     {
+      "src": "/dashboard(?:\\.html)?",
+      "dest": "/frontend/dashboard.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
