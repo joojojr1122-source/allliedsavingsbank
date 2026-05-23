@@ -3,3 +3,5 @@ server.err.log
 smoke-homepage.png
 .vercel
 node_modules
+.env
+.env.local

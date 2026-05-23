@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TurkishBank UK</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body data-page="auth">
+    <header class="site-header auth-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="TurkishBank UK home">
+          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+        </a>
+        <nav class="main-nav" aria-label="Account navigation">
+          <a href="/">Home</a>
+          <a href="/signup.html">Open Account</a>
+          <a href="/login.html">Login</a>
+        </nav>
+      </div>
+      <div class="red-rule"></div>
+    </header>
+
+    <main class="auth-page">
+      <section class="auth-shell wrap">
+        <div class="auth-copy">
+          <p class="eyebrow">Internet Banking</p>
+          <h1>Secure account access</h1>
+          <p>Sign in to view your account, manage payees, make transfers, and download statements.</p>
+        </div>
+
+        <section class="auth-card" aria-live="polite">
+          <form class="auth-form" id="loginForm">
+            <h2>Consumer Login</h2>
+            <p class="form-note">Use the email and password from your account application.</p>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button class="primary-button" type="submit">Login</button>
+            <p class="form-note auth-switch">Need an account? <a href="/signup.html">Open one now</a>.</p>
+          </form>
+          <p class="status" id="statusMessage"></p>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop is-hidden" id="modalBackdrop">
+      <div class="modal" id="modalPanel"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

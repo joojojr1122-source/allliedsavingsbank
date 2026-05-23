@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Account - TurkishBank UK</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body data-page="auth">
+    <header class="site-header auth-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="TurkishBank UK home">
+          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+        </a>
+        <nav class="main-nav" aria-label="Account navigation">
+          <a href="/">Home</a>
+          <a href="/signup.html">Open Account</a>
+          <a href="/login.html">Login</a>
+        </nav>
+      </div>
+      <div class="red-rule"></div>
+    </header>
+
+    <main class="auth-page">
+      <section class="auth-shell wrap">
+        <div class="auth-copy">
+          <p class="eyebrow">Personal Banking</p>
+          <h1>Open a personal account</h1>
+          <p>Complete your application and receive your account details immediately after approval.</p>
+        </div>
+
+        <section class="auth-card" aria-live="polite">
+          <form class="auth-form" id="signupForm">
+            <h2>Account Application</h2>
+            <p class="form-note">Open a personal account in your name with a starting balance of &pound;0.00.</p>
+            <label>
+              Product
+              <select name="product" required>
+                <option value="Current Account">Current Account</option>
+                <option value="Basic Savings Account">Basic Savings Account</option>
+                <option value="Easy Access Deposit Account">Easy Access Deposit Account</option>
+              </select>
+            </label>
+            <label>
+              First name
+              <input name="firstName" autocomplete="given-name" required>
+            </label>
+            <label>
+              Last name
+              <input name="lastName" autocomplete="family-name" required>
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Phone
+              <input name="phone" type="tel" autocomplete="tel" required>
+            </label>
+            <label>
+              Date of birth
+              <input name="dateOfBirth" type="date" required>
+            </label>
+            <label>
+              Residential address
+              <input name="address" autocomplete="street-address" required>
+            </label>
+            <label>
+              Employment status
+              <select name="employmentStatus" required>
+                <option value="">Select An Option</option>
+                <option>Student</option>
+                <option>Employed</option>
+                <option>Self-employed</option>
+                <option>Unemployed</option>
+                <option>Retired</option>
+              </select>
+            </label>
+            <label>
+              Create online banking password
+              <input name="password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <label class="checkbox-label">
+              <input name="agreeTerms" type="checkbox" required>
+              I confirm the information provided is accurate and agree to the account terms.
+            </label>
+            <button class="primary-button" type="submit">Submit Application</button>
+            <p class="form-note auth-switch">Already have an account? <a href="/login.html">Login here</a>.</p>
+          </form>
+          <p class="status" id="statusMessage"></p>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop is-hidden" id="modalBackdrop">
+      <div class="modal" id="modalPanel"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

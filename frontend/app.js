@@ -38,6 +38,8 @@ const controlsForm = document.querySelector("#controlsForm");
 const cardStatusSelect = document.querySelector("#cardStatusSelect");
 const dailyTransferLimitInput = document.querySelector("#dailyTransferLimitInput");
 const downloadStatementBtn = document.querySelector("#downloadStatementBtn");
+const loadingStatus = document.querySelector("#loadingStatus");
+const confirmationPanel = document.querySelector("#confirmationPanel");
 
 const slides = [
   {
@@ -57,6 +59,10 @@ let slideIndex = 0;
 let allTransactions = [];
 let currentUser = null;
 const isDashboardPage = document.body.dataset.page === "dashboard";
+const isLoadingPage = document.body.dataset.page === "loading";
+const isConfirmationPage = document.body.dataset.page === "confirmation";
+const isAuthPage = document.body.dataset.page === "auth";
+const isHomePage = document.body.dataset.page === "home";
 
 function setStatus(message, isSuccess = false) {
   if (!statusMessage) return;
@@ -110,6 +116,57 @@ function showDashboard(user) {
   renderBeneficiaries(user.beneficiaries || []);
   currentUser = user;
   setStatus("");
+}
+
+function buildDashboardUrl() {
+  return "/dashboard.html";
+}
+
+function goToLoading(message, next = buildDashboardUrl()) {
+  sessionStorage.setItem("bankLoadingMessage", message);
+  window.location.assign(`/loading.html?next=${encodeURIComponent(next)}`);
+}
+
+function openReceiptModal(receipt) {
+  openModal(`
+    <div class="modal-header">
+      <h2>${escapeHtml(receipt.title)}</h2>
+      <button class="modal-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="receipt-modal">
+      <p class="receipt-status">${escapeHtml(receipt.status)}</p>
+      <dl class="receipt-details">
+        ${receipt.rows.map((row) => `
+          <div>
+            <dt>${escapeHtml(row.label)}</dt>
+            <dd>${escapeHtml(row.value)}</dd>
+          </div>
+        `).join("")}
+      </dl>
+      <div class="modal-actions">
+        <button class="primary-button modal-close-action" type="button">Done</button>
+      </div>
+    </div>
+  `);
+  modalPanel?.querySelector(".modal-close")?.addEventListener("click", closeModal);
+  modalPanel?.querySelector(".modal-close-action")?.addEventListener("click", closeModal);
+}
+
+function showTransactionReceipt(user) {
+  const transaction = user.transactions?.[0];
+
+  if (!transaction) return;
+
+  openReceiptModal({
+    title: `${transaction.type} Confirmation`,
+    status: "Transaction completed successfully.",
+    rows: [
+      { label: "Reference", value: transaction.reference || "Completed" },
+      { label: "Amount", value: formatMoney(Math.abs(transaction.amount), user.account.currency) },
+      { label: "Balance After", value: formatMoney(transaction.balanceAfter, user.account.currency) },
+      { label: "Date", value: new Date(transaction.createdAt).toLocaleString("en-GB") }
+    ]
+  });
 }
 
 function renderTransactions(transactions, currency) {
@@ -278,7 +335,7 @@ modalBackdrop?.addEventListener("click", (e) => {
 });
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !modalBackdrop.classList.contains("is-hidden")) closeModal();
+  if (e.key === "Escape" && modalBackdrop && !modalBackdrop.classList.contains("is-hidden")) closeModal();
 });
 
 function showSettingsModal() {
@@ -522,6 +579,10 @@ tabs.forEach((tab) => {
 signupButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
     event.preventDefault();
+    if (isHomePage || !signupForm) {
+      window.location.assign("/signup.html");
+      return;
+    }
     showTab("signup");
   });
 });
@@ -529,6 +590,10 @@ signupButtons.forEach((button) => {
 loginButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
     event.preventDefault();
+    if (isHomePage || !loginForm) {
+      window.location.assign("/login.html");
+      return;
+    }
     showTab("login");
   });
 });
@@ -542,8 +607,14 @@ signupForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify(formToJson(signupForm))
     });
     localStorage.setItem(tokenKey, data.token);
+    sessionStorage.setItem("accountConfirmation", JSON.stringify({
+      name: `${data.user.firstName} ${data.user.lastName}`,
+      accountNumber: data.user.account.number,
+      sortCode: data.user.account.sortCode,
+      product: data.user.account.type
+    }));
     signupForm.reset();
-    window.location.assign("/dashboard.html");
+    window.location.assign("/confirmation.html");
   } catch (error) {
     setStatus(error.message);
   }
@@ -559,7 +630,7 @@ loginForm?.addEventListener("submit", async (event) => {
     });
     localStorage.setItem(tokenKey, data.token);
     loginForm.reset();
-    window.location.assign("/dashboard.html");
+    goToLoading("Verifying credentials and preparing your dashboard...");
   } catch (error) {
     setStatus(error.message);
   }
@@ -571,7 +642,7 @@ logoutButton?.addEventListener("click", async () => {
   } finally {
     localStorage.removeItem(tokenKey);
     if (isDashboardPage) {
-      window.location.assign("/#portal");
+      window.location.assign("/login.html");
     } else {
       showTab("login");
       setStatus("You have been logged out.", true);
@@ -581,12 +652,29 @@ logoutButton?.addEventListener("click", async () => {
 
 async function restoreSession() {
   if (!localStorage.getItem(tokenKey)) {
-    if (isDashboardPage) window.location.assign("/#portal");
+    if (isDashboardPage || isLoadingPage) window.location.assign("/login.html");
     return;
   }
 
-  if (!isDashboardPage) {
-    window.location.assign("/dashboard.html");
+  if (isLoadingPage) {
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next") || buildDashboardUrl();
+    if (loadingStatus) {
+      loadingStatus.textContent = sessionStorage.getItem("bankLoadingMessage") || "Verifying credentials...";
+    }
+    window.setTimeout(() => {
+      sessionStorage.removeItem("bankLoadingMessage");
+      window.location.assign(next);
+    }, 1200);
+    return;
+  }
+
+  if (isConfirmationPage) {
+    renderConfirmationPage();
+    return;
+  }
+
+  if (isAuthPage || isHomePage) {
     return;
   }
 
@@ -595,8 +683,50 @@ async function restoreSession() {
     showDashboard(data.user);
   } catch (error) {
     localStorage.removeItem(tokenKey);
-    if (isDashboardPage) window.location.assign("/#portal");
+    if (isDashboardPage || isLoadingPage) window.location.assign("/login.html");
   }
+}
+
+function renderConfirmationPage() {
+  if (!confirmationPanel) return;
+
+  const raw = sessionStorage.getItem("accountConfirmation");
+  const details = raw ? JSON.parse(raw) : null;
+
+  confirmationPanel.innerHTML = `
+    <div class="receipt-card">
+      <p class="eyebrow">Application Approved</p>
+      <h1>Your account is ready</h1>
+      <p class="form-note">A confirmation has been prepared for your records. You can continue to online banking now.</p>
+      <dl class="receipt-details">
+        <div>
+          <dt>Name</dt>
+          <dd>${escapeHtml(details?.name || "Account Holder")}</dd>
+        </div>
+        <div>
+          <dt>Product</dt>
+          <dd>${escapeHtml(details?.product || "Current Account")}</dd>
+        </div>
+        <div>
+          <dt>Account Number</dt>
+          <dd>${escapeHtml(details?.accountNumber || "Available in dashboard")}</dd>
+        </div>
+        <div>
+          <dt>Sort Code</dt>
+          <dd>${escapeHtml(details?.sortCode || "Available in dashboard")}</dd>
+        </div>
+      </dl>
+      <div class="modal-actions">
+        <button class="primary-button" id="continueToDashboard" type="button">Continue to Dashboard</button>
+        <a class="text-button receipt-link" href="/login.html">Return to Login</a>
+      </div>
+    </div>
+  `;
+
+  confirmationPanel.querySelector("#continueToDashboard")?.addEventListener("click", () => {
+    sessionStorage.removeItem("accountConfirmation");
+    goToLoading("Finalising account access...");
+  });
 }
 
 branchForm?.addEventListener("submit", (event) => {
@@ -623,6 +753,7 @@ transactionForm?.addEventListener("submit", async (event) => {
     transactionForm.reset();
     showDashboard(data.user);
     setStatus("Transaction completed.", true);
+    showTransactionReceipt(data.user);
   } catch (error) {
     setStatus(error.message);
   }

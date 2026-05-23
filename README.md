@@ -31,10 +31,12 @@ vercel.json
 - Signup for a new account
 - Login and logout
 - Separate dashboard page after login
+- Dedicated login, signup, loading, and confirmation pages
 - Account holder details, account number, sort code, IBAN, card status, and balance
 - Deposits, withdrawals, and transfers
 - Saved payees
 - Daily transfer limit controls
+- Confirmation screens and transaction receipts
 - Transaction history and CSV statement download
 - Backend API with JSON-file persistence
 - Vercel deployment support
@@ -79,10 +81,14 @@ npx vercel --prod
 
 Add a Vercel environment variable named `SESSION_SECRET` with a long random value.
 
-For persistent hosted data, connect a Redis/Upstash-style REST database and add:
+## Hosted Persistence
+
+For persistent hosted data on Vercel, connect a Redis/Upstash-style REST database and add these environment variables to the Vercel project:
 
 ```text
 KV_REST_API_URL=your-rest-url
 KV_REST_API_TOKEN=your-rest-token
 BANK_DATABASE_KEY=bank-portal-database
 ```
+
+The same keys are listed in `.env.example`. After adding or changing environment variables in Vercel, redeploy the project so the serverless API can read them.

@@ -28,6 +28,22 @@
       "dest": "/frontend/dashboard.html"
     },
     {
+      "src": "/login(?:\\.html)?",
+      "dest": "/frontend/login.html"
+    },
+    {
+      "src": "/signup(?:\\.html)?",
+      "dest": "/frontend/signup.html"
+    },
+    {
+      "src": "/loading(?:\\.html)?",
+      "dest": "/frontend/loading.html"
+    },
+    {
+      "src": "/confirmation(?:\\.html)?",
+      "dest": "/frontend/confirmation.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
