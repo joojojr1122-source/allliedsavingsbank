@@ -79,6 +79,8 @@ To rebuild the seed file:
 node scripts/build-seed-database.js
 ```
 
+If sign-in fails after an update, restart the server and clear your browser storage for the site (`localStorage`). The app auto-refreshes old databases to the latest seed on the next API call. You can also sign in with account number `80420742` and the same password.
+
 ## API
 
 - `POST /api/auth/signup`

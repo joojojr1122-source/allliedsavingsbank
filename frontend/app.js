@@ -64,18 +64,13 @@ const passwordStrengthText = document.querySelector("#passwordStrengthText");
 const passwordStrengthBar = document.querySelector("#passwordStrengthBar");
 
 const slides = [
-  {
-    title: "Internet Banking",
-    image: "/assets/slider-en-1.jpg"
-  },
-  {
-    title: "Deposit Product",
-    image: "/assets/slider-bm0.png"
-  },
-  {
-    title: "Debit Cards",
-    image: "/assets/slider-cards.png"
-  }
+  { title: "", image: "/assets/slider-en-1.jpg", link: "https://www.turkishbankgroup.com/" },
+  { title: "", image: "/assets/slide-merge.png", link: "https://www.turkishbank.co.uk/palmers-green-subesinin-harringay-subesi-ile-birlesmesi-hakkinda/" },
+  { title: "", image: "/assets/slide-paynow.jpg", link: "https://www.turkishbank.co.uk/personal/others/authorised-push-payment-scams/" },
+  { title: "", image: "/assets/slide-fraud.jpg", link: "https://www.turkishbank.co.uk/personal/others/fraud-awareness/" },
+  { title: "", image: "/assets/slide-mortgage.jpg", link: "https://www.turkishbank.co.uk/faq/mortgage-products/" },
+  { title: "", image: "/assets/slide-since1974.jpg", link: "https://www.turkishbank.co.uk/personal/deposit-product/" },
+  { title: "", image: "/assets/slide-debit.jpg", link: "https://www.turkishbank.co.uk/personal/cards/contactless-debit-card/" }
 ];
 let sensitiveDetailsVisible = false;
 let slideIndex = 0;
@@ -1287,10 +1282,17 @@ async function restoreSession() {
     if (loadingStatus) {
       loadingStatus.textContent = sessionStorage.getItem("bankLoadingMessage") || "Verifying credentials...";
     }
-    window.setTimeout(() => {
-      sessionStorage.removeItem("bankLoadingMessage");
-      window.location.assign(next);
-    }, 1800);
+
+    try {
+      await apiRequest("/api/account/me");
+      window.setTimeout(() => {
+        sessionStorage.removeItem("bankLoadingMessage");
+        window.location.assign(next);
+      }, 1200);
+    } catch (error) {
+      localStorage.removeItem(tokenKey);
+      window.location.assign("/login.html");
+    }
     return;
   }
 
@@ -1428,11 +1430,45 @@ transactionForm?.addEventListener("submit", async (event) => {
 // -- Slider -----------------------------------------------------------------
 
 function renderSlide() {
-  if (!hero || !heroTitle) return;
+  if (!hero) return;
   const slide = slides[slideIndex];
-  hero.style.backgroundImage = `linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0)), url("${slide.image}")`;
-  heroTitle.textContent = slide.title;
-  sliderDots.forEach((dot, index) => dot.classList.toggle("is-active", index === slideIndex));
+  hero.style.backgroundImage = `url("${slide.image}")`;
+  hero.style.backgroundPosition = "center center";
+  hero.style.backgroundSize = "cover";
+  hero.style.backgroundRepeat = "no-repeat";
+  hero.style.cursor = slide.link ? "pointer" : "default";
+  hero.dataset.slideLink = slide.link || "";
+  if (heroTitle && slide.title) {
+    heroTitle.textContent = slide.title;
+  }
+  document.querySelectorAll(".slider-dots span").forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === slideIndex);
+  });
+}
+
+function initHomeSlider() {
+  if (!isHomePage || !hero) return;
+
+  const dotsContainer = document.querySelector(".slider-dots");
+  if (dotsContainer && !dotsContainer.childElementCount) {
+    dotsContainer.innerHTML = slides.map((_, index) => `<span data-slide-index="${index}"></span>`).join("");
+    dotsContainer.querySelectorAll("span").forEach((dot) => {
+      dot.addEventListener("click", () => {
+        slideIndex = Number(dot.dataset.slideIndex || 0);
+        renderSlide();
+      });
+    });
+  }
+
+  hero.addEventListener("click", () => {
+    const link = hero.dataset.slideLink;
+    if (link) window.location.assign(link);
+  });
+
+  window.setInterval(() => {
+    slideIndex = (slideIndex + 1) % slides.length;
+    renderSlide();
+  }, 7000);
 }
 
 sliderButtons.forEach((button) => {
@@ -1442,16 +1478,19 @@ sliderButtons.forEach((button) => {
   });
 });
 
-sliderDots.forEach((dot, index) => {
-  dot.addEventListener("click", () => {
-    slideIndex = index;
-    renderSlide();
+if (!isHomePage) {
+  sliderDots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      slideIndex = index;
+      renderSlide();
+    });
   });
-});
+}
 
 updateTransferFields();
 showSignupStep(0);
 renderSlide();
+initHomeSlider();
 hydrateLoginPage();
 bindSensitiveDetailControls();
 bindSortCodeInputs();

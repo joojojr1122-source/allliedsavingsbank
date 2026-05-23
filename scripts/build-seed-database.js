@@ -37,7 +37,7 @@ const transactions = [
 ];
 
 const database = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   updatedAt: new Date().toISOString(),
   users: [
     {

@@ -24,6 +24,14 @@
       "dest": "/frontend/app.js"
     },
     {
+      "src": "/home.css",
+      "dest": "/frontend/home.css"
+    },
+    {
+      "src": "/home.js",
+      "dest": "/frontend/home.js"
+    },
+    {
       "src": "/favicon.ico",
       "dest": "/frontend/favicon.svg"
     },

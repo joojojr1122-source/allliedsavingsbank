@@ -59,4 +59,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Banking portal running at http://localhost:${PORT}`);
+  console.log("Demo login: daniel.nowak@outlook.com / Nowak@4142");
+  console.log("Or account number: 80420742 with the same password");
 });

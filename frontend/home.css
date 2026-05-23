@@ -1,0 +1,470 @@
+/* TurkishBank UK homepage layout (mirrors turkishbank.co.uk structure) */
+
+body[data-page="home"] {
+  background: #ffffff;
+}
+
+body[data-page="home"] .site-header {
+  position: relative;
+  top: auto;
+}
+
+body[data-page="home"] .header-main {
+  min-height: 110px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  padding: 18px 0 8px;
+}
+
+body[data-page="home"] .brand img {
+  width: 445px;
+  max-width: 100%;
+}
+
+body[data-page="home"] .main-nav {
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+body[data-page="home"] .main-nav a,
+body[data-page="home"] .main-nav .nav-pill {
+  width: 90px;
+  height: 90px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #c4622d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 8px;
+}
+
+body[data-page="home"] .main-nav a:hover,
+body[data-page="home"] .main-nav .nav-pill:hover {
+  background: #c8beb3;
+  color: #ffffff;
+}
+
+body[data-page="home"] .main-nav .nav-pill--dark {
+  background: #333f48;
+}
+
+body[data-page="home"] .main-nav .nav-pill--online {
+  background: #c4622d;
+  line-height: 1.05;
+}
+
+body[data-page="home"] .main-nav .nav-pill--online span {
+  display: block;
+}
+
+body[data-page="home"] .nav-row {
+  display: none;
+}
+
+body[data-page="home"] .top-strip__links-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+body[data-page="home"] .top-strip__links-dropdown > button {
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+body[data-page="home"] .top-strip__links-dropdown > button:hover {
+  color: var(--sand);
+}
+
+body[data-page="home"] .top-strip__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 180px;
+  display: none;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 30;
+}
+
+body[data-page="home"] .top-strip__links-dropdown.is-open .top-strip__menu {
+  display: flex;
+}
+
+body[data-page="home"] .top-strip__menu a {
+  padding: 10px 14px;
+  color: #333333;
+  border-bottom: 1px solid #eeeeee;
+}
+
+body[data-page="home"] .top-strip__menu a:hover {
+  background: #f7f7f7;
+  color: #c4622d;
+}
+
+body[data-page="home"] .internet-drop .internet-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  min-width: 160px;
+  display: none;
+  background: #333f48;
+  z-index: 30;
+}
+
+body[data-page="home"] .internet-drop {
+  position: relative;
+}
+
+body[data-page="home"] .internet-drop.is-open .internet-menu {
+  display: block;
+}
+
+body[data-page="home"] .internet-menu a {
+  display: block;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+body[data-page="home"] .internet-menu a:hover {
+  background: #c4622d;
+}
+
+body[data-page="home"] .hero {
+  min-height: 0;
+  height: clamp(320px, 42vw, 797px);
+  background: #333f48 center center/cover no-repeat;
+}
+
+body[data-page="home"] .hero__inner,
+body[data-page="home"] .hero h1 {
+  display: none;
+}
+
+body[data-page="home"] .slider-dots {
+  left: 24px;
+  bottom: 24px;
+  transform: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+body[data-page="home"] .slider-dots span {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #adadad;
+  background: transparent;
+}
+
+body[data-page="home"] .slider-dots span.is-active {
+  background: #e27900;
+  border-color: #e27900;
+}
+
+body[data-page="home"] .slider-arrow {
+  width: 56px;
+  height: 72px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+body[data-page="home"] .home-content-boxes {
+  margin-top: 80px;
+  margin-bottom: 60px;
+}
+
+body[data-page="home"] .content-box-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  text-align: center;
+}
+
+body[data-page="home"] .content-box-card {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  color: inherit;
+}
+
+body[data-page="home"] .content-box-card:hover h2 {
+  color: #c8beb3;
+}
+
+body[data-page="home"] .content-box-icon {
+  width: 140px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  font-size: 70px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+body[data-page="home"] .content-box-icon--deposit {
+  background: #c4622d;
+}
+
+body[data-page="home"] .content-box-icon--cards {
+  background: #333f48;
+}
+
+body[data-page="home"] .content-box-icon--mortgage {
+  background: #a39382;
+}
+
+body[data-page="home"] .content-box-card h2 {
+  margin: 0;
+  color: #2d2d2d;
+  font-size: 21px;
+  line-height: 26px;
+  font-weight: 700;
+}
+
+body[data-page="home"] .home-panels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4%;
+  padding: 5px 0 6px;
+}
+
+body[data-page="home"] .home-panel h2 {
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px dotted #c4622d;
+  color: #c4622d;
+  font-size: 21px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+body[data-page="home"] .home-panel h2 a {
+  color: #c4622d;
+}
+
+body[data-page="home"] .home-panel--about {
+  text-align: center;
+}
+
+body[data-page="home"] .home-panel--about img {
+  width: 259px;
+  max-width: 100%;
+  height: auto;
+  margin: 8px 0 12px;
+}
+
+body[data-page="home"] .home-panel--about p {
+  margin: 0;
+  color: #777777;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+body[data-page="home"] .home-panel h3.widget-title {
+  margin: 0 0 12px;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+body[data-page="home"] .news-list {
+  display: grid;
+  gap: 0;
+}
+
+body[data-page="home"] .news-item {
+  display: grid;
+  grid-template-columns: 45px 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eeeeee;
+  align-items: start;
+}
+
+body[data-page="home"] .news-item img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+}
+
+body[data-page="home"] .news-item strong {
+  display: block;
+  color: #333333;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+body[data-page="home"] .news-item time {
+  color: #bbbbbb;
+  font-size: 11px;
+}
+
+body[data-page="home"] .branch-form,
+body[data-page="home"] .newsletter-panel form {
+  display: grid;
+  gap: 10px;
+}
+
+body[data-page="home"] .branch-form .form-step-badge,
+body[data-page="home"] .newsletter-panel .form-step-badge {
+  width: fit-content;
+  padding: 0 12px;
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cccccc;
+  background: #ffffff;
+  color: #777777;
+}
+
+body[data-page="home"] .branch-form select,
+body[data-page="home"] .branch-form input,
+body[data-page="home"] .newsletter-panel input {
+  min-height: 42px;
+  border: 1px solid #cccccc;
+  background: #fafafa;
+  padding: 0 11px;
+}
+
+body[data-page="home"] .branch-form button,
+body[data-page="home"] .newsletter-panel button {
+  min-height: 42px;
+  border: 0;
+  background: #4488ee;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0 18px;
+  cursor: pointer;
+}
+
+body[data-page="home"] .newsletter-panel p {
+  margin: 0 0 12px;
+  color: #666666;
+  font-size: 13px;
+}
+
+body[data-page="home"] .newsletter-panel .disclaimer {
+  color: #888888;
+  font-size: 12px;
+}
+
+body[data-page="home"] .inline-result {
+  min-height: 18px;
+  margin: 8px 0 0;
+  color: #666666;
+  font-size: 12px;
+}
+
+body[data-page="home"] .site-footer {
+  margin-top: 0;
+}
+
+body[data-page="home"] .footer-columns {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+
+body[data-page="home"] .footer-col h3 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+body[data-page="home"] .footer-col a {
+  display: block;
+  padding: 4px 0;
+  color: #d8d8d8;
+  font-size: 13px;
+}
+
+body[data-page="home"] .footer-col a:hover {
+  color: #ffffff;
+}
+
+body[data-page="home"] .footer-brand {
+  text-align: center;
+}
+
+body[data-page="home"] .footer-brand img {
+  width: min(180px, 100%);
+  margin: 0 auto 16px;
+  display: block;
+}
+
+body[data-page="home"] .footer-brand select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #666666;
+  background: #333f48;
+  color: #ffffff;
+  padding: 0 10px;
+}
+
+body[data-page="home"] .footer-copyright {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  text-align: center;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+body[data-page="home"] .footer-copyright a {
+  color: #ffffff;
+}
+
+body[data-page="home"] .footer-copyright a:hover {
+  color: #c8beb3;
+}
+
+@media (max-width: 1100px) {
+  body[data-page="home"] .home-panels {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  body[data-page="home"] .footer-columns {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-page="home"] .brand img {
+    width: 198px;
+  }
+
+  body[data-page="home"] .main-nav a,
+  body[data-page="home"] .main-nav .nav-pill {
+    width: 72px;
+    height: 72px;
+    font-size: 10px;
+  }
+
+  body[data-page="home"] .content-box-grid,
+  body[data-page="home"] .home-panels,
+  body[data-page="home"] .footer-columns {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="home"] .home-content-boxes {
+    margin-top: 40px;
+  }
+}

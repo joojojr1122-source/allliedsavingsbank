@@ -3,6 +3,8 @@ const os = require("os");
 const path = require("path");
 
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
+const SEED_SCHEMA_VERSION = 3;
+const SEED_LOGIN_EMAIL = "daniel.nowak@outlook.com";
 const DATABASE_PATH = process.env.VERCEL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
@@ -10,14 +12,48 @@ const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "bank-portal-databa
 const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
-async function readDatabase() {
-  if (hasRemoteDatabase()) {
-    return readRemoteDatabase();
+async function readSeedDatabase() {
+  const content = await fs.readFile(SEED_DATABASE_PATH, "utf8");
+  return JSON.parse(content);
+}
+
+function databaseNeedsSeedRefresh(database) {
+  const currentVersion = Number(database?.schemaVersion || 0);
+  const hasSeedUser = (database?.users || []).some((user) => user.email === SEED_LOGIN_EMAIL);
+  return currentVersion < SEED_SCHEMA_VERSION || !hasSeedUser;
+}
+
+async function applySeedIfStale(database) {
+  if (!databaseNeedsSeedRefresh(database)) {
+    return database;
   }
 
-  await ensureDatabaseFile();
-  const content = await fs.readFile(DATABASE_PATH, "utf8");
-  return JSON.parse(content);
+  const seed = await readSeedDatabase();
+  return {
+    ...seed,
+    updatedAt: new Date().toISOString()
+  };
+}
+
+async function readDatabase() {
+  let database;
+
+  if (hasRemoteDatabase()) {
+    database = await readRemoteDatabase();
+  } else {
+    await ensureDatabaseFile();
+    const content = await fs.readFile(DATABASE_PATH, "utf8");
+    database = JSON.parse(content);
+  }
+
+  const synced = await applySeedIfStale(database);
+
+  if (synced !== database) {
+    await writeDatabase(synced);
+    return synced;
+  }
+
+  return database;
 }
 
 async function writeDatabase(database) {
@@ -49,7 +85,9 @@ function getDatabaseInfo() {
   return {
     mode: hasRemoteDatabase() ? "remote" : "local",
     key: REMOTE_DATABASE_KEY,
-    persistent: hasRemoteDatabase()
+    persistent: hasRemoteDatabase(),
+    schemaVersion: SEED_SCHEMA_VERSION,
+    seedLoginEmail: SEED_LOGIN_EMAIL
   };
 }
 
@@ -70,9 +108,7 @@ async function readRemoteDatabase() {
     return JSON.parse(payload.result);
   }
 
-  const seed = JSON.parse(await fs.readFile(SEED_DATABASE_PATH, "utf8"));
-  await writeRemoteDatabase(seed);
-  return seed;
+  return readSeedDatabase();
 }
 
 async function writeRemoteDatabase(database) {
