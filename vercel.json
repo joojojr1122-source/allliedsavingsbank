@@ -44,6 +44,10 @@
       "dest": "/frontend/signup.html"
     },
     {
+      "src": "/open-account(?:\\.html)?",
+      "dest": "/frontend/signup.html"
+    },
+    {
       "src": "/loading(?:\\.html)?",
       "dest": "/frontend/loading.html"
     },
