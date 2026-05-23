@@ -40,6 +40,23 @@ const dailyTransferLimitInput = document.querySelector("#dailyTransferLimitInput
 const downloadStatementBtn = document.querySelector("#downloadStatementBtn");
 const loadingStatus = document.querySelector("#loadingStatus");
 const confirmationPanel = document.querySelector("#confirmationPanel");
+const adminLoginForm = document.querySelector("#adminLoginForm");
+const adminLoginPanel = document.querySelector("#adminLoginPanel");
+const adminDashboard = document.querySelector("#adminDashboard");
+const adminStatus = document.querySelector("#adminStatus");
+const adminMetrics = document.querySelector("#adminMetrics");
+const adminUsers = document.querySelector("#adminUsers");
+const adminTransactions = document.querySelector("#adminTransactions");
+const adminRefreshButton = document.querySelector("#adminRefreshButton");
+const passwordToggles = document.querySelectorAll("[data-toggle-password]");
+const signupStepPanels = document.querySelectorAll("[data-step-panel]");
+const signupStepLabels = document.querySelectorAll(".step-indicator span");
+const stepBackButton = document.querySelector("#stepBackButton");
+const stepNextButton = document.querySelector("#stepNextButton");
+const submitApplicationButton = document.querySelector("#submitApplicationButton");
+const signupReview = document.querySelector("#signupReview");
+const passwordStrengthText = document.querySelector("#passwordStrengthText");
+const passwordStrengthBar = document.querySelector("#passwordStrengthBar");
 
 const slides = [
   {
@@ -63,6 +80,8 @@ const isLoadingPage = document.body.dataset.page === "loading";
 const isConfirmationPage = document.body.dataset.page === "confirmation";
 const isAuthPage = document.body.dataset.page === "auth";
 const isHomePage = document.body.dataset.page === "home";
+const isAdminPage = document.body.dataset.page === "admin";
+let signupStep = 0;
 
 function setStatus(message, isSuccess = false) {
   if (!statusMessage) return;
@@ -107,6 +126,13 @@ function showDashboard(user) {
   setText("#accountAddress", user.application?.address || "-");
   setText("#cardStatus", user.account.cardStatus || "Active");
   setText("#dailyTransferLimit", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
+  setText("#cardPreviewName", `${user.firstName} ${user.lastName}`);
+  setText("#cardPreviewNumber", `•••• •••• •••• ${String(user.account.number).slice(-4)}`);
+  setText("#savedPayeesCount", String((user.beneficiaries || []).length));
+  setText("#pendingPayments", String((user.transactions || []).filter((t) => t.status === "Pending").length));
+  setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-GB") : "First access");
+  setText("#failedAttemptsBadge", `${Number(user.security?.failedLoginAttempts || 0)} failed attempts`);
+  setText("#securitySummary", user.security?.lastLoginAt ? "Recent sign-in recorded. Keep your password private." : "Your first online banking session is active.");
 
   if (cardStatusSelect) cardStatusSelect.value = user.account.cardStatus || "Active";
   if (dailyTransferLimitInput) dailyTransferLimitInput.value = user.account.dailyTransferLimit || 1000;
@@ -116,6 +142,16 @@ function showDashboard(user) {
   renderBeneficiaries(user.beneficiaries || []);
   currentUser = user;
   setStatus("");
+  loadPersistenceStatus();
+}
+
+async function loadPersistenceStatus() {
+  try {
+    const data = await apiRequest("/api/admin/persistence", { auth: false });
+    setText("#storageMode", data.database.persistent ? "Persistent" : "Session");
+  } catch (error) {
+    setText("#storageMode", "Unavailable");
+  }
 }
 
 function buildDashboardUrl() {
@@ -291,11 +327,12 @@ function formatMoney(value, currency) {
 
 async function apiRequest(path, options = {}) {
   const token = localStorage.getItem(tokenKey);
+  const { auth = true, ...fetchOptions } = options;
   const response = await fetch(path, {
-    ...options,
+    ...fetchOptions,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(auth && token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {})
     }
   });
@@ -445,8 +482,137 @@ function setModalStatus(el, msg) {
   if (el) el.textContent = msg;
 }
 
+function updatePasswordStrength(password) {
+  if (!passwordStrengthText || !passwordStrengthBar) return;
+
+  const checks = [
+    password.length >= 8,
+    /[A-Z]/.test(password),
+    /[a-z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password)
+  ];
+  const score = checks.filter(Boolean).length;
+  const labels = ["Very weak", "Weak", "Fair", "Good", "Strong"];
+  passwordStrengthText.textContent = `${labels[Math.max(score - 1, 0)]} password`;
+  passwordStrengthBar.style.width = `${Math.max(score, 1) * 20}%`;
+  passwordStrengthBar.dataset.score = String(score);
+}
+
+function showSignupStep(index) {
+  if (!signupStepPanels.length) return;
+
+  signupStep = Math.max(0, Math.min(index, signupStepPanels.length - 1));
+  signupStepPanels.forEach((panel, panelIndex) => panel.classList.toggle("is-active", panelIndex === signupStep));
+  signupStepLabels.forEach((label, labelIndex) => label.classList.toggle("is-active", labelIndex <= signupStep));
+
+  if (stepBackButton) stepBackButton.disabled = signupStep === 0;
+  stepNextButton?.classList.toggle("is-hidden", signupStep === signupStepPanels.length - 1);
+  submitApplicationButton?.classList.toggle("is-hidden", signupStep !== signupStepPanels.length - 1);
+
+  if (signupStep === signupStepPanels.length - 1) {
+    renderSignupReview();
+  }
+}
+
+function currentStepIsValid() {
+  const panel = signupStepPanels[signupStep];
+  if (!panel) return true;
+
+  const fields = [...panel.querySelectorAll("input, select")];
+  return fields.every((field) => field.reportValidity());
+}
+
+function renderSignupReview() {
+  if (!signupReview || !signupForm) return;
+
+  const data = formToJson(signupForm);
+  signupReview.innerHTML = `
+    <dl class="receipt-details">
+      <div><dt>Name</dt><dd>${escapeHtml(`${data.firstName || ""} ${data.lastName || ""}`.trim() || "Not provided")}</dd></div>
+      <div><dt>Product</dt><dd>${escapeHtml(data.product || "Current Account")}</dd></div>
+      <div><dt>Email</dt><dd>${escapeHtml(data.email || "Not provided")}</dd></div>
+      <div><dt>Phone</dt><dd>${escapeHtml(data.phone || "Not provided")}</dd></div>
+      <div><dt>Employment</dt><dd>${escapeHtml(data.employmentStatus || "Not provided")}</dd></div>
+      <div><dt>Address</dt><dd>${escapeHtml(data.address || "Not provided")}</dd></div>
+    </dl>
+  `;
+}
+
+async function loadAdminSummary(password) {
+  if (!adminMetrics || !adminUsers || !adminTransactions) return;
+
+  const data = await apiRequest("/api/admin/summary", {
+    auth: false,
+    headers: { "X-Admin-Password": password }
+  });
+
+  adminMetrics.innerHTML = [
+    ["Accounts", data.totals.accounts],
+    ["Total Balance", formatMoney(data.totals.balance, "GBP")],
+    ["Transactions", data.totals.transactions],
+    ["Storage", data.database.persistent ? "Persistent" : "Session"]
+  ].map(([label, value]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`).join("");
+
+  adminUsers.innerHTML = data.users.map((user) => `
+    <article class="admin-row">
+      <div>
+        <strong>${escapeHtml(user.name)}</strong>
+        <span>${escapeHtml(user.email)} &middot; ${escapeHtml(user.accountNumber)}</span>
+      </div>
+      <div>${formatMoney(user.balance, "GBP")}</div>
+    </article>
+  `).join("") || `<p class="form-note">No accounts yet.</p>`;
+
+  adminTransactions.innerHTML = data.recentTransactions.map((transaction) => `
+    <article class="admin-row">
+      <div>
+        <strong>${escapeHtml(transaction.type)}</strong>
+        <span>${escapeHtml(transaction.reference || "PENDING")} &middot; ${escapeHtml(transaction.description || "")}</span>
+      </div>
+      <div>${formatMoney(transaction.amount, "GBP")}</div>
+    </article>
+  `).join("") || `<p class="form-note">No transactions yet.</p>`;
+}
+
 if (settingsButton) settingsButton.addEventListener("click", showSettingsModal);
 if (changePasswordButton) changePasswordButton.addEventListener("click", showChangePasswordModal);
+passwordToggles.forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = button.closest(".password-field")?.querySelector("input");
+    if (!input) return;
+    input.type = input.type === "password" ? "text" : "password";
+    button.textContent = input.type === "password" ? "Show" : "Hide";
+  });
+});
+signupForm?.querySelector('input[name="password"]')?.addEventListener("input", (event) => {
+  updatePasswordStrength(event.target.value);
+});
+stepBackButton?.addEventListener("click", () => showSignupStep(signupStep - 1));
+stepNextButton?.addEventListener("click", () => {
+  if (!currentStepIsValid()) return;
+  showSignupStep(signupStep + 1);
+});
+adminLoginForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const password = formToJson(adminLoginForm).adminPassword;
+  if (adminStatus) adminStatus.textContent = "Loading admin console...";
+  try {
+    sessionStorage.setItem("adminPassword", password);
+    await loadAdminSummary(password);
+    adminLoginPanel?.classList.add("is-hidden");
+    adminDashboard?.classList.remove("is-hidden");
+    if (adminStatus) adminStatus.textContent = "";
+  } catch (error) {
+    sessionStorage.removeItem("adminPassword");
+    if (adminStatus) adminStatus.textContent = error.message;
+  }
+});
+adminRefreshButton?.addEventListener("click", async () => {
+  const password = sessionStorage.getItem("adminPassword");
+  if (!password) return;
+  await loadAdminSummary(password);
+});
 if (mobileMenuToggle) {
   mobileMenuToggle.addEventListener("click", () => {
     const isOpen = header.classList.toggle("is-menu-open");
@@ -674,6 +840,20 @@ async function restoreSession() {
     return;
   }
 
+  if (isAdminPage) {
+    const password = sessionStorage.getItem("adminPassword");
+    if (password) {
+      try {
+        await loadAdminSummary(password);
+        adminLoginPanel?.classList.add("is-hidden");
+        adminDashboard?.classList.remove("is-hidden");
+      } catch (error) {
+        sessionStorage.removeItem("adminPassword");
+      }
+    }
+    return;
+  }
+
   if (isAuthPage || isHomePage) {
     return;
   }
@@ -784,5 +964,6 @@ sliderDots.forEach((dot, index) => {
 });
 
 updateTransferFields();
+showSignupStep(0);
 renderSlide();
 restoreSession();

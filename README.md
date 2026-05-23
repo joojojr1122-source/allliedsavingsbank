@@ -37,6 +37,8 @@ vercel.json
 - Saved payees
 - Daily transfer limit controls
 - Confirmation screens and transaction receipts
+- Back-office admin console
+- Password visibility, strength feedback, and failed-login lockout
 - Transaction history and CSV statement download
 - Backend API with JSON-file persistence
 - Vercel deployment support
@@ -80,6 +82,7 @@ npx vercel --prod
 ```
 
 Add a Vercel environment variable named `SESSION_SECRET` with a long random value.
+Add `ADMIN_PASSWORD` to control access to `/admin.html`.
 
 ## Hosted Persistence
 

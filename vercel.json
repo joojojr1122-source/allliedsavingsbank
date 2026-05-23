@@ -44,6 +44,10 @@
       "dest": "/frontend/confirmation.html"
     },
     {
+      "src": "/admin(?:\\.html)?",
+      "dest": "/frontend/admin.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }

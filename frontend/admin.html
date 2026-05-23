@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - TurkishBank UK</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body data-page="admin">
+    <header class="site-header auth-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="TurkishBank UK home">
+          <img src="https://www.turkishbank.co.uk/wp-content/uploads/2017/02/logo-tb-uk.png" alt="TurkishBank">
+        </a>
+        <nav class="main-nav" aria-label="Admin navigation">
+          <a href="/">Home</a>
+          <a href="/dashboard.html">Banking</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="admin-page wrap">
+      <section class="admin-login" id="adminLoginPanel">
+        <p class="eyebrow">Back Office</p>
+        <h1>Admin Console</h1>
+        <form id="adminLoginForm">
+          <label>
+            Admin password
+            <input name="adminPassword" type="password" autocomplete="current-password" required>
+          </label>
+          <button class="primary-button" type="submit">Open Console</button>
+        </form>
+        <p class="status" id="adminStatus"></p>
+      </section>
+
+      <section class="admin-dashboard is-hidden" id="adminDashboard">
+        <div class="dashboard-head">
+          <div>
+            <p class="eyebrow">Back Office</p>
+            <h1>Account Overview</h1>
+          </div>
+          <button class="text-button" id="adminRefreshButton" type="button">Refresh</button>
+        </div>
+        <section class="dashboard-metrics" id="adminMetrics"></section>
+        <section class="admin-grid">
+          <article class="admin-panel">
+            <h2>Accounts</h2>
+            <div class="admin-table" id="adminUsers"></div>
+          </article>
+          <article class="admin-panel">
+            <h2>Recent Transactions</h2>
+            <div class="admin-table" id="adminTransactions"></div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

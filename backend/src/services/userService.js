@@ -86,6 +86,11 @@ async function createUser(input) {
         createdAt: new Date().toISOString()
       }
     ],
+    security: {
+      lastLoginAt: "",
+      failedLoginAttempts: 0,
+      lockedUntil: ""
+    },
     createdAt: new Date().toISOString()
   };
 
@@ -107,6 +112,47 @@ async function getUserById(id) {
   return ensureAccountShape(user);
 }
 
+async function recordSuccessfulLogin(userId) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) return null;
+
+  user.security = user.security || {};
+  user.security.lastLoginAt = new Date().toISOString();
+  user.security.failedLoginAttempts = 0;
+  user.security.lockedUntil = "";
+  appendAudit(user, "LOGIN_SUCCESS");
+
+  await writeDatabase(database);
+  return user;
+}
+
+async function recordFailedLogin(email) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === email);
+
+  if (!user) return null;
+
+  user.security = user.security || {};
+  user.security.failedLoginAttempts = Number(user.security.failedLoginAttempts || 0) + 1;
+
+  if (user.security.failedLoginAttempts >= 5) {
+    user.security.lockedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    appendAudit(user, "ACCOUNT_TEMPORARILY_LOCKED");
+  } else {
+    appendAudit(user, "LOGIN_FAILED");
+  }
+
+  await writeDatabase(database);
+  return user;
+}
+
+function isUserLocked(user) {
+  const lockedUntil = user?.security?.lockedUntil;
+  return lockedUntil ? new Date(lockedUntil).getTime() > Date.now() : false;
+}
+
 function publicUser(user) {
   return {
     id: user.id,
@@ -123,6 +169,11 @@ function publicUser(user) {
       submittedAt: user.application?.submittedAt || user.createdAt || ""
     },
     account: user.account,
+    security: {
+      lastLoginAt: user.security?.lastLoginAt || "",
+      failedLoginAttempts: Number(user.security?.failedLoginAttempts || 0),
+      lockedUntil: user.security?.lockedUntil || ""
+    },
     beneficiaries: user.beneficiaries || [],
     transactions: user.transactions || []
   };
@@ -268,6 +319,11 @@ function ensureAccountShape(user) {
   user.account.overdraft = Number(user.account.overdraft || 0);
   user.beneficiaries = user.beneficiaries || [];
   user.auditLog = user.auditLog || [];
+  user.security = user.security || {
+    lastLoginAt: "",
+    failedLoginAttempts: 0,
+    lockedUntil: ""
+  };
   user.transactions = user.transactions || [
     {
       id: crypto.randomUUID(),
@@ -449,6 +505,9 @@ module.exports = {
   deleteBeneficiary,
   findUserByEmail,
   getUserById,
+  isUserLocked,
+  recordFailedLogin,
+  recordSuccessfulLogin,
   updateUserProfile,
   updateAccountControls,
   changePassword,

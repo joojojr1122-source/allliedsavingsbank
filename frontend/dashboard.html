@@ -77,10 +77,53 @@
               Account active and ready for online banking.
             </p>
 
+            <section class="new-account-panel">
+              <div>
+                <p class="eyebrow">New Account</p>
+                <h3>Welcome to online banking</h3>
+                <p>Your account is open with a clean starting balance. Add a payee or make your first deposit when you are ready.</p>
+              </div>
+              <div class="card-preview">
+                <span>TurkishBank</span>
+                <strong id="cardPreviewName">Account Holder</strong>
+                <small id="cardPreviewNumber">•••• •••• •••• 0000</small>
+              </div>
+            </section>
+
             <div class="balance-box">
               <span>Available Balance</span>
               <strong id="accountBalance">&pound;0.00</strong>
             </div>
+
+            <section class="dashboard-metrics">
+              <article>
+                <span>Recent Login</span>
+                <strong id="lastLoginAt">First access</strong>
+              </article>
+              <article>
+                <span>Pending Payments</span>
+                <strong id="pendingPayments">0</strong>
+              </article>
+              <article>
+                <span>Saved Payees</span>
+                <strong id="savedPayeesCount">0</strong>
+              </article>
+              <article>
+                <span>Storage</span>
+                <strong id="storageMode">Checking</strong>
+              </article>
+            </section>
+
+            <section class="security-panel">
+              <div>
+                <h3>Security Centre</h3>
+                <p id="securitySummary">Your online access is active.</p>
+              </div>
+              <div class="security-badges">
+                <span>Session Protected</span>
+                <span id="failedAttemptsBadge">0 failed attempts</span>
+              </div>
+            </section>
 
             <div class="account-summary" id="accountSummary">
               <dl class="account-details">

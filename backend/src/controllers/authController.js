@@ -1,5 +1,13 @@
 const { readJsonBody, sendJson } = require("../utils/http");
-const { createUser, findUserByEmail, publicUser, changePassword } = require("../services/userService");
+const {
+  changePassword,
+  createUser,
+  findUserByEmail,
+  isUserLocked,
+  publicUser,
+  recordFailedLogin,
+  recordSuccessfulLogin
+} = require("../services/userService");
 const { createSession, deleteSession, getTokenFromRequest, getUserIdFromRequest } = require("../services/sessionService");
 const { verifyPassword } = require("../utils/security");
 
@@ -25,16 +33,23 @@ async function login(req, res) {
     const password = String(body.password || "");
     const user = await findUserByEmail(email);
 
+    if (isUserLocked(user)) {
+      sendJson(res, 423, { error: "Account is temporarily locked. Please try again later." });
+      return;
+    }
+
     if (!user || !verifyPassword(password, user.password)) {
+      if (user) await recordFailedLogin(email);
       sendJson(res, 401, { error: "Email or password is incorrect" });
       return;
     }
 
+    const loggedInUser = await recordSuccessfulLogin(user.id);
     const token = createSession(user.id);
 
     sendJson(res, 200, {
       token,
-      user: publicUser(user)
+      user: publicUser(loggedInUser || user)
     });
   } catch (error) {
     sendJson(res, 500, { error: "Login failed" });

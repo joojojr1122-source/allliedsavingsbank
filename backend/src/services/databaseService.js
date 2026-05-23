@@ -45,6 +45,14 @@ function hasRemoteDatabase() {
   return Boolean(REMOTE_DATABASE_URL && REMOTE_DATABASE_TOKEN);
 }
 
+function getDatabaseInfo() {
+  return {
+    mode: hasRemoteDatabase() ? "remote" : "local",
+    key: REMOTE_DATABASE_KEY,
+    persistent: hasRemoteDatabase()
+  };
+}
+
 async function readRemoteDatabase() {
   const response = await fetch(`${REMOTE_DATABASE_URL}/get/${encodeURIComponent(REMOTE_DATABASE_KEY)}`, {
     headers: {
@@ -83,6 +91,7 @@ async function writeRemoteDatabase(database) {
 }
 
 module.exports = {
+  getDatabaseInfo,
   readDatabase,
   writeDatabase
 };

@@ -30,61 +30,92 @@
         </div>
 
         <section class="auth-card" aria-live="polite">
-          <form class="auth-form" id="signupForm">
+          <form class="auth-form stepped-form" id="signupForm">
             <h2>Account Application</h2>
             <p class="form-note">Open a personal account in your name with a starting balance of &pound;0.00.</p>
-            <label>
-              Product
-              <select name="product" required>
-                <option value="Current Account">Current Account</option>
-                <option value="Basic Savings Account">Basic Savings Account</option>
-                <option value="Easy Access Deposit Account">Easy Access Deposit Account</option>
-              </select>
-            </label>
-            <label>
-              First name
-              <input name="firstName" autocomplete="given-name" required>
-            </label>
-            <label>
-              Last name
-              <input name="lastName" autocomplete="family-name" required>
-            </label>
-            <label>
-              Email
-              <input name="email" type="email" autocomplete="email" required>
-            </label>
-            <label>
-              Phone
-              <input name="phone" type="tel" autocomplete="tel" required>
-            </label>
-            <label>
-              Date of birth
-              <input name="dateOfBirth" type="date" required>
-            </label>
-            <label>
-              Residential address
-              <input name="address" autocomplete="street-address" required>
-            </label>
-            <label>
-              Employment status
-              <select name="employmentStatus" required>
-                <option value="">Select An Option</option>
-                <option>Student</option>
-                <option>Employed</option>
-                <option>Self-employed</option>
-                <option>Unemployed</option>
-                <option>Retired</option>
-              </select>
-            </label>
-            <label>
-              Create online banking password
-              <input name="password" type="password" autocomplete="new-password" minlength="8" required>
-            </label>
-            <label class="checkbox-label">
-              <input name="agreeTerms" type="checkbox" required>
-              I confirm the information provided is accurate and agree to the account terms.
-            </label>
-            <button class="primary-button" type="submit">Submit Application</button>
+            <div class="step-indicator" aria-label="Application progress">
+              <span class="is-active">Personal</span>
+              <span>Contact</span>
+              <span>Security</span>
+              <span>Review</span>
+            </div>
+
+            <section class="form-step-panel is-active" data-step-panel="0">
+              <label>
+                Product
+                <select name="product" required>
+                  <option value="Current Account">Current Account</option>
+                  <option value="Basic Savings Account">Basic Savings Account</option>
+                  <option value="Easy Access Deposit Account">Easy Access Deposit Account</option>
+                </select>
+              </label>
+              <label>
+                First name
+                <input name="firstName" autocomplete="given-name" required>
+              </label>
+              <label>
+                Last name
+                <input name="lastName" autocomplete="family-name" required>
+              </label>
+              <label>
+                Date of birth
+                <input name="dateOfBirth" type="date" required>
+              </label>
+            </section>
+
+            <section class="form-step-panel" data-step-panel="1">
+              <label>
+                Email
+                <input name="email" type="email" autocomplete="email" required>
+              </label>
+              <label>
+                Phone
+                <input name="phone" type="tel" autocomplete="tel" required>
+              </label>
+              <label>
+                Residential address
+                <input name="address" autocomplete="street-address" required>
+              </label>
+              <label>
+                Employment status
+                <select name="employmentStatus" required>
+                  <option value="">Select An Option</option>
+                  <option>Student</option>
+                  <option>Employed</option>
+                  <option>Self-employed</option>
+                  <option>Unemployed</option>
+                  <option>Retired</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="form-step-panel" data-step-panel="2">
+              <label>
+                Create online banking password
+                <span class="password-field">
+                  <input name="password" type="password" autocomplete="new-password" minlength="8" required>
+                  <button class="password-toggle" type="button" data-toggle-password>Show</button>
+                </span>
+              </label>
+              <div class="password-strength">
+                <span id="passwordStrengthBar"></span>
+              </div>
+              <p class="form-note" id="passwordStrengthText">Use at least 8 characters with letters and numbers.</p>
+              <label class="checkbox-label">
+                <input name="agreeTerms" type="checkbox" required>
+                I confirm the information provided is accurate and agree to the account terms.
+              </label>
+            </section>
+
+            <section class="form-step-panel" data-step-panel="3">
+              <div class="review-panel" id="signupReview"></div>
+            </section>
+
+            <div class="step-actions">
+              <button class="text-button" type="button" id="stepBackButton">Back</button>
+              <button class="primary-button" type="button" id="stepNextButton">Continue</button>
+              <button class="primary-button is-hidden" type="submit" id="submitApplicationButton">Submit Application</button>
+            </div>
             <p class="form-note auth-switch">Already have an account? <a href="/login.html">Login here</a>.</p>
           </form>
           <p class="status" id="statusMessage"></p>
