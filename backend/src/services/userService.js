@@ -99,6 +99,17 @@ async function findUserByEmail(email) {
   return ensureAccountShape(user);
 }
 
+async function findUserByLoginIdentifier(identifier) {
+  const value = String(identifier || "").trim().toLowerCase();
+  const accountNumber = value.replace(/\D/g, "");
+  const database = await readDatabase();
+  const user = database.users.find((item) => (
+    item.email === value ||
+    String(item.account?.number || "") === accountNumber
+  ));
+  return ensureAccountShape(user);
+}
+
 async function approvePendingAccount(email) {
   const database = await readDatabase();
   const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
@@ -694,6 +705,7 @@ module.exports = {
   createBeneficiary,
   deleteBeneficiary,
   findUserByEmail,
+  findUserByLoginIdentifier,
   getUserById,
   isUserLocked,
   recordFailedLogin,

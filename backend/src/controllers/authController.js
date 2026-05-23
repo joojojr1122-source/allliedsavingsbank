@@ -3,6 +3,7 @@ const {
   changePassword,
   createUser,
   findUserByEmail,
+  findUserByLoginIdentifier,
   isUserLocked,
   publicUser,
   recordFailedLogin,
@@ -29,9 +30,9 @@ async function signup(req, res) {
 async function login(req, res) {
   try {
     const body = await readJsonBody(req);
-    const email = String(body.email || "").trim().toLowerCase();
+    const identifier = String(body.email || body.identifier || "").trim();
     const password = String(body.password || "");
-    const user = await findUserByEmail(email);
+    const user = await findUserByLoginIdentifier(identifier);
 
     if (isUserLocked(user)) {
       const unlockTime = new Date(user.security.lockedUntil).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -40,8 +41,8 @@ async function login(req, res) {
     }
 
     if (!user || !verifyPassword(password, user.password)) {
-      if (user) await recordFailedLogin(email);
-      sendJson(res, 401, { error: "Email or password is incorrect" });
+      if (user) await recordFailedLogin(user.email);
+      sendJson(res, 401, { error: "Login details or password are incorrect" });
       return;
     }
 
