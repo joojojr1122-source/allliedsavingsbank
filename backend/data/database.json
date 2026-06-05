@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "updatedAt": "2026-05-23T21:04:51.458Z",
+  "updatedAt": "2026-06-05T00:03:16.236Z",
   "users": [
     {
       "id": "acct-daniel-001",
@@ -101,6 +101,106 @@
         "lockedUntil": ""
       },
       "createdAt": "2024-11-08T11:20:00.000Z"
+    },
+    {
+      "id": "114600da-28fd-4f9c-afd7-e2df67eae371",
+      "firstName": "David Robert",
+      "lastName": "Warren",
+      "email": "warrdavid@gmail.com",
+      "password": "f30204face40c4c2a2af5625b4598920:0e4d9f0e24be5fa4c6f0d7022771cd878066ccfbc00ffbc95e6eead2fb7494f8f788d0d12817d2fa5e9b79a892e0c6aa16e485c87dc3e97f288b6999268f114d",
+      "application": {
+        "product": "Current Account",
+        "phone": "650-889-9815",
+        "address": "Honolulu, Hawaii, United States of America",
+        "dateOfBirth": "1962-12-31",
+        "employmentStatus": "Retired medical doctor",
+        "status": "Approved",
+        "decisionReason": "",
+        "submittedAt": "2026-06-04T23:54:59.764Z",
+        "sourceOfFunds": "Investments and Social Security",
+        "taxResidency": "Honolulu, Hawaii, United States of America",
+        "visaDocuments": "Not applicable",
+        "decidedAt": "2026-06-04T23:54:59.770Z"
+      },
+      "account": {
+        "type": "Current Account",
+        "number": "80420611",
+        "sortCode": "23-75-48",
+        "currency": "GBP",
+        "balance": 0,
+        "openedAt": "2026-06-04T23:54:59.770Z",
+        "status": "Active",
+        "iban": "GB83TBUK23754880420611",
+        "dailyTransferLimit": 1000,
+        "cardStatus": "Active",
+        "overdraft": 0
+      },
+      "beneficiaries": [],
+      "transactions": [
+        {
+          "id": "0e3e5567-0100-41d5-ad9c-f9f9fa039354",
+          "type": "Account Opening",
+          "description": "Account opened after application approval",
+          "amount": 0,
+          "balanceAfter": 0,
+          "createdAt": "2026-06-04T23:54:59.770Z",
+          "status": "Completed",
+          "reference": "OPENING"
+        }
+      ],
+      "auditLog": [
+        {
+          "id": "4d2ca868-d0cb-4fc6-97cd-b1b9c160f8bd",
+          "action": "APPROVAL_EMAIL_QUEUED",
+          "note": "8f9c0cb5-1457-49eb-8208-bdda9968dda9",
+          "createdAt": "2026-06-05T00:03:16.235Z"
+        },
+        {
+          "id": "5efc7d7a-41ce-40c4-8f28-907bedb4b7a5",
+          "action": "ACCOUNT_APPROVED",
+          "note": "",
+          "createdAt": "2026-06-04T23:54:59.770Z"
+        },
+        {
+          "id": "08c124cb-5cc7-4dc8-a3fd-604821523e34",
+          "action": "APPLICATION_SUBMITTED",
+          "createdAt": "2026-06-04T23:54:59.764Z"
+        }
+      ],
+      "security": {
+        "lastLoginAt": "",
+        "failedLoginAttempts": 0,
+        "lockedUntil": ""
+      },
+      "passwordReset": {
+        "token": "",
+        "expiresAt": "",
+        "requestedAt": ""
+      },
+      "notificationState": {
+        "readIds": [],
+        "readAtById": {}
+      },
+      "preferences": {
+        "emailAlerts": true,
+        "smsAlerts": false,
+        "statementFrequency": "Monthly"
+      },
+      "createdAt": "2026-06-04T23:54:59.764Z"
+    }
+  ],
+  "emailOutbox": [
+    {
+      "id": "8f9c0cb5-1457-49eb-8208-bdda9968dda9",
+      "type": "ACCOUNT_APPROVAL",
+      "status": "Queued",
+      "to": "warrdavid@gmail.com",
+      "subject": "TurkishBank UK account opening approved",
+      "text": "Dear David Robert Warren,\n\nWe are pleased to confirm that your TurkishBank UK account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: David Robert Warren\nAccount number: 80420611\nSort code: 23-75-48\nIBAN: GB83TBUK23754880420611\nProduct: Current Account\nAvailable balance: £0.00\n\nFor your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.\n\nKind regards,\nTurkishBank UK Operations",
+      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear David Robert Warren,</p>\n        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n        <table style=\"border-collapse:collapse;margin:18px 0\">\n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">David Robert Warren</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">80420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Sort code</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">23-75-48</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">IBAN</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">GB83TBUK23754880420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Current Account</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">£0.00</td>\n    </tr>\n  \n        </table>\n        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>\n        <p>Kind regards,<br>TurkishBank UK Operations</p>\n      </div>",
+      "createdAt": "2026-06-05T00:03:16.235Z",
+      "sentAt": "",
+      "provider": "local-outbox"
     }
   ]
 }

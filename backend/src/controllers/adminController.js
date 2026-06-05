@@ -1,4 +1,5 @@
 const { getDatabaseInfo, readDatabase } = require("../services/databaseService");
+const { getLatestApprovalEmail, queueApprovalEmail } = require("../services/emailService");
 const { approvePendingAccount, publicUser, rejectPendingAccount, updateAccountStatusAsAdmin } = require("../services/userService");
 const { readJsonBody, sendJson } = require("../utils/http");
 
@@ -29,6 +30,21 @@ async function approveAccountAsAdmin(req, res) {
     sendJson(res, 200, { user: publicUser(user) });
   } catch (error) {
     sendJson(res, error.status || 500, { error: error.message || "Approval failed" });
+  }
+}
+
+async function sendApprovalEmailAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminApprovalEmail || "";
+    const message = await queueApprovalEmail(email);
+    sendJson(res, 200, { message });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Approval email failed" });
   }
 }
 
@@ -86,21 +102,26 @@ async function getAdminSummary(req, res) {
       balance: users.reduce((total, user) => total + Number(user.account?.balance || 0), 0),
       transactions: transactions.length
     },
-    users: users.map((user) => ({
-      id: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      email: user.email,
-      product: user.account?.type || "Current Account",
-      accountNumber: user.account?.number || "",
-      balance: Number(user.account?.balance || 0),
-      status: user.account?.status || "Active",
-      applicationStatus: user.application?.status || "",
-      decisionReason: user.application?.decisionReason || "",
-      submittedAt: user.application?.submittedAt || user.createdAt || "",
-      openedAt: user.account?.openedAt || user.createdAt || "",
-      lastLoginAt: user.security?.lastLoginAt || "",
-      auditLog: (user.auditLog || []).slice(0, 5)
-    })).sort((a, b) => String(b.openedAt).localeCompare(String(a.openedAt))),
+    users: users.map((user) => {
+      const approvalEmail = getLatestApprovalEmail(user, database);
+      return {
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        product: user.account?.type || "Current Account",
+        accountNumber: user.account?.number || "",
+        balance: Number(user.account?.balance || 0),
+        status: user.account?.status || "Active",
+        applicationStatus: user.application?.status || "",
+        decisionReason: user.application?.decisionReason || "",
+        submittedAt: user.application?.submittedAt || user.createdAt || "",
+        openedAt: user.account?.openedAt || user.createdAt || "",
+        lastLoginAt: user.security?.lastLoginAt || "",
+        approvalEmailStatus: approvalEmail?.status || "",
+        approvalEmailAt: approvalEmail?.createdAt || "",
+        auditLog: (user.auditLog || []).slice(0, 5)
+      };
+    }).sort((a, b) => String(b.openedAt).localeCompare(String(a.openedAt))),
     recentTransactions: transactions
       .map((transaction) => ({
         id: transaction.id,
@@ -122,6 +143,7 @@ async function getPersistenceStatus(req, res) {
 
 module.exports = {
   approveAccountAsAdmin,
+  sendApprovalEmailAsAdmin,
   rejectAccountAsAdmin,
   updateAccountStatus,
   getAdminSummary,

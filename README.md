@@ -97,6 +97,7 @@ If sign-in fails after an update, restart the server and clear your browser stor
 - `POST /api/account/beneficiaries`
 - `DELETE /api/account/beneficiaries/:id`
 - `POST /api/admin/approve-account/:email`
+- `POST /api/admin/send-approval-email/:email`
 - `POST /api/admin/reject-account/:email`
 - `PATCH /api/admin/account-status/:email`
 - `GET /api/health`

@@ -3,6 +3,7 @@ const {
   getAdminSummary,
   getPersistenceStatus,
   rejectAccountAsAdmin,
+  sendApprovalEmailAsAdmin,
   updateAccountStatus
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
@@ -23,6 +24,13 @@ async function handleAdminRoute(req, res, url) {
     if (approveMatch) {
       req.adminApprovalEmail = decodeURIComponent(approveMatch[1]);
       await approveAccountAsAdmin(req, res);
+      return;
+    }
+
+    const approvalEmailMatch = url.pathname.match(/^\/api\/admin\/send-approval-email\/(.+)\/?$/);
+    if (approvalEmailMatch) {
+      req.adminApprovalEmail = decodeURIComponent(approvalEmailMatch[1]);
+      await sendApprovalEmailAsAdmin(req, res);
       return;
     }
 

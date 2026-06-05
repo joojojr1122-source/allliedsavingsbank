@@ -931,6 +931,7 @@ function renderAdminSummary() {
         <span>${escapeHtml(user.email)} &middot; ${escapeHtml(user.accountNumber || "Pending account")} &middot; ${escapeHtml(user.status)}</span>
         <span>Application: ${escapeHtml(user.applicationStatus || "Not started")}${user.decisionReason ? ` &middot; ${escapeHtml(user.decisionReason)}` : ""}</span>
         <span>${escapeHtml(user.product || "Current Account")} &middot; Last login ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("en-GB") : "not yet"}</span>
+        <span>Approval email: ${user.approvalEmailStatus ? `${escapeHtml(user.approvalEmailStatus)} &middot; ${new Date(user.approvalEmailAt).toLocaleString("en-GB")}` : "Not queued"}</span>
         <div class="audit-mini">
           ${(user.auditLog || []).slice(0, 3).map((entry) => `<small>${escapeHtml(formatAuditAction(entry.action))} &middot; ${new Date(entry.createdAt).toLocaleDateString("en-GB")}</small>`).join("")}
         </div>
@@ -939,6 +940,7 @@ function renderAdminSummary() {
         <span>${formatMoney(user.balance, "GBP")}</span>
         ${user.status === "Pending Approval" ? `<button class="primary-button admin-action-btn" data-admin-action="approve" data-email="${escapeHtml(user.email)}" type="button">Approve</button>` : ""}
         ${user.status === "Pending Approval" ? `<button class="text-button admin-action-btn" data-admin-action="reject" data-email="${escapeHtml(user.email)}" type="button">Reject</button>` : ""}
+        ${user.status === "Active" ? `<button class="primary-button admin-action-btn" data-admin-action="approval-email" data-email="${escapeHtml(user.email)}" type="button">Send Approval Email</button>` : ""}
         ${user.status === "Active" ? `<button class="text-button admin-action-btn" data-admin-action="freeze" data-email="${escapeHtml(user.email)}" type="button">Freeze</button>` : ""}
         ${user.status === "Frozen" ? `<button class="primary-button admin-action-btn" data-admin-action="reactivate" data-email="${escapeHtml(user.email)}" type="button">Reactivate</button>` : ""}
       </div>
@@ -1019,6 +1021,17 @@ adminUsers?.addEventListener("click", async (event) => {
         method: "POST",
         headers: { "X-Admin-Password": password }
       });
+    }
+
+    if (action === "approval-email") {
+      const data = await apiRequest(`/api/admin/send-approval-email/${encodeURIComponent(email)}`, {
+        auth: false,
+        method: "POST",
+        headers: { "X-Admin-Password": password }
+      });
+      if (adminStatus) {
+        adminStatus.textContent = `Approval email queued for ${data.message.to}.`;
+      }
     }
 
     if (action === "reject") {
@@ -1496,4 +1509,3 @@ bindSensitiveDetailControls();
 bindSortCodeInputs();
 startSessionWatch();
 restoreSession();
-
