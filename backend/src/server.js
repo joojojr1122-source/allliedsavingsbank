@@ -1,6 +1,10 @@
 const http = require("http");
 const path = require("path");
 const { URL } = require("url");
+const { loadLocalEnv } = require("./utils/env");
+
+loadLocalEnv();
+
 const { handleAuthRoute } = require("./routes/authRoutes");
 const { handleAccountRoute } = require("./routes/accountRoutes");
 const { handleAdminRoute } = require("./routes/adminRoutes");

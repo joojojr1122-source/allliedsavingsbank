@@ -150,3 +150,19 @@ If Vercel/Upstash gives you variables named `UPSTASH_REDIS_REST_URL` and `UPSTAS
 The same keys are listed in `.env.example`. After adding or changing environment variables in Vercel, redeploy the project so the serverless API can read them.
 
 Without the KV variables, Vercel can still run the API, but account data may reset because serverless file storage is temporary.
+
+## Brevo SMTP
+
+Approval emails can be delivered through Brevo SMTP. Add these variables locally in `.env` or in Vercel project settings:
+
+```text
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-brevo-login-email
+SMTP_PASS=your-brevo-smtp-key
+SMTP_FROM=your-verified-brevo-sender@your-domain.com
+SMTP_FROM_NAME=TurkishBank UK Operations
+```
+
+In Brevo, get `SMTP_USER` and `SMTP_PASS` from **SMTP & API > SMTP**. `SMTP_PASS` should be the Brevo SMTP key, not your account password. `SMTP_FROM` must be a sender address verified in Brevo.

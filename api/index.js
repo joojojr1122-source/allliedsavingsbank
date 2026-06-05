@@ -1,4 +1,8 @@
 const { URL } = require("url");
+const { loadLocalEnv } = require("../backend/src/utils/env");
+
+loadLocalEnv();
+
 const { handleAuthRoute } = require("../backend/src/routes/authRoutes");
 const { handleAccountRoute } = require("../backend/src/routes/accountRoutes");
 const { handleAdminRoute } = require("../backend/src/routes/adminRoutes");

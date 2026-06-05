@@ -4,41 +4,20 @@ $ServerFile = Join-Path $ProjectRoot "backend\src\server.js"
 $OutLogFile = Join-Path $ProjectRoot "server.out.log"
 $ErrLogFile = Join-Path $ProjectRoot "server.err.log"
 
-if (Test-Path $BundledNode) {
-  $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
-  $ProcessInfo.FileName = $BundledNode
-  $ProcessInfo.Arguments = "`"$ServerFile`""
-  $ProcessInfo.WorkingDirectory = $ProjectRoot
-  $ProcessInfo.UseShellExecute = $false
-  $ProcessInfo.CreateNoWindow = $true
-  $ProcessInfo.RedirectStandardOutput = $true
-  $ProcessInfo.RedirectStandardError = $true
-
-  $Process = New-Object System.Diagnostics.Process
-  $Process.StartInfo = $ProcessInfo
-  $Process.Start() | Out-Null
-
+function Start-BankPortalServer($NodeCommand) {
+  $Command = "`"$NodeCommand`" `"$ServerFile`" > `"$OutLogFile`" 2> `"$ErrLogFile`""
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $Command -WorkingDirectory $ProjectRoot -WindowStyle Hidden
   Write-Host "Server starting at http://localhost:3000"
   Write-Host "Log files: $OutLogFile and $ErrLogFile"
+}
+
+if (Test-Path $BundledNode) {
+  Start-BankPortalServer $BundledNode
   exit 0
 }
 
 if (Get-Command node -ErrorAction SilentlyContinue) {
-  $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
-  $ProcessInfo.FileName = "node"
-  $ProcessInfo.Arguments = "`"$ServerFile`""
-  $ProcessInfo.WorkingDirectory = $ProjectRoot
-  $ProcessInfo.UseShellExecute = $false
-  $ProcessInfo.CreateNoWindow = $true
-  $ProcessInfo.RedirectStandardOutput = $true
-  $ProcessInfo.RedirectStandardError = $true
-
-  $Process = New-Object System.Diagnostics.Process
-  $Process.StartInfo = $ProcessInfo
-  $Process.Start() | Out-Null
-
-  Write-Host "Server starting at http://localhost:3000"
-  Write-Host "Log files: $OutLogFile and $ErrLogFile"
+  Start-BankPortalServer "node"
   exit 0
 }
 
