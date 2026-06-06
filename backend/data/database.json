@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "updatedAt": "2026-06-05T23:56:57.873Z",
+  "updatedAt": "2026-06-06T19:25:27.614Z",
   "users": [
     {
       "id": "acct-daniel-001",
@@ -127,7 +127,7 @@
         "number": "80420611",
         "sortCode": "23-75-48",
         "currency": "GBP",
-        "balance": 0,
+        "balance": 100,
         "openedAt": "2026-06-04T23:54:59.770Z",
         "status": "Active",
         "iban": "GB83TBUK23754880420611",
@@ -137,6 +137,24 @@
       },
       "beneficiaries": [],
       "transactions": [
+        {
+          "id": "tx-deposit-100-20260606",
+          "type": "Deposit",
+          "description": "Account deposit",
+          "category": "Incoming Payment",
+          "tags": [
+            "credit"
+          ],
+          "amount": 100,
+          "balanceAfter": 100,
+          "createdAt": "2026-06-06T19:25:27.614Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "CR06JUN420611",
+          "repeatFrequency": "Once",
+          "processedAt": "",
+          "lastEditedAt": ""
+        },
         {
           "id": "0e3e5567-0100-41d5-ad9c-f9f9fa039354",
           "type": "Account Opening",
@@ -149,6 +167,12 @@
         }
       ],
       "auditLog": [
+        {
+          "id": "audit-deposit-100-20260606",
+          "action": "DEPOSIT_CREATED",
+          "note": "Account deposit - CR06JUN420611",
+          "createdAt": "2026-06-06T19:25:27.614Z"
+        },
         {
           "id": "1b866aa9-0747-4d33-ad28-9c7eec1e867d",
           "action": "PASSWORD_RESET_BY_ADMIN",
