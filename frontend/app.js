@@ -114,8 +114,10 @@ function showDashboard(user) {
   setText("#accountName", `${user.firstName} ${user.lastName}`.trim());
   setText("#accountProduct", user.account.type);
   const availableBalance = getAvailableBalance(user);
+  const pendingIncoming = getPendingIncomingTotal(user);
   setText("#accountBalance", formatMoney(availableBalance, user.account.currency));
   setText("#ledgerBalance", formatMoney(user.account.balance, user.account.currency));
+  setText("#pendingIncomingAmount", formatMoney(pendingIncoming, user.account.currency));
   setText("#accountNumber", sensitiveDetailsVisible ? user.account.number : maskAccountNumber(user.account.number));
   setText("#sortCode", sensitiveDetailsVisible ? user.account.sortCode : maskSortCode(user.account.sortCode));
   setText("#accountStatus", user.account.status || "Active");
@@ -513,6 +515,13 @@ function getAvailableBalance(user) {
     .filter((transaction) => transaction.status === "Pending" && Number(transaction.amount) < 0)
     .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
   return Number((balance - reserved).toFixed(2));
+}
+
+function getPendingIncomingTotal(user) {
+  return Number((user.transactions || [])
+    .filter((transaction) => transaction.status === "Pending" && Number(transaction.amount) > 0)
+    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0)
+    .toFixed(2));
 }
 
 function updateSensitiveToggleButtons() {

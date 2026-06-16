@@ -1990,6 +1990,11 @@ button {
   opacity: 0.88;
 }
 
+.balance-box__pending {
+  font-size: 28px !important;
+  color: #f7d7d7;
+}
+
 .detail-row__value {
   display: flex;
   flex-wrap: wrap;
