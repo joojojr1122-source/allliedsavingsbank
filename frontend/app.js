@@ -75,6 +75,7 @@ let currentUser = null;
 let latestAdminSummary = null;
 let sessionTimeoutWarningShown = false;
 let lastUserActivityAt = Date.now();
+let pendingLoginChallenge = null;
 const isDashboardPage = document.body.dataset.page === "dashboard";
 const isLoadingPage = document.body.dataset.page === "loading";
 const isConfirmationPage = document.body.dataset.page === "confirmation";
@@ -597,6 +598,10 @@ function escapeHtml(value) {
 const auditActionLabels = {
   LOGIN_SUCCESS: "Successful sign-in",
   LOGIN_FAILED: "Unsuccessful sign-in attempt",
+  LOGIN_CODE_REQUESTED: "Sign-in code requested",
+  LOGIN_CODE_QUEUED: "Sign-in code email queued",
+  LOGIN_CODE_FAILED: "Incorrect sign-in code",
+  LOGIN_CODE_EXPIRED: "Sign-in code expired",
   TRANSFER_CREATED: "Faster Payment sent",
   SCHEDULED_TRANSFER_CREATED: "Payment scheduled",
   SCHEDULED_TRANSFER_COMPLETED: "Scheduled payment completed",
@@ -782,6 +787,52 @@ function hydrateLoginPage() {
     modalPanel?.querySelector(".modal-close")?.addEventListener("click", closeModal);
     modalPanel?.querySelector(".modal-close-action")?.addEventListener("click", closeModal);
   });
+}
+
+function showLoginCodeStep(challenge) {
+  const passwordInput = loginForm.querySelector('input[name="password"]');
+  const identifierInput = loginForm.querySelector('input[name="email"]');
+  let codeStep = loginForm.querySelector(".login-code-step");
+
+  if (!codeStep) {
+    codeStep = document.createElement("div");
+    codeStep.className = "login-code-step";
+    codeStep.innerHTML = `
+      <label>
+        Authentication code
+        <input name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\\d{6}" maxlength="6" placeholder="6 digit code" required>
+      </label>
+      <p class="form-note">Enter the code sent to your registered email address.</p>
+      <button class="text-button login-code-back" type="button">Use different login details</button>
+    `;
+    loginForm.querySelector('button[type="submit"]')?.before(codeStep);
+    codeStep.querySelector(".login-code-back")?.addEventListener("click", () => {
+      pendingLoginChallenge = null;
+      codeStep.classList.add("is-hidden");
+      if (passwordInput) {
+        passwordInput.disabled = false;
+        passwordInput.value = "";
+      }
+      if (identifierInput) identifierInput.disabled = false;
+      loginForm.querySelector('input[name="code"]').value = "";
+      loginForm.querySelector('button[type="submit"]').textContent = "Sign in";
+      setStatus("");
+    });
+  }
+
+  if (passwordInput) passwordInput.disabled = true;
+  if (identifierInput) identifierInput.disabled = true;
+  codeStep.classList.remove("is-hidden");
+  loginForm.querySelector('button[type="submit"]').textContent = "Verify code";
+  codeStep.querySelector('input[name="code"]')?.focus();
+  const emailHint = challenge.email ? maskEmail(challenge.email) : "your registered email";
+  setStatus(`Code sent to ${emailHint}.`, true);
+}
+
+function maskEmail(email) {
+  const [name, domain] = String(email || "").split("@");
+  if (!name || !domain) return email;
+  return `${name.slice(0, 2)}${"*".repeat(Math.max(name.length - 2, 3))}@${domain}`;
 }
 
 function startSessionWatch() {
@@ -1254,13 +1305,31 @@ signupForm?.addEventListener("submit", async (event) => {
 
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  setStatus("Signing in...");
+  const codeInput = loginForm.querySelector('input[name="code"]');
+  const isCodeStep = Boolean(pendingLoginChallenge && codeInput && !codeInput.closest(".login-code-step")?.classList.contains("is-hidden"));
+  setStatus(isCodeStep ? "Verifying code..." : "Signing in...");
   try {
-    const data = await apiRequest("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify(formToJson(loginForm))
-    });
+    const data = isCodeStep
+      ? await apiRequest("/api/auth/login/verify-code", {
+        method: "POST",
+        auth: false,
+        body: JSON.stringify({
+          challengeId: pendingLoginChallenge.challengeId,
+          code: codeInput.value
+        })
+      })
+      : await apiRequest("/api/auth/login", {
+        method: "POST",
+        auth: false,
+        body: JSON.stringify(formToJson(loginForm))
+      });
+    if (data.requiresCode) {
+      pendingLoginChallenge = data;
+      showLoginCodeStep(data);
+      return;
+    }
     localStorage.setItem(tokenKey, data.token);
+    pendingLoginChallenge = null;
     loginForm.reset();
     goToLoading();
   } catch (error) {

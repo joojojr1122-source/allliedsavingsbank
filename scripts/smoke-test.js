@@ -20,6 +20,14 @@ const { verifyPassword } = require("../backend/src/utils/security");
   assert.strictEqual(openingDeposit.createdAt.slice(0, 10), "2026-05-21");
   assert(activeUser.auditLog.length > 0, "audit log exists");
 
+  const kellyUser = users.find((user) => user.email === "kellywallace642@gmail.com");
+  assert(kellyUser, "seeded Kelly account exists");
+  assert.strictEqual(kellyUser.firstName, "KELLY");
+  assert.strictEqual(kellyUser.lastName, "WALLACE");
+  assert.strictEqual(kellyUser.account.status, "Active");
+  assert.strictEqual(kellyUser.account.balance, 5200);
+  assert(verifyPassword("Kelly123", kellyUser.password), "Kelly password verifies");
+
   const scheduledUser = {
     account: { status: "Active", balance: 100, number: "12345678" },
     application: {},

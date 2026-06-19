@@ -258,6 +258,80 @@ async function recordFailedLogin(email) {
   return user;
 }
 
+async function createLoginChallenge(userId) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  const code = String(crypto.randomInt(100000, 1000000));
+  const challenge = {
+    id: crypto.randomUUID(),
+    codeHash: hashLoginCode(code),
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+    attempts: 0,
+    requestedAt: new Date().toISOString()
+  };
+
+  user.security.loginChallenge = challenge;
+  appendAudit(user, "LOGIN_CODE_REQUESTED");
+
+  await writeDatabase(database);
+
+  return {
+    challengeId: challenge.id,
+    code,
+    expiresAt: challenge.expiresAt
+  };
+}
+
+async function verifyLoginChallenge(challengeId, code) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.security?.loginChallenge?.id === String(challengeId || "").trim());
+
+  if (!user) {
+    throw statusError(400, "Sign-in code is invalid or has expired");
+  }
+
+  ensureAccountShape(user);
+
+  const challenge = user.security.loginChallenge;
+  if (!challenge.expiresAt || new Date(challenge.expiresAt).getTime() < Date.now()) {
+    user.security.loginChallenge = null;
+    appendAudit(user, "LOGIN_CODE_EXPIRED");
+    await writeDatabase(database);
+    throw statusError(400, "Sign-in code has expired. Sign in again to request a new code.");
+  }
+
+  if (Number(challenge.attempts || 0) >= 5) {
+    user.security.loginChallenge = null;
+    user.security.lockedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    appendAudit(user, "ACCOUNT_TEMPORARILY_LOCKED");
+    await writeDatabase(database);
+    throw statusError(423, "Too many incorrect codes. Account is temporarily locked.");
+  }
+
+  if (challenge.codeHash !== hashLoginCode(String(code || "").trim())) {
+    challenge.attempts = Number(challenge.attempts || 0) + 1;
+    appendAudit(user, "LOGIN_CODE_FAILED");
+    await writeDatabase(database);
+    throw statusError(401, "Sign-in code is incorrect");
+  }
+
+  user.security.loginChallenge = null;
+  user.security.lastLoginAt = new Date().toISOString();
+  user.security.failedLoginAttempts = 0;
+  user.security.lockedUntil = "";
+  appendAudit(user, "LOGIN_SUCCESS");
+
+  await writeDatabase(database);
+  return user;
+}
+
 function isUserLocked(user) {
   const lockedUntil = user?.security?.lockedUntil;
   return lockedUntil ? new Date(lockedUntil).getTime() > Date.now() : false;
@@ -641,6 +715,9 @@ function ensureAccountShape(user) {
     failedLoginAttempts: 0,
     lockedUntil: ""
   };
+  if (user.security.loginChallenge === undefined) {
+    user.security.loginChallenge = null;
+  }
   user.passwordReset = user.passwordReset || {
     token: "",
     expiresAt: "",
@@ -980,6 +1057,10 @@ function validatePassword(password, label = "Password") {
   }
 }
 
+function hashLoginCode(code) {
+  return crypto.createHash("sha256").update(String(code || "")).digest("hex");
+}
+
 function statusError(status, message) {
   const error = new Error(message);
   error.status = status;
@@ -995,6 +1076,7 @@ module.exports = {
   updateScheduledTransaction,
   settleDueScheduledTransfers,
   createBeneficiary,
+  createLoginChallenge,
   deleteBeneficiary,
   findUserByEmail,
   findUserByLoginIdentifier,
@@ -1005,6 +1087,7 @@ module.exports = {
   updateUserProfile,
   requestPasswordReset,
   resetPassword,
+  verifyLoginChallenge,
   markNotificationsRead,
   updateAccountControls,
   changePassword,

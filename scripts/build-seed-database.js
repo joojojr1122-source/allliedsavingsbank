@@ -3,8 +3,11 @@ const path = require("path");
 
 const passwordHash =
   "a739cb44fc755d20b0503d3461cc0840:1dfd09a3ce9ffc9a49f5262cb2168ff4581bdb99ba5a2426fe681e19c4df04c978396d8beaffc5216e21f57ddf44c274e560636d035f637112dd9918a72c4fd5";
+const kellyPasswordHash =
+  "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e";
 
 const OPENING_DEPOSIT_AMOUNT = 7600;
+const KELLY_OPENING_DEPOSIT_AMOUNT = 5200;
 const OPENING_DEPOSIT_DATE = "2026-05-21T11:42:00.000Z";
 
 const transactions = [
@@ -37,7 +40,7 @@ const transactions = [
 ];
 
 const database = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   updatedAt: new Date().toISOString(),
   users: [
     {
@@ -109,6 +112,103 @@ const database = {
         lockedUntil: ""
       },
       createdAt: "2024-11-08T11:20:00.000Z"
+    },
+    {
+      id: "acct-kelly-001",
+      firstName: "KELLY",
+      lastName: "WALLACE",
+      email: "kellywallace642@gmail.com",
+      password: kellyPasswordHash,
+      application: {
+        product: "Checking Account",
+        phone: "555-0164",
+        address: "1200 Commerce Street, Dallas, TX 75202",
+        dateOfBirth: "1988-07-19",
+        employmentStatus: "Employed",
+        status: "Approved",
+        decisionReason: "",
+        submittedAt: "2026-06-12T10:00:00.000Z",
+        decidedAt: "2026-06-12T11:30:00.000Z"
+      },
+      account: {
+        type: "Checking Account",
+        number: "80421642",
+        sortCode: "026009593",
+        currency: "USD",
+        balance: KELLY_OPENING_DEPOSIT_AMOUNT,
+        openedAt: "2026-06-12T11:45:00.000Z",
+        status: "Active",
+        iban: "ASAVUS33000180421642",
+        dailyTransferLimit: 2500,
+        cardStatus: "Active",
+        cardLastFour: "1642",
+        cardExpiry: "10/29",
+        overdraft: 0
+      },
+      beneficiaries: [],
+      transactions: [
+        {
+          id: "tx-kelly-opening-001",
+          type: "Account Opening",
+          description: "Account opened",
+          amount: 0,
+          balanceAfter: 0,
+          createdAt: "2026-06-12T11:45:00.000Z",
+          scheduledFor: "",
+          status: "Completed",
+          reference: "OPENING",
+          category: "Account",
+          tags: []
+        },
+        {
+          id: "tx-kelly-opening-deposit-001",
+          type: "Deposit",
+          description: "Opening deposit",
+          amount: KELLY_OPENING_DEPOSIT_AMOUNT,
+          balanceAfter: KELLY_OPENING_DEPOSIT_AMOUNT,
+          createdAt: "2026-06-12T12:10:00.000Z",
+          scheduledFor: "",
+          status: "Completed",
+          reference: "DEP12JUN804216",
+          category: "Incoming Payment",
+          tags: ["credit", "checking"]
+        }
+      ],
+      notificationState: {
+        readIds: [],
+        readAtById: {}
+      },
+      preferences: {
+        emailAlerts: true,
+        smsAlerts: false,
+        statementFrequency: "Monthly"
+      },
+      auditLog: [
+        {
+          id: "audit-kelly-deposit-001",
+          action: "DEPOSIT_CREATED",
+          note: "Opening deposit - DEP12JUN804216",
+          createdAt: "2026-06-12T12:10:00.000Z"
+        },
+        {
+          id: "audit-kelly-approved-001",
+          action: "ACCOUNT_APPROVED",
+          note: "",
+          createdAt: "2026-06-12T11:30:00.000Z"
+        }
+      ],
+      security: {
+        lastLoginAt: "",
+        failedLoginAttempts: 0,
+        lockedUntil: "",
+        loginChallenge: null
+      },
+      passwordReset: {
+        token: "",
+        expiresAt: "",
+        requestedAt: ""
+      },
+      createdAt: "2026-06-12T10:00:00.000Z"
     }
   ]
 };
