@@ -1,4 +1,4 @@
-# TurkishBank Account Portal
+# Allied Savings Account Portal
 
 A banking-style account portal with signup, login, account dashboard, payments, transfers, payees, account controls, and CSV statement download.
 
@@ -68,10 +68,10 @@ http://localhost:3000
 
 These credentials apply to the seeded local database only. Change them before any public deployment.
 
-- Customer: `daniel.nowak@outlook.com` / `Nowak@4142`
+- Customer: `demo.customer@example.com` / `Nowak@4142`
 - Back office: `/ops.html` with password `admin12345` (local only unless `ADMIN_PASSWORD` is set)
 
-The seeded account is held by **DANIEL NOWAK** with a £7,600,000.00 balance from a one-time **Vanmas DMCC** payment received on Wednesday 21 May 2026.
+The seeded account is held by **ALEX MORGAN** with a $7,600.00 demo opening deposit received on Thursday 21 May 2026.
 
 To rebuild the seed file:
 
@@ -162,7 +162,7 @@ SMTP_SECURE=false
 SMTP_USER=your-brevo-login-email
 SMTP_PASS=your-brevo-smtp-key
 SMTP_FROM=your-verified-brevo-sender@your-domain.com
-SMTP_FROM_NAME=TurkishBank UK Operations
+SMTP_FROM_NAME=Allied Savings Operations
 ```
 
 In Brevo, get `SMTP_USER` and `SMTP_PASS` from **SMTP & API > SMTP**. `SMTP_PASS` should be the Brevo SMTP key, not your account password. `SMTP_FROM` must be a sender address verified in Brevo.

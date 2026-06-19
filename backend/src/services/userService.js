@@ -55,8 +55,8 @@ async function createUser(input) {
     account: {
       type: product,
       number: accountNumber,
-      sortCode: "23-75-48",
-      currency: "GBP",
+      sortCode: "026009593",
+      currency: "USD",
       balance: 0,
       openedAt: "",
       status: "Pending Approval",
@@ -488,7 +488,7 @@ function createAccountNumber(offset) {
 }
 
 function createIban(offset, accountNumber) {
-  return `GB${String(82 + offset).padStart(2, "0")}TBUK237548${accountNumber}`;
+  return `ASAVUS${String(330000 + offset).padStart(6, "0")}${accountNumber}`;
 }
 
 function createReference(type, accountNumber = "") {
@@ -518,7 +518,7 @@ function formatSortCode(value) {
 }
 
 function formatLimit(value) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(value || 0));
 }
 
 function getTodaysTransferTotal(transactions) {
@@ -626,8 +626,8 @@ function ensureAccountShape(user) {
   }
 
   user.account.status = user.account.status || "Pending Approval";
-  user.account.currency = user.account.currency || "GBP";
-  user.account.iban = user.account.iban || `GB82TBUK237548${user.account.number}`;
+  user.account.currency = user.account.currency || "USD";
+  user.account.iban = user.account.iban || `ASAVUS330000${user.account.number}`;
   user.account.dailyTransferLimit = user.account.dailyTransferLimit || 1000;
   user.account.cardStatus = user.account.cardStatus || "Active";
   user.account.overdraft = Number(user.account.overdraft || 0);
@@ -944,7 +944,7 @@ async function updateAccountControls(userId, input) {
   }
 
   if (!Number.isFinite(dailyTransferLimit) || dailyTransferLimit < 50 || dailyTransferLimit > 5000) {
-    throw statusError(400, "Daily transfer limit must be between GBP 50 and GBP 5,000");
+    throw statusError(400, "Daily transfer limit must be between USD 50 and USD 5,000");
   }
 
   user.account.cardStatus = cardStatus;

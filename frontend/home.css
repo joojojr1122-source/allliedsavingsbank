@@ -1,4 +1,4 @@
-/* TurkishBank UK homepage layout (mirrors turkishbank.co.uk structure) */
+/* Allied Savings homepage layout */
 
 body[data-page="home"] {
   background: #ffffff;
@@ -17,7 +17,7 @@ body[data-page="home"] .header-main {
 }
 
 body[data-page="home"] .brand img {
-  width: 445px;
+  width: 330px;
   max-width: 100%;
 }
 
@@ -34,7 +34,7 @@ body[data-page="home"] .main-nav .nav-pill {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #c4622d;
+  background: #0b6b57;
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
@@ -46,16 +46,16 @@ body[data-page="home"] .main-nav .nav-pill {
 
 body[data-page="home"] .main-nav a:hover,
 body[data-page="home"] .main-nav .nav-pill:hover {
-  background: #c8beb3;
-  color: #ffffff;
+  background: #f0b429;
+  color: #12384d;
 }
 
 body[data-page="home"] .main-nav .nav-pill--dark {
-  background: #333f48;
+  background: #12384d;
 }
 
 body[data-page="home"] .main-nav .nav-pill--online {
-  background: #c4622d;
+  background: #0b6b57;
   line-height: 1.05;
 }
 
@@ -110,7 +110,7 @@ body[data-page="home"] .top-strip__menu a {
 
 body[data-page="home"] .top-strip__menu a:hover {
   background: #f7f7f7;
-  color: #c4622d;
+  color: #0b6b57;
 }
 
 body[data-page="home"] .internet-drop .internet-menu {
@@ -139,18 +139,54 @@ body[data-page="home"] .internet-menu a {
 }
 
 body[data-page="home"] .internet-menu a:hover {
-  background: #c4622d;
+  background: #0b6b57;
 }
 
 body[data-page="home"] .hero {
   min-height: 0;
   height: clamp(320px, 42vw, 797px);
-  background: #333f48 center center/cover no-repeat;
+  background: #12384d center center/cover no-repeat;
 }
 
-body[data-page="home"] .hero__inner,
+body[data-page="home"] .hero__inner {
+  min-height: 100%;
+  display: grid;
+  align-items: center;
+}
+
+body[data-page="home"] .hero__content {
+  max-width: 540px;
+  color: #ffffff;
+}
+
 body[data-page="home"] .hero h1 {
-  display: none;
+  display: block;
+  margin: 0 0 16px;
+  font-size: clamp(42px, 6vw, 74px);
+  font-weight: 800;
+  line-height: 0.98;
+}
+
+body[data-page="home"] .hero p {
+  max-width: 470px;
+  margin: 0 0 24px;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+body[data-page="home"] .hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+body[data-page="home"] .hero__actions .text-button {
+  min-height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  color: #ffffff;
+  padding: 0 20px;
 }
 
 body[data-page="home"] .slider-dots {
@@ -169,8 +205,8 @@ body[data-page="home"] .slider-dots span {
 }
 
 body[data-page="home"] .slider-dots span.is-active {
-  background: #e27900;
-  border-color: #e27900;
+  background: #f0b429;
+  border-color: #f0b429;
 }
 
 body[data-page="home"] .slider-arrow {
@@ -215,15 +251,16 @@ body[data-page="home"] .content-box-icon {
 }
 
 body[data-page="home"] .content-box-icon--deposit {
-  background: #c4622d;
+  background: #0b6b57;
 }
 
 body[data-page="home"] .content-box-icon--cards {
-  background: #333f48;
+  background: #12384d;
 }
 
 body[data-page="home"] .content-box-icon--mortgage {
-  background: #a39382;
+  background: #f0b429;
+  color: #12384d;
 }
 
 body[data-page="home"] .content-box-card h2 {
@@ -245,14 +282,15 @@ body[data-page="home"] .home-panel h2 {
   margin: 0 0 16px;
   padding-bottom: 8px;
   border-bottom: 2px dotted #c4622d;
-  color: #c4622d;
+  border-bottom-color: #0b6b57;
+  color: #0b6b57;
   font-size: 21px;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 body[data-page="home"] .home-panel h2 a {
-  color: #c4622d;
+  color: #0b6b57;
 }
 
 body[data-page="home"] .home-panel--about {
@@ -345,7 +383,7 @@ body[data-page="home"] .branch-form button,
 body[data-page="home"] .newsletter-panel button {
   min-height: 42px;
   border: 0;
-  background: #4488ee;
+  background: #0b6b57;
   color: #ffffff;
   font-weight: 700;
   padding: 0 18px;
@@ -433,7 +471,7 @@ body[data-page="home"] .footer-copyright a {
 }
 
 body[data-page="home"] .footer-copyright a:hover {
-  color: #c8beb3;
+  color: #f0b429;
 }
 
 @media (max-width: 1100px) {

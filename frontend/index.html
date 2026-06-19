@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - TurkishBank UK</title>
+    <title>Home - Allied Savings</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/styles.css">
@@ -12,23 +12,22 @@
   <body data-page="home">
     <div class="top-strip">
       <div class="wrap top-strip__inner">
-        <span><i class="fa fa-phone" aria-hidden="true"></i> 020 7403 5656</span>
+        <span><i class="fa fa-phone" aria-hidden="true"></i> 1-800-555-0198</span>
         <div class="top-strip__right">
           <div class="top-strip__links-dropdown" id="importantLinksDrop">
-            <button type="button" aria-expanded="false"><i class="fa fa-link" aria-hidden="true"></i> Important Links</button>
+            <button type="button" aria-expanded="false"><i class="fa fa-link" aria-hidden="true"></i> Helpful Links</button>
             <div class="top-strip__menu">
-              <a href="https://www.turkishbank.co.uk/legal/">Legal</a>
-              <a href="https://www.turkishbank.co.uk/interest-rates/">Interest Rates</a>
-              <a href="https://www.turkishbank.co.uk/fees-commisions/">Fees &amp; Commissions</a>
-              <a href="https://www.turkishbank.co.uk/other/">Other</a>
-              <a href="https://www.turkishbank.co.uk/cookie-policy/">Cookie Policy</a>
+              <a href="#support">Security Center</a>
+              <a href="#rates">Rates</a>
+              <a href="#fees">Fees</a>
+              <a href="#privacy">Privacy</a>
             </div>
           </div>
           <div class="internet-drop" id="internetBankingDrop">
-            <span><i class="fa fa-lock" aria-hidden="true"></i> Internet Banking</span>
-            <button type="button" aria-expanded="false" aria-label="Internet banking menu"></button>
+            <span><i class="fa fa-lock" aria-hidden="true"></i> Online Banking</span>
+            <button type="button" aria-expanded="false" aria-label="Online banking menu"></button>
             <div class="internet-menu">
-              <a href="/login.html"><i class="fa fa-user" aria-hidden="true"></i> Consumer</a>
+              <a href="/login.html"><i class="fa fa-user" aria-hidden="true"></i> Personal</a>
             </div>
           </div>
         </div>
@@ -37,8 +36,8 @@
 
     <header class="site-header">
       <div class="wrap header-main">
-        <a class="brand" href="/" aria-label="TurkishBank UK home">
-          <img src="/assets/logo-tb-uk.png" alt="TurkishBank UK Logo">
+        <a class="brand" href="/" aria-label="Allied Savings home">
+          <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
         </a>
 
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
@@ -48,10 +47,10 @@
         </button>
 
         <nav class="main-nav" aria-label="Main navigation">
-          <a href="https://www.turkishbank.co.uk/history-of-turkishbank/">About Us</a>
-          <a href="https://www.turkishbank.co.uk/personal/">Personal</a>
-          <a href="https://www.turkishbank.co.uk/business/">Business</a>
-          <a href="https://www.turkishbank.co.uk/global/">Global</a>
+          <a href="#about">About</a>
+          <a href="#personal">Personal</a>
+          <a href="#business">Business</a>
+          <a href="#support">Support</a>
           <a class="nav-pill nav-pill--online" href="/login.html">
             <span>Online</span>
             <span>Banking</span>
@@ -61,105 +60,112 @@
     </header>
 
     <main>
-      <section class="hero" id="homeHero" aria-label="Homepage slider">
+      <section class="hero" id="homeHero" aria-label="Allied Savings online banking">
         <div class="wrap hero__inner">
-          <h1>Home</h1>
+          <div class="hero__content">
+            <h1>Allied Savings</h1>
+            <p>Personal banking built around everyday deposits, secure transfers, and clear account controls.</p>
+            <div class="hero__actions">
+              <a class="primary-button receipt-link" href="/signup.html">Open Account</a>
+              <a class="text-button" href="/login.html">Sign In</a>
+            </div>
+          </div>
         </div>
         <button class="slider-arrow slider-arrow--left" type="button" aria-label="Previous slide">Previous</button>
         <button class="slider-arrow slider-arrow--right" type="button" aria-label="Next slide">Next</button>
         <div class="slider-dots" aria-hidden="true"></div>
       </section>
 
-      <section class="wrap home-content-boxes" aria-label="Products">
+      <section class="wrap home-content-boxes" id="personal" aria-label="Products">
         <div class="content-box-grid">
-          <a class="content-box-card" href="https://www.turkishbank.co.uk/personal/deposit-product/">
-            <div class="content-box-icon content-box-icon--deposit" aria-hidden="true"><i class="fa fa-th-list"></i></div>
-            <h2>Deposit Product</h2>
+          <a class="content-box-card" href="/signup.html">
+            <div class="content-box-icon content-box-icon--deposit" aria-hidden="true"><i class="fa fa-check-square-o"></i></div>
+            <h2>Everyday Checking</h2>
           </a>
-          <a class="content-box-card" href="https://www.turkishbank.co.uk/personal/cards/contactless-debit-card/">
-            <div class="content-box-icon content-box-icon--cards" aria-hidden="true"><i class="fa fa-credit-card"></i></div>
-            <h2>Debit Cards</h2>
+          <a class="content-box-card" href="/signup.html">
+            <div class="content-box-icon content-box-icon--cards" aria-hidden="true"><i class="fa fa-line-chart"></i></div>
+            <h2>Savings Accounts</h2>
           </a>
-          <a class="content-box-card" href="https://www.turkishbank.co.uk/personal/mortgage-products/">
-            <div class="content-box-icon content-box-icon--mortgage" aria-hidden="true"><i class="fa fa-home"></i></div>
-            <h2>Mortgage</h2>
+          <a class="content-box-card" href="/login.html">
+            <div class="content-box-icon content-box-icon--mortgage" aria-hidden="true"><i class="fa fa-credit-card"></i></div>
+            <h2>Card Controls</h2>
           </a>
         </div>
       </section>
 
       <section class="wrap home-panels">
-        <section class="home-panel home-panel--about">
-          <h2><a href="https://www.turkishbank.co.uk/history-of-turkishbank/">About Us</a></h2>
-          <a href="https://www.turkishbank.co.uk/history-of-turkishbank/">
-            <img src="/assets/kurumsal-tb-yr.png" alt="TurkishBank Group">
-            <p><em>TurkishBank Group, operates in 3 countries including Turkey, North Cyprus and the UK.</em></p>
+        <section class="home-panel home-panel--about" id="about">
+          <h2><a href="/signup.html">About Us</a></h2>
+          <a href="/signup.html">
+            <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
+            <p><em>A U.S.-focused banking portal for personal accounts, payments, and digital account servicing.</em></p>
           </a>
         </section>
 
         <section class="home-panel home-panel--news">
-          <h2><a href="https://www.turkishbank.co.uk/category/banking-news/">What's New</a></h2>
-          <h3 class="widget-title">Recent Posts</h3>
+          <h2><a href="#news">What's New</a></h2>
+          <h3 class="widget-title">Recent Updates</h3>
           <div class="news-list">
-            <a class="news-item" href="https://www.turkishbank.co.uk/palmers-green-subesinin-harringay-subesi-ile-birlesmesi-hakkinda/">
-              <img src="/assets/post-merge.png" alt="">
+            <a class="news-item" href="/login.html">
+              <img src="/assets/slider-cards.png" alt="">
               <div>
-                <strong>Palmers Green Branch and Harringay Branch merger announcement</strong>
-                <time datetime="2025-05-06">05/06/2025</time>
+                <strong>Expanded card controls are now available in online banking</strong>
+                <time datetime="2026-06-10">06/10/2026</time>
               </div>
             </a>
-            <a class="news-item" href="https://www.turkishbank.co.uk/international-banker-interview/">
-              <img src="/assets/post-interview.png" alt="">
+            <a class="news-item" href="/signup.html">
+              <img src="/assets/slider-cards.png" alt="">
               <div>
-                <strong>International Banker Interview</strong>
-                <time datetime="2022-04-05">04/05/2022</time>
+                <strong>New account applications now include status tracking</strong>
+                <time datetime="2026-05-24">05/24/2026</time>
               </div>
             </a>
-            <a class="news-item" href="https://www.turkishbank.co.uk/ebrd-channels-more-resources-to-support-trade-finance-in-cyprus-through-turkish-bank-ltd/">
-              <img src="/assets/post-ebrd.png" alt="">
+            <a class="news-item" href="/login.html">
+              <img src="/assets/slider-cards.png" alt="">
               <div>
-                <strong>EBRD channels more resources to support trade finance in Cyprus through Turkish Bank Ltd</strong>
-                <time datetime="2017-05-25">05/25/2017</time>
+                <strong>Statement downloads added for checking and savings customers</strong>
+                <time datetime="2026-05-18">05/18/2026</time>
               </div>
             </a>
-            <a class="news-item" href="https://www.turkishbank.co.uk/use-the-power-of-contactless-in-turkishbank-cards/">
-              <img src="/assets/post-contactless.png" alt="">
+            <a class="news-item" href="#support">
+              <img src="/assets/slider-cards.png" alt="">
               <div>
-                <strong>Use the power of contactless in Turkishbank Cards</strong>
-                <time datetime="2017-04-20">04/20/2017</time>
+                <strong>Security reminders for transfers and new payee setup</strong>
+                <time datetime="2026-04-30">04/30/2026</time>
               </div>
             </a>
           </div>
         </section>
 
         <section class="home-panel home-panel--branch">
-          <h2><a href="https://www.turkishbank.co.uk/contact-us/branches/">Search Branch</a></h2>
+          <h2><a href="#branches">Search Branch</a></h2>
           <form class="branch-form" id="branchForm">
             <span class="form-step-badge">1</span>
             <select id="branchType" aria-label="Branch type">
               <option value="">Select An Option</option>
-              <option value="1">Head Office &amp; London Branch</option>
-              <option value="2">Global Banking Department</option>
-              <option value="3">Customer Contact Center</option>
-              <option value="4">Harringay Branch</option>
-              <option value="5">Palmers Green Branch</option>
-              <option value="6">Commercial Branch</option>
+              <option value="1">Head Office</option>
+              <option value="2">Digital Banking Support</option>
+              <option value="3">Customer Care Center</option>
+              <option value="4">New York Branch</option>
+              <option value="5">Chicago Branch</option>
+              <option value="6">Dallas Branch</option>
             </select>
             <select id="branchName" aria-label="Branch name" disabled>
-              <option value="">sube</option>
+              <option value="">Select branch</option>
             </select>
-            <input id="branchKeyword" type="text" aria-label="Search branch keyword" placeholder="">
+            <input id="branchKeyword" type="text" aria-label="Search branch keyword" placeholder="City or ZIP">
             <button type="submit">FIND IT</button>
           </form>
           <p class="inline-result" id="branchResult"></p>
         </section>
 
-        <section class="home-panel home-panel--contact newsletter-panel">
+        <section class="home-panel home-panel--contact newsletter-panel" id="support">
           <h2>Contact Us</h2>
-          <p>Leave your E-Mail address to be informed about new product and services and to receive our monthly economy reports.</p>
-          <p class="disclaimer">Disclaimer: * All reports are prepared in Turkish by our group bank TurkishBank A.S.</p>
+          <p>Leave your email address to receive account service updates and security notices.</p>
+          <p class="disclaimer">For urgent card or account security concerns, call 1-800-555-0198.</p>
           <form id="newsletterForm">
             <span class="form-step-badge">1 Step 1</span>
-            <input type="email" placeholder="E-Mail" aria-label="E-Mail" required>
+            <input type="email" placeholder="Email" aria-label="Email" required>
             <button type="submit">Sign Up</button>
           </form>
           <p class="inline-result" id="newsletterResult"></p>
@@ -171,70 +177,43 @@
       <div class="wrap footer-columns">
         <section class="footer-col">
           <h3>About Us</h3>
-          <a href="https://www.turkishbank.co.uk/history-of-turkishbank/">History Of Turkishbank</a>
-          <a href="https://www.turkishbank.co.uk/our-vision-and-mission/">Our Mission and Vision</a>
-          <a href="https://www.turkishbank.co.uk/human-resources/">Human Resources</a>
-          <a href="https://www.turkishbank.co.uk/reports/">Reports</a>
-          <a href="https://www.turkishbank.co.uk/management/">Management</a>
-          <a href="https://www.turkishbank.co.uk/board-of-directors/">Board of Directors</a>
+          <a href="#about">Who We Are</a>
+          <a href="#support">Security Center</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#support">Contact</a>
         </section>
         <section class="footer-col">
           <h3>Personal</h3>
-          <a href="https://www.turkishbank.co.uk/personal/deposit-product/">Deposit Product</a>
-          <a href="https://www.turkishbank.co.uk/personal/direct-saving/">Direct Saving</a>
-          <a href="https://www.turkishbank.co.uk/personal/mortgage-products/">Property Lending</a>
-          <a href="https://www.turkishbank.co.uk/personal/cards/">Cards</a>
-          <a href="https://www.turkishbank.co.uk/business/internet-banking/">Online Banking</a>
-          <a href="https://www.turkishbank.co.uk/personal/interest-rates/">Interest Rates</a>
-          <a href="https://www.turkishbank.co.uk/personal/others/">Others</a>
-          <a href="https://www.turkishbank.co.uk/important-links/">Important Links</a>
+          <a href="/signup.html">Checking</a>
+          <a href="/signup.html">Savings</a>
+          <a href="/login.html">Online Banking</a>
+          <a href="#rates">Rates</a>
         </section>
         <section class="footer-col">
           <h3>Business</h3>
-          <a href="https://www.turkishbank.co.uk/business/deposit-product/">Deposit Product</a>
-          <a href="https://www.turkishbank.co.uk/business/investment/">Financing</a>
-          <a href="https://www.turkishbank.co.uk/business/payment-services/">Payment Services</a>
-          <a href="https://www.turkishbank.co.uk/business/internet-banking/">Online Banking</a>
-          <a href="https://www.turkishbank.co.uk/business/investment/interest-rates/">Interest Rates</a>
-          <a href="https://www.turkishbank.co.uk/important-links/">Important Links</a>
-          <a href="https://www.turkishbank.co.uk/faq/">F.A.Q.</a>
+          <a href="#business">Business Deposits</a>
+          <a href="#business">Payments</a>
+          <a href="#business">Treasury Support</a>
+          <a href="#fees">Fees</a>
         </section>
         <section class="footer-col">
-          <h3>Global</h3>
-          <a href="https://www.turkishbank.co.uk/business/internet-banking/">Online Banking</a>
-          <a href="https://www.turkishbank.co.uk/important-links/">Important Links</a>
-        </section>
-        <section class="footer-col">
-          <h3>Contact Us</h3>
-          <a href="https://www.turkishbank.co.uk/contact-us/head-office/">Head Office</a>
-          <a href="https://www.turkishbank.co.uk/branches/customer-support-centre/">Customer Contact Center</a>
-          <a href="https://www.turkishbank.co.uk/contact-us/our-key-contacts/">Our Key Contacts</a>
-          <a href="https://www.turkishbank.co.uk/contact-us/branches/">Branches</a>
-          <a href="https://www.turkishbank.co.uk/contact-us/branches/opening-times/">Opening Times</a>
-          <a href="https://www.turkishbank.co.uk/contact-us/form/">Form</a>
-          <a href="https://www.turkishbank.co.uk/wp-content/uploads/2020/12/COMPLAINTS-PROCEDURE.pdf">Our Complaint Procedure</a>
+          <h3>Support</h3>
+          <a href="#support">Help Center</a>
+          <a href="#branches">Branches</a>
+          <a href="#support">Report Fraud</a>
+          <a href="#privacy">Privacy Choices</a>
         </section>
         <section class="footer-col footer-brand">
-          <img src="/assets/logo-tb-uk-alt.png" alt="TurkishBank">
-          <select id="groupSitesMenu" aria-label="Group sites">
-            <option value="" selected>Group Sites</option>
-            <option value="http://www.turkishbankgroup.com/">TurkishBank Group</option>
-            <option value="http://www.turkishbank.net/">Turk Bankasi</option>
-            <option value="http://www.turkishbank.co.uk/">Turkish Bank (UK)</option>
-            <option value="http://www.turkishyatirim.com/">Turkish Yatirim</option>
-            <option value="http://www.turkborsa.net/">Turkborsa.net</option>
-            <option value="http://www.atbibu.com/">Allied Turkish Bank IBU</option>
-          </select>
+          <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
+          <p class="disclaimer">Demo banking portal. Do not enter real banking credentials.</p>
         </section>
       </div>
       <div class="wrap footer-copyright">
-        <a href="https://www.turkishbank.co.uk/contact-us/">Contact Us</a> |
-        <a href="https://www.turkishbank.co.uk/history-of-turkishbank/">Who We Are</a> |
-        <a href="https://www.turkishbank.co.uk/sitemap/">Site Map</a> |
-        <a href="https://www.turkishbank.co.uk/cookie-policy/">Cookie Policy</a> |
-        <a href="https://www.turkishbank.co.uk/privacy-statement/">Privacy Statement</a>
+        <a href="#support">Contact Us</a> |
+        <a href="#about">Who We Are</a> |
+        <a href="#privacy">Privacy</a>
         <br>
-        <span>Copyright <span id="footerYear"></span> TurkishBank UK. All Rights Reserved</span>
+        <span>Copyright <span id="footerYear"></span> Allied Savings. All Rights Reserved</span>
       </div>
     </footer>
 

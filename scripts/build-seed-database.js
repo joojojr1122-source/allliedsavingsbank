@@ -4,8 +4,8 @@ const path = require("path");
 const passwordHash =
   "a739cb44fc755d20b0503d3461cc0840:1dfd09a3ce9ffc9a49f5262cb2168ff4581bdb99ba5a2426fe681e19c4df04c978396d8beaffc5216e21f57ddf44c274e560636d035f637112dd9918a72c4fd5";
 
-const VANMAS_AMOUNT = 7600000;
-const VANMAS_DATE = "2026-05-21T11:42:00.000Z";
+const OPENING_DEPOSIT_AMOUNT = 7600;
+const OPENING_DEPOSIT_DATE = "2026-05-21T11:42:00.000Z";
 
 const transactions = [
   {
@@ -22,17 +22,17 @@ const transactions = [
     tags: []
   },
   {
-    id: "tx-vanmas-001",
+    id: "tx-opening-deposit-001",
     type: "Deposit",
-    description: "VANMAS DMCC",
-    amount: VANMAS_AMOUNT,
-    balanceAfter: VANMAS_AMOUNT,
-    createdAt: VANMAS_DATE,
+    description: "Opening deposit",
+    amount: OPENING_DEPOSIT_AMOUNT,
+    balanceAfter: OPENING_DEPOSIT_AMOUNT,
+    createdAt: OPENING_DEPOSIT_DATE,
     scheduledFor: "",
     status: "Completed",
-    reference: "FP21MAY804207",
+    reference: "DEP21MAY804207",
     category: "Incoming Payment",
-    tags: ["credit", "international"]
+    tags: ["credit", "demo"]
   }
 ];
 
@@ -42,14 +42,14 @@ const database = {
   users: [
     {
       id: "acct-daniel-001",
-      firstName: "DANIEL",
-      lastName: "NOWAK",
-      email: "daniel.nowak@outlook.com",
+      firstName: "ALEX",
+      lastName: "MORGAN",
+      email: "demo.customer@example.com",
       password: passwordHash,
       application: {
-        product: "Current Account",
-        phone: "07700 900482",
-        address: "22 Canary Wharf, London E14 5AB",
+        product: "Checking Account",
+        phone: "555-0102",
+        address: "100 Demo Avenue, New York, NY 10001",
         dateOfBirth: "1985-03-14",
         employmentStatus: "Employed",
         status: "Approved",
@@ -58,15 +58,15 @@ const database = {
         decidedAt: "2024-11-12T09:00:00.000Z"
       },
       account: {
-        type: "Current Account",
+        type: "Checking Account",
         number: "80420742",
-        sortCode: "23-75-48",
-        currency: "GBP",
-        balance: VANMAS_AMOUNT,
+        sortCode: "026009593",
+        currency: "USD",
+        balance: OPENING_DEPOSIT_AMOUNT,
         openedAt: "2024-11-12T09:15:00.000Z",
         status: "Active",
-        iban: "GB82TBUK23754880420742",
-        dailyTransferLimit: 250000,
+        iban: "ASAVUS33000080420742",
+        dailyTransferLimit: 2500,
         cardStatus: "Active",
         cardLastFour: "4821",
         cardExpiry: "08/28",
@@ -93,8 +93,8 @@ const database = {
         {
           id: "audit-deposit-001",
           action: "DEPOSIT_CREATED",
-          note: "VANMAS DMCC · FP21MAY804207",
-          createdAt: VANMAS_DATE
+          note: "Opening deposit - DEP21MAY804207",
+          createdAt: OPENING_DEPOSIT_DATE
         },
         {
           id: "audit-approved-001",

@@ -64,13 +64,9 @@ const passwordStrengthText = document.querySelector("#passwordStrengthText");
 const passwordStrengthBar = document.querySelector("#passwordStrengthBar");
 
 const slides = [
-  { title: "", image: "/assets/slider-en-1.jpg", link: "https://www.turkishbankgroup.com/" },
-  { title: "", image: "/assets/slide-merge.png", link: "https://www.turkishbank.co.uk/palmers-green-subesinin-harringay-subesi-ile-birlesmesi-hakkinda/" },
-  { title: "", image: "/assets/slide-paynow.jpg", link: "https://www.turkishbank.co.uk/personal/others/authorised-push-payment-scams/" },
-  { title: "", image: "/assets/slide-fraud.jpg", link: "https://www.turkishbank.co.uk/personal/others/fraud-awareness/" },
-  { title: "", image: "/assets/slide-mortgage.jpg", link: "https://www.turkishbank.co.uk/faq/mortgage-products/" },
-  { title: "", image: "/assets/slide-since1974.jpg", link: "https://www.turkishbank.co.uk/personal/deposit-product/" },
-  { title: "", image: "/assets/slide-debit.jpg", link: "https://www.turkishbank.co.uk/personal/cards/contactless-debit-card/" }
+  { title: "Allied Savings", image: "/assets/slider-cards.png", link: "/signup.html" },
+  { title: "Online Banking", image: "/assets/slider-cards.png", link: "/login.html" },
+  { title: "Personal Savings", image: "/assets/slider-cards.png", link: "/signup.html" }
 ];
 let sensitiveDetailsVisible = false;
 let slideIndex = 0;
@@ -121,28 +117,27 @@ function showDashboard(user) {
   setText("#accountNumber", sensitiveDetailsVisible ? user.account.number : maskAccountNumber(user.account.number));
   setText("#sortCode", sensitiveDetailsVisible ? user.account.sortCode : maskSortCode(user.account.sortCode));
   setText("#accountStatus", user.account.status || "Active");
-  const iban = user.account.iban || `GB82TBUK237548${user.account.number}`;
+  const iban = user.account.iban || "ASAVUS33XXX";
   setText("#accountIban", formatIbanDisplay(iban, sensitiveDetailsVisible));
   setText("#accountProductDetail", user.account.type);
   setText("#accountEmail", user.email || "-");
   setText("#accountPhone", user.application?.phone || "-");
 
   const openedDate = user.account.openedAt
-    ? new Date(user.account.openedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    ? new Date(user.account.openedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
     : "-";
   setText("#accountOpened", openedDate);
-  setText("#accountCurrency", user.account.currency || "GBP");
+  setText("#accountCurrency", user.account.currency || "USD");
   setText("#accountAddress", user.application?.address || "-");
   const cardLastFour = user.account.cardLastFour || String(user.account.number).slice(-4);
-  setText("#cardStatus", `${user.account.cardStatus || "Active"} · Exp ${user.account.cardExpiry || "—"}`);
-  setText("#dailyTransferLimit", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
+  setText("#cardStatus", `${user.account.cardStatus || "Active"} - Exp ${user.account.cardExpiry || "-"}`);
   setText("#dailyTransferLimitMetric", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
   setText("#cardPreviewName", `${user.firstName} ${user.lastName}`.trim().toUpperCase());
-  setText("#cardPreviewNumber", `•••• •••• •••• ${cardLastFour}`);
   setText("#savedPayeesCount", String((user.beneficiaries || []).length));
+  setText("#cardPreviewNumber", `**** **** **** ${cardLastFour}`);
   setText("#pendingPayments", String((user.transactions || []).filter((t) => t.status === "Pending").length));
-  setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-GB") : "—");
   setText("#failedAttemptsBadge", `${Number(user.security?.failedLoginAttempts || 0)} failed attempts`);
+  setText("#lastLoginAt", user.security?.lastLoginAt ? new Date(user.security.lastLoginAt).toLocaleString("en-US") : "-");
   setText("#securitySummary", user.security?.lastLoginAt ? "Recent sign-in recorded. Keep your password private." : "Your first online banking session is active.");
   setText("#accountStatusBanner", buildAccountStatusMessage(user));
   renderAuditList(user.auditLog || []);
@@ -182,7 +177,7 @@ function renderNotifications(entries) {
       <span>${escapeHtml(entry.type || "Update")}</span>
       <strong>${escapeHtml(entry.title || "Account update")}</strong>
       <p>${escapeHtml(entry.message || "")}</p>
-      <small>${entry.createdAt ? new Date(entry.createdAt).toLocaleString("en-GB") : "Just now"}</small>
+      <small>${entry.createdAt ? new Date(entry.createdAt).toLocaleString("en-US") : "Just now"}</small>
     </article>
   `).join("");
 }
@@ -200,7 +195,7 @@ function renderAuditList(entries) {
     ${entries.slice(0, 4).map((entry) => `
       <article>
         <strong>${escapeHtml(formatAuditAction(entry.action))}</strong>
-        <span>${new Date(entry.createdAt).toLocaleString("en-GB")}${entry.note ? ` - ${escapeHtml(entry.note)}` : ""}</span>
+        <span>${new Date(entry.createdAt).toLocaleString("en-US")}${entry.note ? ` - ${escapeHtml(entry.note)}` : ""}</span>
       </article>
     `).join("")}
   `;
@@ -266,8 +261,8 @@ function showTransactionReceipt(user) {
       { label: "Reference", value: transaction.reference || "Completed" },
       { label: "Amount", value: formatMoney(Math.abs(transaction.amount), user.account.currency) },
       { label: "Balance After", value: formatMoney(transaction.balanceAfter, user.account.currency) },
-      ...(transaction.scheduledFor ? [{ label: "Scheduled For", value: new Date(transaction.scheduledFor).toLocaleDateString("en-GB") }] : []),
-      { label: "Date", value: new Date(transaction.createdAt).toLocaleString("en-GB") }
+      ...(transaction.scheduledFor ? [{ label: "Scheduled For", value: new Date(transaction.scheduledFor).toLocaleDateString("en-US") }] : []),
+      { label: "Date", value: new Date(transaction.createdAt).toLocaleString("en-US") }
     ]
   });
 }
@@ -288,7 +283,7 @@ function confirmTransferSubmission(payload) {
   const usedToday = getTodaysTransferTotal(allTransactions);
   const remaining = Math.max(transferLimit - usedToday - amount, 0);
   const scheduled = payload.scheduledFor
-    ? new Date(payload.scheduledFor).toLocaleDateString("en-GB")
+    ? new Date(payload.scheduledFor).toLocaleDateString("en-US")
     : "Today";
 
   return new Promise((resolve) => {
@@ -342,7 +337,7 @@ function renderTransactions(transactions, currency) {
   transactionList.innerHTML = visibleTransactions.map((transaction) => {
     const isPositive = transaction.amount >= 0;
     const amountClass = isPositive ? "is-positive" : "is-negative";
-    const date = new Date(transaction.createdAt).toLocaleDateString("en-GB", {
+    const date = new Date(transaction.createdAt).toLocaleDateString("en-US", {
       day: "numeric",
       month: "short",
       year: "numeric"
@@ -355,7 +350,7 @@ function renderTransactions(transactions, currency) {
           <strong>${escapeHtml(transaction.type)}</strong>
           <span>${escapeHtml(transaction.description)}</span>
           <small>${date} &middot; ${escapeHtml(transaction.status)} &middot; ${escapeHtml(transaction.reference || "PENDING")}</small>
-          ${transaction.scheduledFor ? `<small>Scheduled for ${new Date(transaction.scheduledFor).toLocaleDateString("en-GB")}</small>` : ""}
+          ${transaction.scheduledFor ? `<small>Scheduled for ${new Date(transaction.scheduledFor).toLocaleDateString("en-US")}</small>` : ""}
           ${transaction.beneficiary ? `<small>To ${escapeHtml(transaction.beneficiary.name)} &middot; ${escapeHtml(transaction.beneficiary.sortCode)} ${escapeHtml(transaction.beneficiary.accountNumber)}</small>` : ""}
         </div>
         <div class="tx-item-right">
@@ -481,28 +476,28 @@ function setText(selector, value) {
 }
 
 function formatMoney(value, currency) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: currency || "GBP" }).format(value);
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD" }).format(value);
 }
 
 function maskAccountNumber(value) {
   const digits = String(value || "").replace(/\D/g, "");
-  if (!digits) return "···· ····";
-  return `···· ···· ${digits.slice(-4)}`;
+  if (!digits) return "**** ****";
+  return `**** **** ${digits.slice(-4)}`;
 }
 
 function maskSortCode(value) {
   const formatted = String(value || "").trim();
-  if (!formatted) return "··-··-··";
+  if (!formatted) return "*** *** ***";
   const parts = formatted.split("-");
   if (parts.length === 3) {
-    return `··-··-${parts[2]}`;
+    return `*** *** ${parts[2]}`;
   }
-  return "··-··-··";
+  return "*** *** ***";
 }
 
 function formatIbanDisplay(iban, revealed) {
   const compact = String(iban || "").replace(/\s/g, "").toUpperCase();
-  if (!compact) return "—";
+  if (!compact) return "-";
   if (!revealed) {
     return `${compact.slice(0, 4)} **** **** ${compact.slice(-4)}`;
   }
@@ -559,7 +554,7 @@ function bindSensitiveDetailControls() {
     copyButton.dataset.bound = "true";
     copyButton.addEventListener("click", async () => {
       if (!currentUser) return;
-      const iban = currentUser.account.iban || `GB82TBUK237548${currentUser.account.number}`;
+      const iban = currentUser.account.iban || `ASAVUS330000${currentUser.account.number}`;
       try {
         await navigator.clipboard.writeText(iban.replace(/\s/g, ""));
         setStatus("IBAN copied to clipboard.", true);
@@ -928,7 +923,7 @@ function renderAdminSummary() {
     ["Active", data.totals.active || 0],
     ["Frozen", data.totals.frozen || 0],
     ["Rejected", data.totals.rejected || 0],
-    ["Total Balance", formatMoney(data.totals.balance, "GBP")],
+    ["Total Balance", formatMoney(data.totals.balance, "USD")],
     ["Transactions", data.totals.transactions],
     ["Storage", data.database.persistent ? "Persistent" : "Session"]
   ].map(([label, value]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`).join("");
@@ -939,14 +934,14 @@ function renderAdminSummary() {
         <strong>${escapeHtml(user.name)}</strong>
         <span>${escapeHtml(user.email)} &middot; ${escapeHtml(user.accountNumber || "Pending account")} &middot; ${escapeHtml(user.status)}</span>
         <span>Application: ${escapeHtml(user.applicationStatus || "Not started")}${user.decisionReason ? ` &middot; ${escapeHtml(user.decisionReason)}` : ""}</span>
-        <span>${escapeHtml(user.product || "Current Account")} &middot; Last login ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("en-GB") : "not yet"}</span>
-        <span>Approval email: ${user.approvalEmailStatus ? `${escapeHtml(user.approvalEmailStatus)} &middot; ${new Date(user.approvalEmailAt).toLocaleString("en-GB")}` : "Not queued"}</span>
+        <span>${escapeHtml(user.product || "Checking Account")} &middot; Last login ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("en-US") : "not yet"}</span>
+        <span>Approval email: ${user.approvalEmailStatus ? `${escapeHtml(user.approvalEmailStatus)} &middot; ${new Date(user.approvalEmailAt).toLocaleString("en-US")}` : "Not queued"}</span>
         <div class="audit-mini">
-          ${(user.auditLog || []).slice(0, 3).map((entry) => `<small>${escapeHtml(formatAuditAction(entry.action))} &middot; ${new Date(entry.createdAt).toLocaleDateString("en-GB")}</small>`).join("")}
+          ${(user.auditLog || []).slice(0, 3).map((entry) => `<small>${escapeHtml(formatAuditAction(entry.action))} &middot; ${new Date(entry.createdAt).toLocaleDateString("en-US")}</small>`).join("")}
         </div>
       </div>
       <div class="admin-row-actions">
-        <span>${formatMoney(user.balance, "GBP")}</span>
+        <span>${formatMoney(user.balance, "USD")}</span>
         ${user.status === "Pending Approval" ? `<button class="primary-button admin-action-btn" data-admin-action="approve" data-email="${escapeHtml(user.email)}" type="button">Approve</button>` : ""}
         ${user.status === "Pending Approval" ? `<button class="text-button admin-action-btn" data-admin-action="reject" data-email="${escapeHtml(user.email)}" type="button">Reject</button>` : ""}
         ${user.status === "Active" ? `<button class="primary-button admin-action-btn" data-admin-action="approval-email" data-email="${escapeHtml(user.email)}" type="button">Send Approval Email</button>` : ""}
@@ -962,7 +957,7 @@ function renderAdminSummary() {
         <strong>${escapeHtml(transaction.type)}</strong>
         <span>${escapeHtml(transaction.reference || "PENDING")} &middot; ${escapeHtml(transaction.description || "")}</span>
       </div>
-      <div>${formatMoney(transaction.amount, "GBP")}</div>
+      <div>${formatMoney(transaction.amount, "USD")}</div>
     </article>
   `).join("") || `<p class="form-note">No transactions yet.</p>`;
 }
@@ -1402,7 +1397,7 @@ function renderConfirmationPage() {
     try {
       const data = await apiRequest(`/api/auth/application-status?email=${encodeURIComponent(email)}`, { auth: false });
       const app = data.application;
-      const decided = app.decidedAt ? ` Reviewed ${new Date(app.decidedAt).toLocaleString("en-GB")}.` : "";
+      const decided = app.decidedAt ? ` Reviewed ${new Date(app.decidedAt).toLocaleString("en-US")}.` : "";
       const reason = app.decisionReason ? ` ${app.decisionReason}` : "";
       statusResult.textContent = `${app.name} - ${app.product}: ${app.status}.${decided}${reason}`;
     } catch (error) {
@@ -1414,7 +1409,7 @@ function renderConfirmationPage() {
 branchForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const selectedBranch = branchForm.querySelectorAll("select")[0]?.value || "-";
-  branchResult.textContent = `${selectedBranch} selected. Branch details would open from TurkishBank UK in the live site.`;
+  branchResult.textContent = `${selectedBranch} selected. Branch details would open from Allied Savings in the live site.`;
 });
 
 newsletterForm?.addEventListener("submit", (event) => {

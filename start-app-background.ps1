@@ -6,9 +6,10 @@ $ErrLogFile = Join-Path $ProjectRoot "server.err.log"
 
 function Start-BankPortalServer($NodeCommand) {
   $Command = "`"$NodeCommand`" `"$ServerFile`" > `"$OutLogFile`" 2> `"$ErrLogFile`""
-  Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $Command -WorkingDirectory $ProjectRoot -WindowStyle Hidden
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/d", "/s", "/c", $Command -WorkingDirectory $ProjectRoot -WindowStyle Hidden
   Write-Host "Server starting at http://localhost:3000"
   Write-Host "Log files: $OutLogFile and $ErrLogFile"
+  Write-Host "Demo login: demo.customer@example.com / Nowak@4142"
 }
 
 if (Test-Path $BundledNode) {

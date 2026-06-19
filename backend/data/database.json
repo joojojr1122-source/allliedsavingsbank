@@ -1,17 +1,17 @@
 {
   "schemaVersion": 3,
-  "updatedAt": "2026-06-16T10:21:29.563Z",
+  "updatedAt": "2026-06-19T05:42:21.153Z",
   "users": [
     {
       "id": "acct-daniel-001",
-      "firstName": "DANIEL",
-      "lastName": "NOWAK",
-      "email": "daniel.nowak@outlook.com",
+      "firstName": "ALEX",
+      "lastName": "MORGAN",
+      "email": "demo.customer@example.com",
       "password": "a739cb44fc755d20b0503d3461cc0840:1dfd09a3ce9ffc9a49f5262cb2168ff4581bdb99ba5a2426fe681e19c4df04c978396d8beaffc5216e21f57ddf44c274e560636d035f637112dd9918a72c4fd5",
       "application": {
-        "product": "Current Account",
-        "phone": "07700 900482",
-        "address": "22 Canary Wharf, London E14 5AB",
+        "product": "Checking Account",
+        "phone": "555-0102",
+        "address": "100 Demo Avenue, New York, NY 10001",
         "dateOfBirth": "1985-03-14",
         "employmentStatus": "Employed",
         "status": "Approved",
@@ -20,15 +20,15 @@
         "decidedAt": "2024-11-12T09:00:00.000Z"
       },
       "account": {
-        "type": "Current Account",
+        "type": "Checking Account",
         "number": "80420742",
-        "sortCode": "23-75-48",
-        "currency": "GBP",
-        "balance": 7600000,
+        "sortCode": "026009593",
+        "currency": "USD",
+        "balance": 7600,
         "openedAt": "2024-11-12T09:15:00.000Z",
         "status": "Active",
-        "iban": "GB82TBUK23754880420742",
-        "dailyTransferLimit": 250000,
+        "iban": "ASAVUS33000080420742",
+        "dailyTransferLimit": 2500,
         "cardStatus": "Active",
         "cardLastFour": "4821",
         "cardExpiry": "08/28",
@@ -50,19 +50,19 @@
           "tags": []
         },
         {
-          "id": "tx-vanmas-001",
+          "id": "tx-opening-deposit-001",
           "type": "Deposit",
-          "description": "VANMAS DMCC",
-          "amount": 7600000,
-          "balanceAfter": 7600000,
+          "description": "Opening deposit",
+          "amount": 7600,
+          "balanceAfter": 7600,
           "createdAt": "2026-05-21T11:42:00.000Z",
           "scheduledFor": "",
           "status": "Completed",
-          "reference": "FP21MAY804207",
+          "reference": "DEP21MAY804207",
           "category": "Incoming Payment",
           "tags": [
             "credit",
-            "international"
+            "demo"
           ]
         }
       ],
@@ -85,7 +85,7 @@
         {
           "id": "audit-deposit-001",
           "action": "DEPOSIT_CREATED",
-          "note": "VANMAS DMCC · FP21MAY804207",
+          "note": "Opening deposit - DEP21MAY804207",
           "createdAt": "2026-05-21T11:42:00.000Z"
         },
         {
@@ -101,249 +101,6 @@
         "lockedUntil": ""
       },
       "createdAt": "2024-11-08T11:20:00.000Z"
-    },
-    {
-      "id": "114600da-28fd-4f9c-afd7-e2df67eae371",
-      "firstName": "David Robert",
-      "lastName": "Warren",
-      "email": "warrdavid@gmail.com",
-      "password": "0bdb11a6891b87cda5223639209982fb:510df62abfe4f44b2bad6502a73c1add12a9fc96fa894c818a271d4f8d5b2d2477b00a82bfe55e0e654b8417f083569d0f7dfce044d4242c1a18edad0b688482",
-      "application": {
-        "product": "Current Account",
-        "phone": "650-889-9815",
-        "address": "Honolulu, Hawaii, United States of America",
-        "dateOfBirth": "1962-12-31",
-        "employmentStatus": "Retired medical doctor",
-        "status": "Approved",
-        "decisionReason": "",
-        "submittedAt": "2026-06-04T23:54:59.764Z",
-        "sourceOfFunds": "Investments and Social Security",
-        "taxResidency": "Honolulu, Hawaii, United States of America",
-        "visaDocuments": "Not applicable",
-        "decidedAt": "2026-06-04T23:54:59.770Z"
-      },
-      "account": {
-        "type": "Current Account",
-        "number": "80420611",
-        "sortCode": "23-75-48",
-        "currency": "GBP",
-        "balance": 100,
-        "openedAt": "2026-06-04T23:54:59.770Z",
-        "status": "Active",
-        "iban": "GB83TBUK23754880420611",
-        "dailyTransferLimit": 1000,
-        "cardStatus": "Active",
-        "overdraft": 0
-      },
-      "beneficiaries": [],
-      "transactions": [
-        {
-          "id": "tx-deposit-7400000-20260616",
-          "type": "Deposit",
-          "description": "Account deposit",
-          "category": "Incoming Payment",
-          "tags": [
-            "credit"
-          ],
-          "amount": 7400000,
-          "balanceAfter": 100,
-          "createdAt": "2026-06-16T10:21:29.563Z",
-          "scheduledFor": "",
-          "status": "Pending",
-          "reference": "CR16JUN420611",
-          "repeatFrequency": "Once",
-          "processedAt": "",
-          "lastEditedAt": ""
-        },
-        {
-          "id": "tx-deposit-100-20260606",
-          "type": "Deposit",
-          "description": "Account deposit",
-          "category": "Incoming Payment",
-          "tags": [
-            "credit"
-          ],
-          "amount": 100,
-          "balanceAfter": 100,
-          "createdAt": "2026-06-06T19:25:27.614Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "CR06JUN420611",
-          "repeatFrequency": "Once",
-          "processedAt": "",
-          "lastEditedAt": ""
-        },
-        {
-          "id": "0e3e5567-0100-41d5-ad9c-f9f9fa039354",
-          "type": "Account Opening",
-          "description": "Account opened after application approval",
-          "amount": 0,
-          "balanceAfter": 0,
-          "createdAt": "2026-06-04T23:54:59.770Z",
-          "status": "Completed",
-          "reference": "OPENING"
-        }
-      ],
-      "auditLog": [
-        {
-          "id": "audit-deposit-7400000-20260616",
-          "action": "DEPOSIT_CREATED",
-          "note": "Account deposit - CR16JUN420611",
-          "createdAt": "2026-06-16T10:21:29.563Z"
-        },
-        {
-          "id": "audit-deposit-100-20260606",
-          "action": "DEPOSIT_CREATED",
-          "note": "Account deposit - CR06JUN420611",
-          "createdAt": "2026-06-06T19:25:27.614Z"
-        },
-        {
-          "id": "1b866aa9-0747-4d33-ad28-9c7eec1e867d",
-          "action": "PASSWORD_RESET_BY_ADMIN",
-          "note": "Temporary password set locally",
-          "createdAt": "2026-06-05T23:56:57.872Z"
-        },
-        {
-          "id": "ea43aa56-0723-4f75-86ae-473ec0ac67dc",
-          "action": "APPROVAL_EMAIL_QUEUED",
-          "note": "73bb535c-7c86-48c6-9bf4-12ef419fc383",
-          "createdAt": "2026-06-05T23:49:17.362Z"
-        },
-        {
-          "id": "3fdc018c-cd90-4b79-8660-1af069556ce9",
-          "action": "EMAIL_UPDATED",
-          "note": "joojojr1122@gmail.com -> warrdavid@gmail.com",
-          "createdAt": "2026-06-05T23:49:17.328Z"
-        },
-        {
-          "id": "db49117a-7e22-4df8-b8d9-3c98dfb5d260",
-          "action": "APPROVAL_EMAIL_QUEUED",
-          "note": "7035b846-76e1-4019-a6c7-cd37445edd99",
-          "createdAt": "2026-06-05T23:28:06.808Z"
-        },
-        {
-          "id": "15cfc68d-573d-434a-89da-5bac1e8f0b74",
-          "action": "APPROVAL_EMAIL_QUEUED",
-          "note": "9edefb9a-df14-41e7-9a5b-c7bfd33c90b6",
-          "createdAt": "2026-06-05T23:14:36.451Z"
-        },
-        {
-          "id": "71970be4-11d1-42dd-a96c-b0c194f882e4",
-          "action": "APPROVAL_EMAIL_QUEUED",
-          "note": "6c442072-6b4e-447e-a127-a9753ee004b7",
-          "createdAt": "2026-06-05T23:14:14.277Z"
-        },
-        {
-          "id": "fe7e0025-1a74-4840-87fa-b8d6a71103ad",
-          "action": "EMAIL_UPDATED",
-          "note": "warrdavid@gmail.com -> joojojr1122@gmail.com",
-          "createdAt": "2026-06-05T23:14:14.193Z"
-        },
-        {
-          "id": "4d2ca868-d0cb-4fc6-97cd-b1b9c160f8bd",
-          "action": "APPROVAL_EMAIL_QUEUED",
-          "note": "8f9c0cb5-1457-49eb-8208-bdda9968dda9",
-          "createdAt": "2026-06-05T00:03:16.235Z"
-        },
-        {
-          "id": "5efc7d7a-41ce-40c4-8f28-907bedb4b7a5",
-          "action": "ACCOUNT_APPROVED",
-          "note": "",
-          "createdAt": "2026-06-04T23:54:59.770Z"
-        },
-        {
-          "id": "08c124cb-5cc7-4dc8-a3fd-604821523e34",
-          "action": "APPLICATION_SUBMITTED",
-          "createdAt": "2026-06-04T23:54:59.764Z"
-        }
-      ],
-      "security": {
-        "lastLoginAt": "",
-        "failedLoginAttempts": 0,
-        "lockedUntil": ""
-      },
-      "passwordReset": {
-        "token": "",
-        "expiresAt": "",
-        "requestedAt": ""
-      },
-      "notificationState": {
-        "readIds": [],
-        "readAtById": {}
-      },
-      "preferences": {
-        "emailAlerts": true,
-        "smsAlerts": false,
-        "statementFrequency": "Monthly"
-      },
-      "createdAt": "2026-06-04T23:54:59.764Z",
-      "updatedAt": "2026-06-16T10:21:29.563Z"
-    }
-  ],
-  "emailOutbox": [
-    {
-      "id": "73bb535c-7c86-48c6-9bf4-12ef419fc383",
-      "type": "ACCOUNT_APPROVAL",
-      "status": "Sent",
-      "to": "warrdavid@gmail.com",
-      "subject": "TurkishBank UK account opening approved",
-      "text": "Dear David Robert Warren,\n\nWe are pleased to confirm that your TurkishBank UK account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: David Robert Warren\nAccount number: 80420611\nSort code: 23-75-48\nIBAN: GB83TBUK23754880420611\nProduct: Current Account\nAvailable balance: £0.00\n\nFor your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.\n\nKind regards,\nTurkishBank UK Operations",
-      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear David Robert Warren,</p>\n        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n        <table style=\"border-collapse:collapse;margin:18px 0\">\n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">David Robert Warren</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">80420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Sort code</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">23-75-48</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">IBAN</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">GB83TBUK23754880420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Current Account</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">£0.00</td>\n    </tr>\n  \n        </table>\n        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>\n        <p>Kind regards,<br>TurkishBank UK Operations</p>\n      </div>",
-      "createdAt": "2026-06-05T23:49:17.362Z",
-      "sentAt": "2026-06-05T23:49:27.143Z",
-      "provider": "smtp",
-      "error": ""
-    },
-    {
-      "id": "7035b846-76e1-4019-a6c7-cd37445edd99",
-      "type": "ACCOUNT_APPROVAL",
-      "status": "Sent",
-      "to": "joojojr1122@gmail.com",
-      "subject": "TurkishBank UK account opening approved",
-      "text": "Dear David Robert Warren,\n\nWe are pleased to confirm that your TurkishBank UK account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: David Robert Warren\nAccount number: 80420611\nSort code: 23-75-48\nIBAN: GB83TBUK23754880420611\nProduct: Current Account\nAvailable balance: £0.00\n\nFor your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.\n\nKind regards,\nTurkishBank UK Operations",
-      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear David Robert Warren,</p>\n        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n        <table style=\"border-collapse:collapse;margin:18px 0\">\n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">David Robert Warren</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">80420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Sort code</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">23-75-48</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">IBAN</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">GB83TBUK23754880420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Current Account</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">£0.00</td>\n    </tr>\n  \n        </table>\n        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>\n        <p>Kind regards,<br>TurkishBank UK Operations</p>\n      </div>",
-      "createdAt": "2026-06-05T23:28:06.808Z",
-      "sentAt": "2026-06-05T23:28:36.205Z",
-      "provider": "smtp",
-      "error": ""
-    },
-    {
-      "id": "9edefb9a-df14-41e7-9a5b-c7bfd33c90b6",
-      "type": "ACCOUNT_APPROVAL",
-      "status": "Failed",
-      "to": "joojojr1122@gmail.com",
-      "subject": "TurkishBank UK account opening approved",
-      "text": "Dear David Robert Warren,\n\nWe are pleased to confirm that your TurkishBank UK account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: David Robert Warren\nAccount number: 80420611\nSort code: 23-75-48\nIBAN: GB83TBUK23754880420611\nProduct: Current Account\nAvailable balance: £0.00\n\nFor your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.\n\nKind regards,\nTurkishBank UK Operations",
-      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear David Robert Warren,</p>\n        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n        <table style=\"border-collapse:collapse;margin:18px 0\">\n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">David Robert Warren</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">80420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Sort code</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">23-75-48</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">IBAN</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">GB83TBUK23754880420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Current Account</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">£0.00</td>\n    </tr>\n  \n        </table>\n        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>\n        <p>Kind regards,<br>TurkishBank UK Operations</p>\n      </div>",
-      "createdAt": "2026-06-05T23:14:36.451Z",
-      "sentAt": "",
-      "provider": "smtp",
-      "error": "SMTP server responded 525: 525 5.7.1 Unauthorized IP address"
-    },
-    {
-      "id": "6c442072-6b4e-447e-a127-a9753ee004b7",
-      "type": "ACCOUNT_APPROVAL",
-      "status": "Failed",
-      "to": "joojojr1122@gmail.com",
-      "subject": "TurkishBank UK account opening approved",
-      "text": "Dear David Robert Warren,\n\nWe are pleased to confirm that your TurkishBank UK account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: David Robert Warren\nAccount number: 80420611\nSort code: 23-75-48\nIBAN: GB83TBUK23754880420611\nProduct: Current Account\nAvailable balance: £0.00\n\nFor your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.\n\nKind regards,\nTurkishBank UK Operations",
-      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear David Robert Warren,</p>\n        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n        <table style=\"border-collapse:collapse;margin:18px 0\">\n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">David Robert Warren</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">80420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Sort code</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">23-75-48</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">IBAN</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">GB83TBUK23754880420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Current Account</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">£0.00</td>\n    </tr>\n  \n        </table>\n        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>\n        <p>Kind regards,<br>TurkishBank UK Operations</p>\n      </div>",
-      "createdAt": "2026-06-05T23:14:14.277Z",
-      "sentAt": "",
-      "provider": "smtp",
-      "error": "connect EACCES 1.179.115.1:587"
-    },
-    {
-      "id": "8f9c0cb5-1457-49eb-8208-bdda9968dda9",
-      "type": "ACCOUNT_APPROVAL",
-      "status": "Queued",
-      "to": "warrdavid@gmail.com",
-      "subject": "TurkishBank UK account opening approved",
-      "text": "Dear David Robert Warren,\n\nWe are pleased to confirm that your TurkishBank UK account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: David Robert Warren\nAccount number: 80420611\nSort code: 23-75-48\nIBAN: GB83TBUK23754880420611\nProduct: Current Account\nAvailable balance: £0.00\n\nFor your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.\n\nKind regards,\nTurkishBank UK Operations",
-      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear David Robert Warren,</p>\n        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n        <table style=\"border-collapse:collapse;margin:18px 0\">\n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">David Robert Warren</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">80420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Sort code</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">23-75-48</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">IBAN</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">GB83TBUK23754880420611</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Current Account</td>\n    </tr>\n  \n          \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">£0.00</td>\n    </tr>\n  \n        </table>\n        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>\n        <p>Kind regards,<br>TurkishBank UK Operations</p>\n      </div>",
-      "createdAt": "2026-06-05T00:03:16.235Z",
-      "sentAt": "",
-      "provider": "local-outbox"
     }
   ]
 }

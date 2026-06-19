@@ -3,23 +3,23 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - TurkishBank UK</title>
+    <title>Dashboard - Allied Savings</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body data-page="dashboard">
     <div class="top-strip">
       <div class="wrap top-strip__inner">
-        <span>020 7403 5656</span>
+        <span>1-800-555-0198</span>
         <div class="top-strip__right">
           <nav aria-label="Important links">
-            <a href="https://www.turkishbank.co.uk/important-links/">Important Links</a>
-            <a href="https://www.turkishbank.co.uk/legal/">Legal</a>
-            <a href="https://www.turkishbank.co.uk/interest-rates/">Interest Rates</a>
-            <a href="https://www.turkishbank.co.uk/fees-commisions/">Fees &amp; Commissions</a>
+            <a href="/">Helpful Links</a>
+            <a href="/">Legal</a>
+            <a href="/">Rates</a>
+            <a href="/">Fees</a>
           </nav>
           <div class="internet-drop">
-            <span>Internet Banking</span>
+            <span>Online Banking</span>
             <button type="button" onclick="document.querySelector('#logoutButton')?.click()">Logout</button>
           </div>
         </div>
@@ -28,8 +28,8 @@
 
     <header class="site-header">
       <div class="wrap header-main">
-        <a class="brand" href="/" aria-label="TurkishBank UK home">
-          <img src="/assets/logo-tb-uk.png" alt="TurkishBank">
+        <a class="brand" href="/" aria-label="Allied Savings home">
+          <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
         </a>
 
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
@@ -40,9 +40,9 @@
 
         <nav class="main-nav" aria-label="Main navigation">
           <a href="/">Home</a>
-          <a href="https://www.turkishbank.co.uk/personal/">Personal</a>
-          <a href="https://www.turkishbank.co.uk/business/">Business</a>
-          <a href="https://www.turkishbank.co.uk/global/">Global</a>
+          <a href="/">Personal</a>
+          <a href="/">Business</a>
+          <a href="/">Support</a>
           <a href="/dashboard.html">Online Banking</a>
         </nav>
       </div>
@@ -65,7 +65,7 @@
           <section class="dashboard" id="dashboard">
             <div class="dashboard-head">
               <div>
-                <p class="eyebrow" id="accountProduct">Current Account</p>
+                <p class="eyebrow" id="accountProduct">Checking Account</p>
                 <h2 id="accountName">Account Holder</h2>
               </div>
               <div class="dashboard-head__actions">
@@ -93,11 +93,11 @@
             <section class="new-account-panel">
               <div>
                 <p class="eyebrow">Debit card</p>
-                <h3>Your TurkishBank debit card</h3>
+                <h3>Your Allied Savings debit card</h3>
                 <p>Use your card in shops and online. Card controls and limits are managed below.</p>
               </div>
               <div class="card-preview">
-                <span>TurkishBank</span>
+                <span>Allied Savings</span>
                 <strong id="cardPreviewName">Account Holder</strong>
                 <small id="cardPreviewNumber">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 0000</small>
               </div>
@@ -107,15 +107,15 @@
               <div class="balance-box__grid">
                 <div>
                   <span>Available balance</span>
-                  <strong id="accountBalance">&pound;0.00</strong>
+                  <strong id="accountBalance">$0.00</strong>
                 </div>
                 <div>
                   <span>Account balance</span>
-                  <strong class="balance-box__secondary" id="ledgerBalance">&pound;0.00</strong>
+                  <strong class="balance-box__secondary" id="ledgerBalance">$0.00</strong>
                 </div>
                 <div>
                   <span>Pending incoming</span>
-                  <strong class="balance-box__pending" id="pendingIncomingAmount">&pound;0.00</strong>
+                  <strong class="balance-box__pending" id="pendingIncomingAmount">$0.00</strong>
                 </div>
               </div>
             </div>
@@ -156,14 +156,14 @@
                 <div class="detail-row">
                   <dt>Account number</dt>
                   <dd class="detail-row__value">
-                    <span id="accountNumber">···· ···· 0000</span>
+                    <span id="accountNumber">**** **** 0000</span>
                     <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
                   </dd>
                 </div>
                 <div class="detail-row">
-                  <dt>Sort code</dt>
+                  <dt>Routing number</dt>
                   <dd class="detail-row__value">
-                    <span id="sortCode">··-··-··</span>
+                    <span id="sortCode">*** *** ***</span>
                     <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
                   </dd>
                 </div>
@@ -177,7 +177,7 @@
                 </div>
                 <div>
                   <dt>Currency</dt>
-                  <dd id="accountCurrency">GBP</dd>
+                  <dd id="accountCurrency">USD</dd>
                 </div>
                 <div>
                   <dt>Card</dt>
@@ -186,16 +186,16 @@
               </dl>
               <dl class="account-details">
                 <div class="detail-row">
-                  <dt>IBAN</dt>
+                  <dt>SWIFT/BIC</dt>
                   <dd class="detail-row__value">
-                    <span id="accountIban">GB00 **** **** 0000</span>
+                    <span id="accountIban">ASAVUS33XXX</span>
                     <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
                     <button class="text-button" type="button" id="copyIbanButton">Copy</button>
                   </dd>
                 </div>
                 <div>
                   <dt>Product</dt>
-                  <dd id="accountProductDetail">Current Account</dd>
+                  <dd id="accountProductDetail">Checking Account</dd>
                 </div>
                 <div>
                   <dt>Email</dt>
@@ -281,11 +281,11 @@
                     </label>
                     <label>
                       Account number
-                      <input name="recipientAccountNumber" inputmode="numeric" maxlength="8" placeholder="12345678">
+                      <input name="recipientAccountNumber" inputmode="numeric" maxlength="12" placeholder="1234567890">
                     </label>
                     <label>
-                      Sort code
-                      <input name="recipientSortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56">
+                      Routing number
+                      <input name="recipientSortCode" inputmode="numeric" maxlength="9" placeholder="021000021">
                     </label>
                     <label>
                       Schedule date
@@ -305,11 +305,11 @@
                   </label>
                   <label>
                     Account number
-                    <input name="accountNumber" inputmode="numeric" maxlength="8" placeholder="12345678" required>
+                    <input name="accountNumber" inputmode="numeric" maxlength="12" placeholder="1234567890" required>
                   </label>
                   <label>
-                    Sort code
-                    <input name="sortCode" inputmode="numeric" maxlength="8" placeholder="12-34-56" required>
+                    Routing number
+                    <input name="sortCode" inputmode="numeric" maxlength="9" placeholder="021000021" required>
                   </label>
                   <label>
                     Nickname

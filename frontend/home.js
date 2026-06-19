@@ -30,12 +30,12 @@
   });
 
   const branchOptions = {
-    1: ["Head Office & London Branch"],
-    2: ["Global Banking Department"],
-    3: ["Customer Contact Center"],
-    4: ["Harringay Branch"],
-    5: ["Palmers Green Branch"],
-    6: ["Commercial Branch"]
+    1: ["Head Office"],
+    2: ["Digital Banking Support"],
+    3: ["Customer Care Center"],
+    4: ["New York Branch"],
+    5: ["Chicago Branch"],
+    6: ["Dallas Branch"]
   };
 
   branchType?.addEventListener("change", () => {
@@ -47,7 +47,7 @@
     if (!options.length) {
       const placeholder = document.createElement("option");
       placeholder.value = "";
-      placeholder.textContent = "sube";
+      placeholder.textContent = "Select branch";
       branchName.appendChild(placeholder);
       return;
     }

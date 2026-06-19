@@ -1,5 +1,5 @@
 {
-  "name": "turkishbank-account-portal",
+  "name": "allied-savings-account-portal",
   "version": "1.0.0",
   "description": "Banking-style account portal with signup, login, and account dashboard features.",
   "main": "backend/src/server.js",

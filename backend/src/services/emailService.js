@@ -5,11 +5,11 @@ const { readDatabase, writeDatabase } = require("./databaseService");
 
 function buildApprovalEmail(user) {
   const fullName = `${user.firstName} ${user.lastName}`.trim();
-  const subject = "TurkishBank UK account opening approved";
+  const subject = "Allied Savings account opening approved";
   const lines = [
     `Dear ${fullName},`,
     "",
-    "We are pleased to confirm that your TurkishBank UK account opening application has been approved.",
+    "We are pleased to confirm that your Allied Savings account opening application has been approved.",
     "",
     "Your account is now active for online banking.",
     "",
@@ -20,10 +20,10 @@ function buildApprovalEmail(user) {
     `Product: ${user.account.type}`,
     `Available balance: ${formatMoney(user.account.balance, user.account.currency)}`,
     "",
-    "For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.",
+    "For your security, please keep your login details private and contact Allied Savings immediately if you do not recognize this account opening.",
     "",
     "Kind regards,",
-    "TurkishBank UK Operations"
+    "Allied Savings Operations"
   ];
 
   return {
@@ -32,7 +32,7 @@ function buildApprovalEmail(user) {
     html: `
       <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55">
         <p>Dear ${escapeHtml(fullName)},</p>
-        <p>We are pleased to confirm that your TurkishBank UK account opening application has been approved.</p>
+        <p>We are pleased to confirm that your Allied Savings account opening application has been approved.</p>
         <p>Your account is now active for online banking.</p>
         <table style="border-collapse:collapse;margin:18px 0">
           ${emailRow("Account holder", fullName)}
@@ -42,8 +42,8 @@ function buildApprovalEmail(user) {
           ${emailRow("Product", user.account.type)}
           ${emailRow("Available balance", formatMoney(user.account.balance, user.account.currency))}
         </table>
-        <p>For your security, please keep your login details private and contact TurkishBank UK immediately if you do not recognise this account opening.</p>
-        <p>Kind regards,<br>TurkishBank UK Operations</p>
+        <p>For your security, please keep your login details private and contact Allied Savings immediately if you do not recognize this account opening.</p>
+        <p>Kind regards,<br>Allied Savings Operations</p>
       </div>
     `.trim()
   };
@@ -125,7 +125,7 @@ async function sendSmtpMail(message) {
   const username = process.env.SMTP_USER;
   const password = process.env.SMTP_PASS;
   const from = process.env.SMTP_FROM || username;
-  const fromName = process.env.SMTP_FROM_NAME || "TurkishBank UK Operations";
+  const fromName = process.env.SMTP_FROM_NAME || "Allied Savings Operations";
   const client = await createSmtpClient({ host, port, secure });
 
   try {
@@ -320,8 +320,8 @@ function emailRow(label, value) {
   `;
 }
 
-function formatMoney(value, currency = "GBP") {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(Number(value || 0));
+function formatMoney(value, currency = "USD") {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(Number(value || 0));
 }
 
 function escapeHtml(value) {

@@ -6,18 +6,18 @@ const { verifyPassword } = require("../backend/src/utils/security");
 (async () => {
   const database = await readDatabase();
   const users = database.users || [];
-  const activeUser = users.find((user) => user.email === "daniel.nowak@outlook.com");
+  const activeUser = users.find((user) => user.email === "demo.customer@example.com");
 
   assert(activeUser, "seeded customer account exists");
-  assert.strictEqual(activeUser.firstName, "DANIEL");
-  assert.strictEqual(activeUser.lastName, "NOWAK");
+  assert.strictEqual(activeUser.firstName, "ALEX");
+  assert.strictEqual(activeUser.lastName, "MORGAN");
   assert.strictEqual(activeUser.account.status, "Active");
-  assert.strictEqual(activeUser.account.balance, 7600000);
+  assert.strictEqual(activeUser.account.balance, 7600);
   assert(verifyPassword("Nowak@4142", activeUser.password), "seeded customer password verifies");
-  const vanmasPayment = activeUser.transactions.find((transaction) => transaction.description === "VANMAS DMCC");
-  assert(vanmasPayment, "Vanmas DMCC payment exists");
-  assert.strictEqual(vanmasPayment.amount, 7600000);
-  assert.strictEqual(vanmasPayment.createdAt.slice(0, 10), "2026-05-21");
+  const openingDeposit = activeUser.transactions.find((transaction) => transaction.description === "Opening deposit");
+  assert(openingDeposit, "opening deposit exists");
+  assert.strictEqual(openingDeposit.amount, 7600);
+  assert.strictEqual(openingDeposit.createdAt.slice(0, 10), "2026-05-21");
   assert(activeUser.auditLog.length > 0, "audit log exists");
 
   const scheduledUser = {

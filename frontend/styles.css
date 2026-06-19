@@ -1,13 +1,13 @@
 :root {
-  --red: #c4622d;
-  --red-dark: #333F48;
-  --sand: #C8BEB3;
-  --taupe: #A39382;
+  --red: #0b6b57;
+  --red-dark: #12384d;
+  --sand: #f0b429;
+  --taupe: #d7e8e1;
   --text: #333333;
-  --muted: #777777;
+  --muted: #667085;
   --line: #e5e5e5;
-  --light: #f7f7f7;
-  --footer: #333F48;
+  --light: #f7faf9;
+  --footer: #12384d;
 }
 
 * {
@@ -45,9 +45,9 @@ button {
 }
 
 .top-strip {
-  background: #c4622d;
+  background: #0b6b57;
   color: #ffffff;
-  border-bottom: 1px solid #c4622d;
+  border-bottom: 1px solid #0b6b57;
   font-size: 13px;
 }
 
@@ -93,11 +93,12 @@ button {
 }
 
 .internet-drop span {
-  background: #A39382;
+  background: #12384d;
 }
 
 .internet-drop button {
-  background: #333F48;
+  background: #f0b429;
+  color: #12384d;
 }
 
 .top-strip a:hover,
@@ -129,7 +130,7 @@ button {
 }
 
 .brand img {
-  width: 224px;
+  width: 230px;
   height: auto;
   display: block;
 }
@@ -167,14 +168,14 @@ button {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #c4622d;
+  background: #0b6b57;
   line-height: 1.15;
   text-align: center;
 }
 
 .main-nav a:hover {
-  background: #C8BEB3;
-  color: #ffffff;
+  background: #f0b429;
+  color: #12384d;
 }
 
 .red-rule {
@@ -205,15 +206,15 @@ button {
 }
 
 .nav-row button {
-  background: #333F48;
+  background: #12384d;
   color: #ffffff;
 }
 
 .hero {
   min-height: 466px;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0)),
-    url("/assets/slider-en-1.jpg") center center/cover no-repeat;
+    linear-gradient(90deg, rgba(18, 56, 77, 0.84), rgba(18, 56, 77, 0.16)),
+    url("/assets/slider-cards.png") center center/cover no-repeat;
   color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -301,7 +302,7 @@ button {
 }
 
 .slider-dots span.is-active {
-  background: #c4622d;
+  background: #f0b429;
 }
 
 .quick-links {
@@ -808,7 +809,7 @@ button {
 .balance-box {
   margin: 28px 0;
   padding: 25px;
-  background: #333F48;
+  background: #12384d;
   color: #ffffff;
 }
 
@@ -1417,9 +1418,9 @@ button {
   display: grid;
   align-content: space-between;
   padding: 18px;
-  background: #333F48;
+  background: #12384d;
   color: #ffffff;
-  box-shadow: inset 0 -4px 0 rgba(196, 98, 45, 0.9);
+  box-shadow: inset 0 -4px 0 rgba(240, 180, 41, 0.95);
 }
 
 .card-preview span,

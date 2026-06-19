@@ -5,7 +5,7 @@ const path = require("path");
 const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
 const SEED_SCHEMA_VERSION = 3;
-const SEED_LOGIN_EMAIL = "daniel.nowak@outlook.com";
+const SEED_LOGIN_EMAIL = "demo.customer@example.com";
 const DATABASE_PATH = process.env.VERCEL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
