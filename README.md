@@ -154,7 +154,7 @@ Without the KV variables, Vercel can still run the API, but account data may res
 
 ## Brevo SMTP
 
-Approval and sign-in code emails can be delivered through Brevo SMTP. Add these variables locally in `.env` or in Vercel project settings:
+Approval emails can be delivered through Brevo SMTP. Add these variables locally in `.env` or in Vercel project settings:
 
 ```text
 SMTP_HOST=smtp-relay.brevo.com

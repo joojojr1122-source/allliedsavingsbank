@@ -200,8 +200,7 @@ const database = {
       security: {
         lastLoginAt: "",
         failedLoginAttempts: 0,
-        lockedUntil: "",
-        loginChallenge: null
+        lockedUntil: ""
       },
       passwordReset: {
         token: "",

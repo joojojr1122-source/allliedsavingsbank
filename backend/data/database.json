@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-06-19T19:33:37.302Z",
+  "updatedAt": "2026-06-19T20:00:44.544Z",
   "users": [
     {
       "id": "acct-offshore-001",
@@ -192,8 +192,7 @@
       "security": {
         "lastLoginAt": "",
         "failedLoginAttempts": 0,
-        "lockedUntil": "",
-        "loginChallenge": null
+        "lockedUntil": ""
       },
       "passwordReset": {
         "token": "",

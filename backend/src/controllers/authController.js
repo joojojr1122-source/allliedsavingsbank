@@ -1,18 +1,16 @@
 const { readJsonBody, sendJson } = require("../utils/http");
 const {
   changePassword,
-  createLoginChallenge,
   createUser,
   findUserByEmail,
   findUserByLoginIdentifier,
   isUserLocked,
   publicUser,
   recordFailedLogin,
+  recordSuccessfulLogin,
   requestPasswordReset,
-  resetPassword,
-  verifyLoginChallenge
+  resetPassword
 } = require("../services/userService");
-const { queueLoginCodeEmail } = require("../services/emailService");
 const { createSession, deleteSession, getTokenFromRequest, getUserIdFromRequest } = require("../services/sessionService");
 const { verifyPassword } = require("../utils/security");
 
@@ -65,43 +63,16 @@ async function login(req, res) {
       return;
     }
 
-    const challenge = await createLoginChallenge(user.id);
-    const message = await queueLoginCodeEmail(user, challenge.code);
-
-    sendJson(res, 200, {
-      requiresCode: true,
-      challengeId: challenge.challengeId,
-      email: user.email,
-      expiresAt: challenge.expiresAt,
-      delivery: message.provider === "smtp" && message.status === "Sent" ? "email" : "local-outbox",
-      localOutboxId: process.env.VERCEL ? undefined : message.id
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    sendJson(res, 500, { error: error.message || "Login failed" });
-  }
-}
-
-async function verifyLoginCode(req, res) {
-  try {
-    const body = await readJsonBody(req);
-    const challengeId = String(body.challengeId || "").trim();
-    const code = String(body.code || "").trim();
-
-    if (!challengeId || !/^\d{6}$/.test(code)) {
-      sendJson(res, 400, { error: "Enter the 6 digit sign-in code" });
-      return;
-    }
-
-    const user = await verifyLoginChallenge(challengeId, code);
+    const loggedInUser = await recordSuccessfulLogin(user.id);
     const token = createSession(user.id);
 
     sendJson(res, 200, {
       token,
-      user: publicUser(user)
+      user: publicUser(loggedInUser || user)
     });
   } catch (error) {
-    sendJson(res, error.status || 500, { error: error.message || "Code verification failed" });
+    console.error("Login error:", error);
+    sendJson(res, 500, { error: error.message || "Login failed" });
   }
 }
 
@@ -211,7 +182,6 @@ module.exports = {
   getApplicationStatus,
   signup,
   login,
-  verifyLoginCode,
   logout,
   handleChangePassword,
   requestPasswordResetController,

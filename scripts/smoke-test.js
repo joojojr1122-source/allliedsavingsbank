@@ -1,6 +1,6 @@
 const assert = require("assert");
 const { readDatabase } = require("../backend/src/services/databaseService");
-const { settleDueScheduledTransfers } = require("../backend/src/services/userService");
+const { createTransaction, settleDueScheduledTransfers } = require("../backend/src/services/userService");
 const { verifyPassword } = require("../backend/src/utils/security");
 
 (async () => {
@@ -59,6 +59,16 @@ const { verifyPassword } = require("../backend/src/utils/security");
   assert.strictEqual(scheduledUser.transactions[0].status, "Completed");
   assert.strictEqual(scheduledUser.transactions[1].status, "Failed");
   assert.strictEqual(scheduledUser.transactions[1].balanceAfter, 75);
+
+  const beforeWithdrawal = activeUser.account.balance;
+  const updatedUser = await createTransaction(activeUser.id, {
+    type: "Withdrawal",
+    amount: 125,
+    description: "ATM withdrawal"
+  });
+  assert.strictEqual(updatedUser.account.balance, beforeWithdrawal - 125, "withdrawal deducts from main balance");
+  assert.strictEqual(updatedUser.transactions[0].amount, -125, "withdrawal transaction stores a debit amount");
+  assert.strictEqual(updatedUser.transactions[0].balanceAfter, beforeWithdrawal - 125, "withdrawal records balance after debit");
 
   console.log("Smoke tests passed.");
 })();
