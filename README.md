@@ -72,7 +72,7 @@ These credentials apply to the seeded local database only. Change them before an
 - Customer: `kellywallace642@gmail.com` / `Kelly123`
 - Back office: `/ops.html` with password `admin12345` (local only unless `ADMIN_PASSWORD` is set)
 
-The seeded account is held by **ALEX MORGAN** with a $7,600.00 opening deposit received on Thursday 21 May 2026.
+The seeded account is held by **Lisa Brooks Bush** with a $7,600.00 opening deposit received on Thursday 21 May 2026.
 
 To rebuild the seed file:
 

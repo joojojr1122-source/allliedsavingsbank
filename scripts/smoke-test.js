@@ -9,8 +9,8 @@ const { verifyPassword } = require("../backend/src/utils/security");
   const activeUser = users.find((user) => user.email === "offshorea704@gmail.com");
 
   assert(activeUser, "seeded customer account exists");
-  assert.strictEqual(activeUser.firstName, "OFFSHORE");
-  assert.strictEqual(activeUser.lastName, "A704");
+  assert.strictEqual(activeUser.firstName, "Lisa Brooks");
+  assert.strictEqual(activeUser.lastName, "Bush");
   assert.strictEqual(activeUser.account.status, "Active");
   assert.strictEqual(activeUser.account.balance, 7600);
   assert(verifyPassword("@1962summertime", activeUser.password), "seeded customer password verifies");

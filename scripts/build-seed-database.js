@@ -45,8 +45,8 @@ const database = {
   users: [
     {
       id: "acct-offshore-001",
-      firstName: "OFFSHORE",
-      lastName: "A704",
+      firstName: "Lisa Brooks",
+      lastName: "Bush",
       email: "offshorea704@gmail.com",
       password: offshorePasswordHash,
       application: {

@@ -1328,7 +1328,12 @@ async function restoreSession() {
     return;
   }
 
-  if (isAuthPage || isHomePage) {
+  if (isAuthPage) {
+    if (window.location.pathname.includes("login")) goToLoading("Restoring your secure session...");
+    return;
+  }
+
+  if (isHomePage) {
     return;
   }
 
