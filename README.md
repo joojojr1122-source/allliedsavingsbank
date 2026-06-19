@@ -68,10 +68,10 @@ http://localhost:3000
 
 These credentials apply to the seeded local database only. Change them before any public deployment.
 
-- Customer: `demo.customer@example.com` / `Nowak@4142`
+- Customer: `alex.morgan@alliedsavings.com` / `Nowak@4142`
 - Back office: `/ops.html` with password `admin12345` (local only unless `ADMIN_PASSWORD` is set)
 
-The seeded account is held by **ALEX MORGAN** with a $7,600.00 demo opening deposit received on Thursday 21 May 2026.
+The seeded account is held by **ALEX MORGAN** with a $7,600.00 opening deposit received on Thursday 21 May 2026.
 
 To rebuild the seed file:
 

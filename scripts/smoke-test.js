@@ -6,7 +6,7 @@ const { verifyPassword } = require("../backend/src/utils/security");
 (async () => {
   const database = await readDatabase();
   const users = database.users || [];
-  const activeUser = users.find((user) => user.email === "demo.customer@example.com");
+  const activeUser = users.find((user) => user.email === "alex.morgan@alliedsavings.com");
 
   assert(activeUser, "seeded customer account exists");
   assert.strictEqual(activeUser.firstName, "ALEX");

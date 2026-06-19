@@ -1414,8 +1414,8 @@ branchForm?.addEventListener("submit", (event) => {
 
 newsletterForm?.addEventListener("submit", (event) => {
   event.preventDefault();
-  const email = newsletterForm.querySelector("input")?.value.trim() || "";
-  newsletterResult.textContent = `Thank you. ${email} has been added to the contact list.`;
+  const email = newsletterForm.querySelector("input[type='email']")?.value.trim() || "";
+  newsletterResult.textContent = `Thank you. A member service request has been prepared for ${email}.`;
   newsletterForm.reset();
 });
 

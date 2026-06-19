@@ -1,15 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="92" viewBox="0 0 420 92" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="104" viewBox="0 0 440 104" role="img" aria-labelledby="title desc">
   <title id="title">Allied Savings</title>
-  <desc id="desc">Allied Savings wordmark with shield monogram</desc>
-  <rect width="420" height="92" fill="none"/>
-  <g transform="translate(8 10)">
-    <path d="M36 0 68 12v23c0 20-13 32-32 39C17 67 4 55 4 35V12L36 0Z" fill="#0b6b57"/>
-    <path d="M36 8 59 17v18c0 14-9 23-23 29C22 58 13 49 13 35V17L36 8Z" fill="#ffffff" opacity=".94"/>
-    <path d="M24 47 36 17l12 30h-7l-2-6h-6l-2 6h-7Zm11-12h3l-1.5-6-1.5 6Z" fill="#0b6b57"/>
+  <desc id="desc">Allied Savings bank-style wordmark with column monogram</desc>
+  <rect width="440" height="104" fill="none"/>
+  <g transform="translate(8 12)">
+    <rect x="0" y="0" width="80" height="80" rx="6" fill="#12384d"/>
+    <path d="M16 28 40 13l24 15v5H16v-5Z" fill="#f0b429"/>
+    <rect x="20" y="39" width="8" height="24" fill="#ffffff"/>
+    <rect x="36" y="39" width="8" height="24" fill="#ffffff"/>
+    <rect x="52" y="39" width="8" height="24" fill="#ffffff"/>
+    <rect x="16" y="68" width="48" height="5" fill="#f0b429"/>
+    <path d="M29 33h22l-11-7-11 7Z" fill="#ffffff" opacity=".96"/>
   </g>
-  <g fill="#12384d">
-    <text x="91" y="42" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="31" font-weight="800" letter-spacing="0">Allied</text>
-    <text x="91" y="70" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="24" font-weight="600" letter-spacing="0">Savings</text>
+  <g transform="translate(106 18)">
+    <text x="0" y="35" fill="#12384d" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" letter-spacing=".2">Allied Savings</text>
+    <rect x="0" y="48" width="228" height="2" fill="#d7e8e1"/>
+    <text x="0" y="70" fill="#0b6b57" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="12" font-weight="800" letter-spacing="2.4">MEMBER BANKING</text>
   </g>
-  <rect x="253" y="62" width="110" height="4" fill="#f0b429"/>
 </svg>

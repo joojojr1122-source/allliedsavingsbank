@@ -32,7 +32,7 @@ const transactions = [
     status: "Completed",
     reference: "DEP21MAY804207",
     category: "Incoming Payment",
-    tags: ["credit", "demo"]
+    tags: ["credit", "savings"]
   }
 ];
 
@@ -44,12 +44,12 @@ const database = {
       id: "acct-daniel-001",
       firstName: "ALEX",
       lastName: "MORGAN",
-      email: "demo.customer@example.com",
+      email: "alex.morgan@alliedsavings.com",
       password: passwordHash,
       application: {
         product: "Checking Account",
         phone: "555-0102",
-        address: "100 Demo Avenue, New York, NY 10001",
+        address: "425 Market Street, Dallas, TX 75202",
         dateOfBirth: "1985-03-14",
         employmentStatus: "Employed",
         status: "Approved",

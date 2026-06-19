@@ -5,7 +5,7 @@ const path = require("path");
 const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
 const SEED_SCHEMA_VERSION = 3;
-const SEED_LOGIN_EMAIL = "demo.customer@example.com";
+const SEED_LOGIN_EMAIL = "alex.morgan@alliedsavings.com";
 const DATABASE_PATH = process.env.VERCEL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
@@ -84,7 +84,7 @@ async function writeDatabase(database) {
       await writeRemoteDatabase(database);
     } catch (error) {
       // Login and other flows call write after reads; a misconfigured KV/Upstash
-      // (common on demo projects) must not break sign-in.
+      // Some stored records may not include an updated password hash and must not break sign-in.
       console.error("databaseService: remote write failed (continuing without persist)", error);
     }
     return;

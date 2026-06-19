@@ -1,17 +1,17 @@
 {
   "schemaVersion": 3,
-  "updatedAt": "2026-06-19T05:42:21.153Z",
+  "updatedAt": "2026-06-19T12:09:11.920Z",
   "users": [
     {
       "id": "acct-daniel-001",
       "firstName": "ALEX",
       "lastName": "MORGAN",
-      "email": "demo.customer@example.com",
+      "email": "alex.morgan@alliedsavings.com",
       "password": "a739cb44fc755d20b0503d3461cc0840:1dfd09a3ce9ffc9a49f5262cb2168ff4581bdb99ba5a2426fe681e19c4df04c978396d8beaffc5216e21f57ddf44c274e560636d035f637112dd9918a72c4fd5",
       "application": {
         "product": "Checking Account",
         "phone": "555-0102",
-        "address": "100 Demo Avenue, New York, NY 10001",
+        "address": "425 Market Street, Dallas, TX 75202",
         "dateOfBirth": "1985-03-14",
         "employmentStatus": "Employed",
         "status": "Approved",
@@ -62,7 +62,7 @@
           "category": "Incoming Payment",
           "tags": [
             "credit",
-            "demo"
+            "savings"
           ]
         }
       ],
@@ -76,6 +76,12 @@
         "statementFrequency": "Monthly"
       },
       "auditLog": [
+        {
+          "id": "73896f0c-8b1f-4061-9253-96fe96a4bc31",
+          "action": "LOGIN_SUCCESS",
+          "note": "",
+          "createdAt": "2026-06-19T12:09:11.919Z"
+        },
         {
           "id": "audit-login-001",
           "action": "LOGIN_SUCCESS",
@@ -96,7 +102,7 @@
         }
       ],
       "security": {
-        "lastLoginAt": "2026-05-22T18:42:00.000Z",
+        "lastLoginAt": "2026-06-19T12:09:11.907Z",
         "failedLoginAttempts": 0,
         "lockedUntil": ""
       },

@@ -15,19 +15,27 @@
         <span><i class="fa fa-phone" aria-hidden="true"></i> 1-800-555-0198</span>
         <div class="top-strip__right">
           <div class="top-strip__links-dropdown" id="importantLinksDrop">
-            <button type="button" aria-expanded="false"><i class="fa fa-link" aria-hidden="true"></i> Helpful Links</button>
+            <button type="button" aria-expanded="false"><i class="fa fa-link" aria-hidden="true"></i> Quick Links</button>
             <div class="top-strip__menu">
-              <a href="#support">Security Center</a>
               <a href="#rates">Rates</a>
-              <a href="#fees">Fees</a>
-              <a href="#privacy">Privacy</a>
+              <a href="#locations">Branches & ATMs</a>
+              <a href="#routing">Routing Number</a>
+              <a href="#security">Security Center</a>
+              <a href="/signup.html">Open an Account</a>
             </div>
           </div>
+          <nav class="utility-nav" aria-label="Utility navigation">
+            <a href="#contact">Contact</a>
+            <a href="#locations">Locations</a>
+            <a href="#privacy">Disclosures</a>
+            <a href="#security">Fraud Alerts</a>
+          </nav>
           <div class="internet-drop" id="internetBankingDrop">
             <span><i class="fa fa-lock" aria-hidden="true"></i> Online Banking</span>
             <button type="button" aria-expanded="false" aria-label="Online banking menu"></button>
             <div class="internet-menu">
-              <a href="/login.html"><i class="fa fa-user" aria-hidden="true"></i> Personal</a>
+              <a href="/login.html"><i class="fa fa-user" aria-hidden="true"></i> Personal Login</a>
+              <a href="/ops.html"><i class="fa fa-briefcase" aria-hidden="true"></i> Business Services</a>
             </div>
           </div>
         </div>
@@ -39,106 +47,271 @@
         <a class="brand" href="/" aria-label="Allied Savings home">
           <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
         </a>
-
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
           <span></span>
           <span></span>
           <span></span>
         </button>
-
         <nav class="main-nav" aria-label="Main navigation">
-          <a href="#about">About</a>
-          <a href="#personal">Personal</a>
+          <a href="#savings">Banking</a>
+          <a href="#rates">Rates</a>
           <a href="#business">Business</a>
-          <a href="#support">Support</a>
-          <a class="nav-pill nav-pill--online" href="/login.html">
-            <span>Online</span>
-            <span>Banking</span>
-          </a>
+          <a href="#security">Security</a>
+          <a href="#locations">Locations</a>
+          <a class="nav-pill nav-pill--online" href="/login.html"><span>Log In</span></a>
         </nav>
       </div>
     </header>
 
     <main>
-      <section class="hero" id="homeHero" aria-label="Allied Savings online banking">
+      <section class="hero" id="homeHero" aria-label="Allied Savings accounts">
         <div class="wrap hero__inner">
           <div class="hero__content">
-            <h1>Allied Savings</h1>
-            <p>Personal banking built around everyday deposits, secure transfers, and clear account controls.</p>
+            <p class="hero-kicker">Member-Owned Banking</p>
+            <h1>Bank confidently with Allied Savings.</h1>
+            <p>Open savings, manage everyday transfers, review statements, and get local support from a secure digital banking portal.</p>
             <div class="hero__actions">
-              <a class="primary-button receipt-link" href="/signup.html">Open Account</a>
-              <a class="text-button" href="/login.html">Sign In</a>
+              <a class="primary-button receipt-link" href="/signup.html">Open an Account</a>
+              <a class="text-button" href="#rates">View Current Rates</a>
+            </div>
+          </div>
+          <aside class="hero-login-panel" aria-label="Online banking login">
+            <strong>Online Banking Login</strong>
+            <form action="/login.html" method="get">
+              <label>
+                <span>User ID</span>
+                <input type="text" name="user" autocomplete="username" placeholder="Email or account number">
+              </label>
+              <label>
+                <span>Password</span>
+                <input type="password" name="password" autocomplete="current-password" placeholder="Password">
+              </label>
+              <button type="submit">Log In Securely</button>
+            </form>
+            <div class="login-panel-links">
+              <a href="/signup.html">Enroll in online banking</a>
+              <a href="#contact">Forgot login?</a>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="action-strip" aria-label="Quick banking actions">
+        <div class="wrap action-strip__grid">
+          <a href="/login.html"><i class="fa fa-lock" aria-hidden="true"></i><span>Log In</span></a>
+          <a href="/signup.html"><i class="fa fa-user-plus" aria-hidden="true"></i><span>Join Allied</span></a>
+          <a href="#rates"><i class="fa fa-percent" aria-hidden="true"></i><span>Compare Rates</span></a>
+          <a href="#locations"><i class="fa fa-map-marker" aria-hidden="true"></i><span>Find Locations</span></a>
+          <a href="#contact"><i class="fa fa-phone" aria-hidden="true"></i><span>Contact Support</span></a>
+        </div>
+      </section>
+
+      <section class="trust-band" aria-label="Banking highlights">
+        <div class="wrap trust-band__grid">
+          <div>
+            <strong>Federally insured deposits</strong>
+            <span>Accounts are presented with clear limits, disclosures, and eligibility review.</span>
+          </div>
+          <div>
+            <strong>Published rates and terms</strong>
+            <span>See account minimums, dividend details, and service information before applying.</span>
+          </div>
+          <div>
+            <strong>Secure digital access</strong>
+            <span>Use online banking for balances, alerts, transfers, statements, and receipts.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap image-feature-grid" aria-label="Featured banking services">
+        <article class="image-feature image-feature--large">
+          <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1100&q=80" alt="Family planning future savings">
+          <div>
+            <p class="eyebrow">For Your Household</p>
+            <h2>Put savings goals within reach</h2>
+            <p>Set money aside for emergency funds, seasonal expenses, youth savings, and longer-term plans with clear account access.</p>
+            <a href="/signup.html">Explore savings</a>
+          </div>
+        </article>
+        <article class="image-feature image-feature--debit">
+          <img src="https://images.unsplash.com/photo-1556742031-c6961e8560b0?auto=format&fit=crop&w=700&q=80" alt="Customer using a debit card">
+          <div>
+            <p class="eyebrow">Cards</p>
+            <h2>Everyday access</h2>
+            <p>Use card controls and online banking to keep up with daily account activity.</p>
+          </div>
+        </article>
+        <article class="image-feature image-feature--mortgage">
+          <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=700&q=80" alt="Home exterior for lending services">
+          <div>
+            <p class="eyebrow">Lending</p>
+            <h2>Plan the next move</h2>
+            <p>Review options for major purchases and speak with member service.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="wrap savings-intro" id="savings" aria-label="Savings introduction">
+        <div>
+          <p class="eyebrow">Accounts</p>
+          <h2>Personal banking built around clear choices</h2>
+        </div>
+        <p>Allied Savings brings together everyday account access, savings products, business support, and member service in one place. Open an account, review current rates, or connect with a branch team for help choosing the right option.</p>
+      </section>
+
+      <section class="wrap home-content-boxes" id="personal" aria-label="Banking products">
+        <div class="content-box-grid">
+          <a class="content-box-card" href="/signup.html">
+            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=600&q=80" alt="">
+            <div class="content-box-icon content-box-icon--deposit" aria-hidden="true"><i class="fa fa-university"></i></div>
+            <h2>Checking & Savings</h2>
+            <p>Everyday accounts with online access, statements, alerts, and member service support.</p>
+          </a>
+          <a class="content-box-card" href="/signup.html">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80" alt="">
+            <div class="content-box-icon content-box-icon--cards" aria-hidden="true"><i class="fa fa-credit-card"></i></div>
+            <h2>Cards & Payments</h2>
+            <p>Debit card controls, transfer records, saved payees, and secure payment activity.</p>
+          </a>
+          <a class="content-box-card" href="#business">
+            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" alt="">
+            <div class="content-box-icon content-box-icon--mortgage" aria-hidden="true"><i class="fa fa-briefcase"></i></div>
+            <h2>Business Banking</h2>
+            <p>Deposit services, operating cash support, and payment tools for growing businesses.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="wrap account-detail-section" aria-label="Account details">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">Featured Accounts</p>
+            <h2>Banking products with practical terms</h2>
+          </div>
+          <a class="text-button" href="/signup.html">Start Application</a>
+        </div>
+        <div class="account-detail-grid">
+          <article class="account-detail">
+            <h3>Primary Share Savings</h3>
+            <p>Establish membership and keep funds available while earning dividends on qualifying balances.</p>
+            <dl>
+              <div><dt>Opening deposit</dt><dd>$25</dd></div>
+              <div><dt>Monthly service fee</dt><dd>$0</dd></div>
+              <div><dt>Statements</dt><dd>Online or paper</dd></div>
+            </dl>
+          </article>
+          <article class="account-detail">
+            <h3>Rewards Checking</h3>
+            <p>Manage everyday purchases, deposits, transfers, and alerts through online banking.</p>
+            <dl>
+              <div><dt>Opening deposit</dt><dd>$50</dd></div>
+              <div><dt>Digital banking</dt><dd>Included</dd></div>
+              <div><dt>Debit card</dt><dd>Available</dd></div>
+            </dl>
+          </article>
+          <article class="account-detail account-detail--dark">
+            <h3>Certificates</h3>
+            <p>Lock in a term for funds you do not need immediately and choose maturity options that match your plans.</p>
+            <a href="#contact">Ask About Certificates</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="info-band" id="rates" aria-label="Rates and fees">
+        <div class="wrap info-band__grid">
+          <div>
+            <p class="eyebrow">Rates</p>
+            <h2>Current account rate snapshot</h2>
+            <p>Rates are subject to change and are shown for planning purposes. Final account disclosures are provided before opening or renewing an account.</p>
+          </div>
+          <div class="rate-table" role="table" aria-label="Savings rate information">
+            <div role="row">
+              <span role="cell">Share Savings</span>
+              <strong role="cell">0.35% APY from $25</strong>
+            </div>
+            <div role="row">
+              <span role="cell">Money Market</span>
+              <strong role="cell">Up to 2.10% APY by tier</strong>
+            </div>
+            <div role="row" id="fees">
+              <span role="cell">12 Month Certificate</span>
+              <strong role="cell">4.25% APY special</strong>
             </div>
           </div>
         </div>
-        <button class="slider-arrow slider-arrow--left" type="button" aria-label="Previous slide">Previous</button>
-        <button class="slider-arrow slider-arrow--right" type="button" aria-label="Next slide">Next</button>
-        <div class="slider-dots" aria-hidden="true"></div>
       </section>
 
-      <section class="wrap home-content-boxes" id="personal" aria-label="Products">
-        <div class="content-box-grid">
-          <a class="content-box-card" href="/signup.html">
-            <div class="content-box-icon content-box-icon--deposit" aria-hidden="true"><i class="fa fa-check-square-o"></i></div>
-            <h2>Everyday Checking</h2>
-          </a>
-          <a class="content-box-card" href="/signup.html">
-            <div class="content-box-icon content-box-icon--cards" aria-hidden="true"><i class="fa fa-line-chart"></i></div>
-            <h2>Savings Accounts</h2>
-          </a>
-          <a class="content-box-card" href="/login.html">
-            <div class="content-box-icon content-box-icon--mortgage" aria-hidden="true"><i class="fa fa-credit-card"></i></div>
-            <h2>Card Controls</h2>
-          </a>
-        </div>
+      <section class="wrap planning-tools" aria-label="Planning tools">
+        <article>
+          <i class="fa fa-calculator" aria-hidden="true"></i>
+          <h2>Calculators</h2>
+          <p>Estimate savings growth, certificate earnings, loan payments, and monthly budgets.</p>
+          <a href="#contact">Use planning tools</a>
+        </article>
+        <article>
+          <i class="fa fa-mobile" aria-hidden="true"></i>
+          <h2>Mobile Banking</h2>
+          <p>Review balances, move money, receive alerts, and keep digital statements within reach.</p>
+          <a href="/login.html">Access online banking</a>
+        </article>
+        <article id="security">
+          <i class="fa fa-shield" aria-hidden="true"></i>
+          <h2>Security Center</h2>
+          <p>Learn how Allied Savings monitors account access and helps members recognize fraud attempts.</p>
+          <a href="#contact">Report suspicious activity</a>
+        </article>
+      </section>
+
+      <section class="wrap notice-band" aria-label="Security notice">
+        <strong>Fraud reminder</strong>
+        <p>Allied Savings will never ask for your password, one-time passcode, full card number, or secure access code by phone, text, or email.</p>
+        <a href="#contact">Get help</a>
       </section>
 
       <section class="wrap home-panels">
         <section class="home-panel home-panel--about" id="about">
-          <h2><a href="/signup.html">About Us</a></h2>
+          <h2><a href="/signup.html">Membership</a></h2>
           <a href="/signup.html">
             <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
-            <p><em>A U.S.-focused banking portal for personal accounts, payments, and digital account servicing.</em></p>
+            <p><em>Allied Savings serves members with personal accounts, online banking, business deposits, and local service.</em></p>
           </a>
+          <ul class="panel-list">
+            <li>Member service by phone, branch, and secure message</li>
+            <li>Online statements, alerts, and transfer history</li>
+            <li>Account opening subject to eligibility review</li>
+          </ul>
         </section>
 
-        <section class="home-panel home-panel--news">
-          <h2><a href="#news">What's New</a></h2>
-          <h3 class="widget-title">Recent Updates</h3>
+        <section class="home-panel home-panel--news" id="news">
+          <h2><a href="#news">News & Alerts</a></h2>
+          <h3 class="widget-title">Latest Updates</h3>
           <div class="news-list">
-            <a class="news-item" href="/login.html">
-              <img src="/assets/slider-cards.png" alt="">
+            <a class="news-item" href="#security">
+              <img src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=220&q=80" alt="">
               <div>
-                <strong>Expanded card controls are now available in online banking</strong>
-                <time datetime="2026-06-10">06/10/2026</time>
+                <strong>Security reminder: protect one-time passcodes and online banking credentials</strong>
+                <time datetime="2026-06-12">06/12/2026</time>
               </div>
             </a>
-            <a class="news-item" href="/signup.html">
-              <img src="/assets/slider-cards.png" alt="">
+            <a class="news-item" href="#rates">
+              <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=220&q=80" alt="">
               <div>
-                <strong>New account applications now include status tracking</strong>
-                <time datetime="2026-05-24">05/24/2026</time>
+                <strong>Certificate and money market rates are available for member review</strong>
+                <time datetime="2026-06-03">06/03/2026</time>
               </div>
             </a>
             <a class="news-item" href="/login.html">
-              <img src="/assets/slider-cards.png" alt="">
+              <img src="https://images.unsplash.com/photo-1556742031-c6961e8560b0?auto=format&fit=crop&w=220&q=80" alt="">
               <div>
-                <strong>Statement downloads added for checking and savings customers</strong>
+                <strong>Online statements are available for enrolled accounts</strong>
                 <time datetime="2026-05-18">05/18/2026</time>
-              </div>
-            </a>
-            <a class="news-item" href="#support">
-              <img src="/assets/slider-cards.png" alt="">
-              <div>
-                <strong>Security reminders for transfers and new payee setup</strong>
-                <time datetime="2026-04-30">04/30/2026</time>
               </div>
             </a>
           </div>
         </section>
 
-        <section class="home-panel home-panel--branch">
-          <h2><a href="#branches">Search Branch</a></h2>
+        <section class="home-panel home-panel--branch" id="locations">
+          <h2><a href="#branches">Find a Branch</a></h2>
           <form class="branch-form" id="branchForm">
             <span class="form-step-badge">1</span>
             <select id="branchType" aria-label="Branch type">
@@ -154,64 +327,104 @@
               <option value="">Select branch</option>
             </select>
             <input id="branchKeyword" type="text" aria-label="Search branch keyword" placeholder="City or ZIP">
-            <button type="submit">FIND IT</button>
+            <button type="submit">Search</button>
           </form>
           <p class="inline-result" id="branchResult"></p>
+          <div class="branch-hours" id="branches">
+            <strong>Member service hours</strong>
+            <span>Lobby: Mon-Fri 9:00 AM-5:00 PM</span>
+            <span>Appointments available for account service</span>
+          </div>
         </section>
 
-        <section class="home-panel home-panel--contact newsletter-panel" id="support">
+        <section class="home-panel home-panel--contact newsletter-panel" id="contact">
           <h2>Contact Us</h2>
-          <p>Leave your email address to receive account service updates and security notices.</p>
-          <p class="disclaimer">For urgent card or account security concerns, call 1-800-555-0198.</p>
+          <p>Send a service request and a member service representative will follow up during business hours.</p>
+          <p class="disclaimer">For urgent card or account access concerns, call 1-800-555-0198.</p>
           <form id="newsletterForm">
-            <span class="form-step-badge">1 Step 1</span>
+            <input type="text" placeholder="Name" aria-label="Name" required>
             <input type="email" placeholder="Email" aria-label="Email" required>
-            <button type="submit">Sign Up</button>
+            <select aria-label="Request type" required>
+              <option value="">How can we help?</option>
+              <option>Savings account</option>
+              <option>Online banking</option>
+              <option>Branch appointment</option>
+              <option>Business services</option>
+            </select>
+            <button type="submit">Send Request</button>
           </form>
           <p class="inline-result" id="newsletterResult"></p>
+          <div class="support-links">
+            <a href="/login.html">Secure messages</a>
+            <a href="/login.html">Card support</a>
+            <a href="/login.html">Statement help</a>
+          </div>
         </section>
+      </section>
+
+      <section class="wrap service-section" aria-label="Security and business banking">
+        <article class="service-block security-block">
+          <p class="eyebrow">Digital Services</p>
+          <h2>Manage your accounts wherever you bank</h2>
+          <div class="service-list">
+            <div><strong>Statements</strong><span>Review account history and download records from online banking.</span></div>
+            <div><strong>Transfers</strong><span>Move funds between eligible Allied Savings accounts.</span></div>
+            <div><strong>Alerts</strong><span>Set communication preferences for account and security notices.</span></div>
+          </div>
+        </article>
+        <article class="service-block business-block" id="business">
+          <p class="eyebrow">Business banking</p>
+          <h2>Account service for operating cash</h2>
+          <p>Business customers can use Allied Savings for operating deposits, payee management, transfer records, and treasury service requests.</p>
+          <a class="text-button" href="#contact">Contact Business Support</a>
+        </article>
+      </section>
+
+      <section class="wrap disclosure-section" id="privacy" aria-label="Disclosures">
+        <h2>Disclosures</h2>
+        <p>Rates, fees, and terms may change without notice. Account opening is subject to eligibility review and approval. Fees may reduce earnings on dividend-bearing accounts.</p>
+        <p>Electronic services require enrollment in online banking. Message and data rates may apply from your wireless carrier.</p>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="wrap footer-columns">
         <section class="footer-col">
-          <h3>About Us</h3>
-          <a href="#about">Who We Are</a>
-          <a href="#support">Security Center</a>
-          <a href="#privacy">Privacy</a>
-          <a href="#support">Contact</a>
-        </section>
-        <section class="footer-col">
-          <h3>Personal</h3>
-          <a href="/signup.html">Checking</a>
-          <a href="/signup.html">Savings</a>
-          <a href="/login.html">Online Banking</a>
+          <h3>Banking</h3>
+          <a href="#savings">Checking & Savings</a>
           <a href="#rates">Rates</a>
-        </section>
-        <section class="footer-col">
-          <h3>Business</h3>
-          <a href="#business">Business Deposits</a>
-          <a href="#business">Payments</a>
-          <a href="#business">Treasury Support</a>
-          <a href="#fees">Fees</a>
+          <a href="/signup.html">Open an Account</a>
+          <a href="#business">Business Banking</a>
         </section>
         <section class="footer-col">
           <h3>Support</h3>
-          <a href="#support">Help Center</a>
-          <a href="#branches">Branches</a>
-          <a href="#support">Report Fraud</a>
-          <a href="#privacy">Privacy Choices</a>
+          <a href="#contact">Contact Us</a>
+          <a href="#locations">Branches & ATMs</a>
+          <a href="#security">Report Fraud</a>
+          <a href="/login.html">Online Banking Help</a>
+        </section>
+        <section class="footer-col">
+          <h3>Resources</h3>
+          <a href="#privacy">Privacy Notice</a>
+          <a href="#privacy">Fee Schedule</a>
+          <a href="#privacy">Accessibility</a>
+          <a href="#privacy">Terms of Use</a>
+        </section>
+        <section class="footer-col footer-contact" id="routing">
+          <h3>Contact</h3>
+          <p>Member Services: 1-800-555-0198</p>
+          <p>Routing Number: 311080719</p>
+          <p>Secure messages available in online banking.</p>
         </section>
         <section class="footer-col footer-brand">
           <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
-          <p class="disclaimer">Demo banking portal. Do not enter real banking credentials.</p>
+          <p class="disclaimer">Deposits are federally insured up to applicable limits. Equal Housing Lender. This demo site uses sample rates and service details.</p>
         </section>
       </div>
       <div class="wrap footer-copyright">
-        <a href="#support">Contact Us</a> |
-        <a href="#about">Who We Are</a> |
-        <a href="#privacy">Privacy</a>
+        <a href="#contact">Contact Us</a> |
+        <a href="#about">About Allied Savings</a> |
+        <a href="#privacy">Privacy & Disclosures</a>
         <br>
         <span>Copyright <span id="footerYear"></span> Allied Savings. All Rights Reserved</span>
       </div>
