@@ -826,7 +826,10 @@ function showLoginCodeStep(challenge) {
   loginForm.querySelector('button[type="submit"]').textContent = "Verify code";
   codeStep.querySelector('input[name="code"]')?.focus();
   const emailHint = challenge.email ? maskEmail(challenge.email) : "your registered email";
-  setStatus(`Code sent to ${emailHint}.`, true);
+  const deliveryMessage = challenge.delivery === "local-outbox"
+    ? `Code saved to local email outbox for ${emailHint}. Open backend/data/database.json and check emailOutbox.`
+    : `Code sent to ${emailHint}.`;
+  setStatus(deliveryMessage, true);
 }
 
 function maskEmail(email) {

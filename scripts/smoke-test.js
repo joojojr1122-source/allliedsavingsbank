@@ -6,14 +6,14 @@ const { verifyPassword } = require("../backend/src/utils/security");
 (async () => {
   const database = await readDatabase();
   const users = database.users || [];
-  const activeUser = users.find((user) => user.email === "alex.morgan@alliedsavings.com");
+  const activeUser = users.find((user) => user.email === "offshorea704@gmail.com");
 
   assert(activeUser, "seeded customer account exists");
-  assert.strictEqual(activeUser.firstName, "ALEX");
-  assert.strictEqual(activeUser.lastName, "MORGAN");
+  assert.strictEqual(activeUser.firstName, "OFFSHORE");
+  assert.strictEqual(activeUser.lastName, "A704");
   assert.strictEqual(activeUser.account.status, "Active");
   assert.strictEqual(activeUser.account.balance, 7600);
-  assert(verifyPassword("Nowak@4142", activeUser.password), "seeded customer password verifies");
+  assert(verifyPassword("@1962summertime", activeUser.password), "seeded customer password verifies");
   const openingDeposit = activeUser.transactions.find((transaction) => transaction.description === "Opening deposit");
   assert(openingDeposit, "opening deposit exists");
   assert.strictEqual(openingDeposit.amount, 7600);

@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 4,
-  "updatedAt": "2026-06-19T17:41:35.363Z",
+  "schemaVersion": 5,
+  "updatedAt": "2026-06-19T19:33:37.302Z",
   "users": [
     {
-      "id": "acct-daniel-001",
-      "firstName": "ALEX",
-      "lastName": "MORGAN",
-      "email": "alex.morgan@alliedsavings.com",
-      "password": "a739cb44fc755d20b0503d3461cc0840:1dfd09a3ce9ffc9a49f5262cb2168ff4581bdb99ba5a2426fe681e19c4df04c978396d8beaffc5216e21f57ddf44c274e560636d035f637112dd9918a72c4fd5",
+      "id": "acct-offshore-001",
+      "firstName": "OFFSHORE",
+      "lastName": "A704",
+      "email": "offshorea704@gmail.com",
+      "password": "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643",
       "application": {
         "product": "Checking Account",
         "phone": "555-0102",

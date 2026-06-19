@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const passwordHash =
-  "a739cb44fc755d20b0503d3461cc0840:1dfd09a3ce9ffc9a49f5262cb2168ff4581bdb99ba5a2426fe681e19c4df04c978396d8beaffc5216e21f57ddf44c274e560636d035f637112dd9918a72c4fd5";
+const offshorePasswordHash =
+  "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643";
 const kellyPasswordHash =
   "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e";
 
@@ -40,15 +40,15 @@ const transactions = [
 ];
 
 const database = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   updatedAt: new Date().toISOString(),
   users: [
     {
-      id: "acct-daniel-001",
-      firstName: "ALEX",
-      lastName: "MORGAN",
-      email: "alex.morgan@alliedsavings.com",
-      password: passwordHash,
+      id: "acct-offshore-001",
+      firstName: "OFFSHORE",
+      lastName: "A704",
+      email: "offshorea704@gmail.com",
+      password: offshorePasswordHash,
       application: {
         product: "Checking Account",
         phone: "555-0102",

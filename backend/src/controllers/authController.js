@@ -73,6 +73,7 @@ async function login(req, res) {
       challengeId: challenge.challengeId,
       email: user.email,
       expiresAt: challenge.expiresAt,
+      delivery: message.provider === "smtp" && message.status === "Sent" ? "email" : "local-outbox",
       localOutboxId: process.env.VERCEL ? undefined : message.id
     });
   } catch (error) {
