@@ -165,13 +165,13 @@
                   </dd>
                 </div>
                 <div class="detail-row">
-                  <dt>Routing number</dt>
-                  <dd class="detail-row__value">
-                    <span id="sortCode">*** *** ***</span>
-                    <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
-                  </dd>
-                </div>
-                <div>
+                    <dt>Routing number</dt>
+                    <dd class="detail-row__value">
+                      <span id="routingNumber">*** *** ***</span>
+                      <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
+                    </dd>
+                  </div>
+                  <div>
                   <dt>Status</dt>
                   <dd id="accountStatus">Active</dd>
                 </div>
@@ -187,18 +187,10 @@
                   <dt>Card</dt>
                   <dd id="cardStatus">Active</dd>
                 </div>
-              </dl>
-              <dl class="account-details">
-                <div class="detail-row">
-                  <dt>SWIFT/BIC</dt>
-                  <dd class="detail-row__value">
-                    <span id="accountIban">ASAVUS33XXX</span>
-                    <button class="text-button sensitive-toggle" type="button" data-sensitive-toggle>Show</button>
-                    <button class="text-button" type="button" id="copyIbanButton">Copy</button>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Product</dt>
+</dl>
+               <dl class="account-details">
+                 <div>
+                   <dt>Product</dt>
                   <dd id="accountProductDetail">Checking Account</dd>
                 </div>
                 <div>
@@ -293,7 +285,7 @@
                     </label>
                     <label>
                       Routing number
-                      <input name="recipientSortCode" inputmode="numeric" maxlength="9" placeholder="021000021">
+                      <input name="recipientRoutingNumber" inputmode="numeric" maxlength="9" placeholder="021000021">
                     </label>
                     <label>
                       Schedule date
@@ -317,7 +309,7 @@
                   </label>
                   <label>
                     Routing number
-                    <input name="sortCode" inputmode="numeric" maxlength="9" placeholder="021000021" required>
+                    <input name="routingNumber" inputmode="numeric" maxlength="9" placeholder="021000021" required>
                   </label>
                   <label>
                     Nickname

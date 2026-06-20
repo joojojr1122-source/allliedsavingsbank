@@ -55,12 +55,11 @@ async function createUser(input) {
     account: {
       type: product,
       number: accountNumber,
-      sortCode: "026009593",
+      routingNumber: "026009593",
       currency: "USD",
       balance: 0,
       openedAt: "",
       status: "Pending Approval",
-      iban: createIban(database.users.length, accountNumber),
       dailyTransferLimit: 1000,
       monthlyTransferLimit: 100000,
       cardStatus: "Active",
@@ -428,7 +427,7 @@ async function updateScheduledTransaction(userId, transactionId, input) {
   const beneficiary = getTransferBeneficiary(user, {
     recipientName: input.recipientName || transaction.beneficiary?.name || "",
     recipientAccountNumber: input.recipientAccountNumber || transaction.beneficiary?.accountNumber || "",
-    recipientSortCode: input.recipientSortCode || transaction.beneficiary?.sortCode || ""
+    recipientRoutingNumber: input.recipientRoutingNumber || transaction.beneficiary?.routingNumber || ""
   }, beneficiaryId);
 
   transaction.amount = Number((-amount).toFixed(2));
@@ -454,18 +453,18 @@ function getTransferBeneficiary(user, input, beneficiaryId) {
   const beneficiary = saved || {
     name: cleanName(input.recipientName),
     accountNumber: cleanName(input.recipientAccountNumber),
-    sortCode: cleanName(input.recipientSortCode)
+    routingNumber: cleanName(input.recipientRoutingNumber)
   };
 
-  if (!beneficiary.name || !/^\d{8}$/.test(beneficiary.accountNumber || "") || !/^\d{2}-?\d{2}-?\d{2}$/.test(beneficiary.sortCode || "")) {
-    throw statusError(400, "Enter a recipient name, 8 digit account number, and sort code");
+  if (!beneficiary.name || !/^\d{8,12}$/.test(beneficiary.accountNumber || "") || !/^\d{9}$/.test(beneficiary.routingNumber || "")) {
+    throw statusError(400, "Enter a recipient name, 8-12 digit account number, and 9 digit routing number");
   }
 
   return {
     id: saved ? saved.id : null,
     name: beneficiary.name,
     accountNumber: beneficiary.accountNumber,
-    sortCode: formatSortCode(beneficiary.sortCode)
+    routingNumber: beneficiary.routingNumber
   };
 }
 
@@ -494,10 +493,6 @@ function createAccountNumber(offset) {
   return String(80420000 + offset + Math.floor(Math.random() * 899)).padStart(8, "0");
 }
 
-function createIban(offset, accountNumber) {
-  return `ASAVUS${String(330000 + offset).padStart(6, "0")}${accountNumber}`;
-}
-
 function createReference(type, accountNumber = "") {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
@@ -517,11 +512,6 @@ function createReference(type, accountNumber = "") {
   }
 
   return `${type.slice(0, 3).toUpperCase()}-${suffix}`;
-}
-
-function formatSortCode(value) {
-  const digits = String(value || "").replace(/\D/g, "");
-  return `${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4, 6)}`;
 }
 
 function formatLimit(value) {
@@ -644,7 +634,6 @@ function ensureAccountShape(user) {
 
   user.account.status = user.account.status || "Pending Approval";
   user.account.currency = user.account.currency || "USD";
-  user.account.iban = user.account.iban || `ASAVUS330000${user.account.number}`;
   user.account.dailyTransferLimit = user.account.dailyTransferLimit || 1000;
   user.account.monthlyTransferLimit = user.account.monthlyTransferLimit || 100000;
   user.account.cardStatus = user.account.cardStatus || "Active";
@@ -894,14 +883,14 @@ async function createBeneficiary(userId, input) {
 
   const name = cleanName(input.name);
   const accountNumber = cleanName(input.accountNumber);
-  const sortCode = formatSortCode(input.sortCode);
+  const routingNumber = cleanName(input.routingNumber);
   const nickname = cleanName(input.nickname) || name;
 
-  if (!name || !/^\d{8}$/.test(accountNumber) || !/^\d{2}-\d{2}-\d{2}$/.test(sortCode)) {
-    throw statusError(400, "Enter a payee name, 8 digit account number, and sort code");
+  if (!name || !/^\d{8,12}$/.test(accountNumber) || !/^\d{9}$/.test(routingNumber)) {
+    throw statusError(400, "Enter a payee name, 8-12 digit account number, and 9 digit routing number");
   }
 
-  const duplicate = user.beneficiaries.find((item) => item.accountNumber === accountNumber && item.sortCode === sortCode);
+  const duplicate = user.beneficiaries.find((item) => item.accountNumber === accountNumber && item.routingNumber === routingNumber);
 
   if (duplicate) {
     throw statusError(409, "This payee already exists");
@@ -912,7 +901,7 @@ async function createBeneficiary(userId, input) {
     name,
     nickname,
     accountNumber,
-    sortCode,
+    routingNumber,
     createdAt: new Date().toISOString()
   });
   appendAudit(user, "PAYEE_CREATED");

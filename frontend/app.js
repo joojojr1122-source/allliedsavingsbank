@@ -119,10 +119,8 @@ function showDashboard(user) {
   setText("#ledgerBalance", formatMoney(user.account.balance, user.account.currency));
   setText("#pendingIncomingAmount", formatMoney(pendingIncoming, user.account.currency));
   setText("#accountNumber", sensitiveDetailsVisible ? user.account.number : maskAccountNumber(user.account.number));
-  setText("#sortCode", sensitiveDetailsVisible ? user.account.sortCode : maskSortCode(user.account.sortCode));
+  setText("#routingNumber", sensitiveDetailsVisible ? user.account.routingNumber : maskRoutingNumber(user.account.routingNumber));
   setText("#accountStatus", user.account.status || "Active");
-  const iban = user.account.iban || "ASAVUS33XXX";
-  setText("#accountIban", formatIbanDisplay(iban, sensitiveDetailsVisible));
   setText("#accountProductDetail", user.account.type);
   setText("#accountEmail", user.email || "-");
   setText("#accountPhone", user.application?.phone || "-");
@@ -261,7 +259,7 @@ function showTransactionReceipt(user) {
     status: transaction.status === "Pending"
       ? "Payment scheduled. Funds will leave your account on the date shown."
       : transaction.type === "Transfer"
-        ? "Payment sent. Faster Payments usually arrive within 2 hours."
+        ? "Payment sent. Funds typically arrive within 1-2 business days."
         : "Transaction completed successfully.",
     rows: [
       { label: "Reference", value: transaction.reference || "Completed" },
@@ -283,7 +281,7 @@ function confirmTransferSubmission(payload) {
   const recipient = savedPayee || {
     name: payload.recipientName || "New recipient",
     accountNumber: payload.recipientAccountNumber || "",
-    sortCode: payload.recipientSortCode || ""
+    routingNumber: payload.recipientRoutingNumber || ""
   };
   const transferLimit = Number(currentUser.account.dailyTransferLimit || 1000);
   const monthlyTransferLimit = Number(currentUser.account.monthlyTransferLimit || 100000);
@@ -302,11 +300,11 @@ function confirmTransferSubmission(payload) {
         <button class="modal-close" type="button" aria-label="Close">&times;</button>
       </div>
       <div class="receipt-modal">
-        <p class="receipt-status">Review the payment below. Payment fee: ${escapeHtml(formatMoney(0, currentUser.account.currency))}. Funds usually arrive within 2 hours for Faster Payments.</p>
+        <p class="receipt-status">Review the payment below. Payment fee: ${escapeHtml(formatMoney(0, currentUser.account.currency))}. Funds typically arrive within 1-2 business days for ACH transfers.</p>
         <dl class="receipt-details">
           <div><dt>Amount</dt><dd>${escapeHtml(formatMoney(amount, currentUser.account.currency))}</dd></div>
           <div><dt>Recipient</dt><dd>${escapeHtml(recipient.name)}</dd></div>
-          <div><dt>Account</dt><dd>${escapeHtml(`${recipient.sortCode || ""} ${recipient.accountNumber || ""}`.trim())}</dd></div>
+          <div><dt>Account</dt><dd>${escapeHtml(`${recipient.routingNumber || ""} ${recipient.accountNumber || ""}`.trim())}</dd></div>
           <div><dt>Reference</dt><dd>${escapeHtml((payload.description || "Transfer").slice(0, 18))}</dd></div>
           <div><dt>Payment Date</dt><dd>${escapeHtml(scheduled)}</dd></div>
           <div><dt>Remaining Daily Limit</dt><dd>${escapeHtml(formatMoney(remaining, currentUser.account.currency))}</dd></div>
@@ -371,7 +369,7 @@ function renderTransactions(transactions, currency) {
           <span>${escapeHtml(transaction.description)}</span>
           <small>${date} &middot; ${escapeHtml(transaction.status)} &middot; ${escapeHtml(transaction.reference || "PENDING")}</small>
           ${transaction.scheduledFor ? `<small>Scheduled for ${new Date(transaction.scheduledFor).toLocaleDateString("en-US")}</small>` : ""}
-          ${transaction.beneficiary ? `<small>To ${escapeHtml(transaction.beneficiary.name)} &middot; ${escapeHtml(transaction.beneficiary.sortCode)} ${escapeHtml(transaction.beneficiary.accountNumber)}</small>` : ""}
+          ${transaction.beneficiary ? `<small>To ${escapeHtml(transaction.beneficiary.name)} &middot; ${escapeHtml(transaction.beneficiary.routingNumber || "")} ${escapeHtml(transaction.beneficiary.accountNumber)}</small>` : ""}
         </div>
         <div class="tx-item-right">
           <span class="transaction-amount ${amountClass}">${formatMoney(transaction.amount, currency)}</span>
@@ -390,7 +388,7 @@ function renderBeneficiaries(beneficiaries) {
   beneficiaries.forEach((beneficiary) => {
     const option = document.createElement("option");
     option.value = beneficiary.id;
-    option.textContent = `${beneficiary.nickname || beneficiary.name} (${beneficiary.sortCode})`;
+    option.textContent = `${beneficiary.nickname || beneficiary.name} (${beneficiary.routingNumber || ""})`;
     beneficiarySelect.append(option);
   });
 
@@ -403,7 +401,7 @@ function renderBeneficiaries(beneficiaries) {
     <article class="payee-item">
       <div>
         <strong>${escapeHtml(beneficiary.nickname || beneficiary.name)}</strong>
-        <span>${escapeHtml(beneficiary.name)} &middot; ${escapeHtml(beneficiary.sortCode)} ${escapeHtml(beneficiary.accountNumber)}</span>
+        <span>${escapeHtml(beneficiary.name)} &middot; ${escapeHtml(beneficiary.routingNumber || "")} ${escapeHtml(beneficiary.accountNumber)}</span>
       </div>
       <button class="tx-remove-btn" type="button" data-beneficiary-delete="${escapeHtml(beneficiary.id)}">Remove</button>
     </article>
@@ -505,23 +503,10 @@ function maskAccountNumber(value) {
   return `**** **** ${digits.slice(-4)}`;
 }
 
-function maskSortCode(value) {
-  const formatted = String(value || "").trim();
-  if (!formatted) return "*** *** ***";
-  const parts = formatted.split("-");
-  if (parts.length === 3) {
-    return `*** *** ${parts[2]}`;
-  }
-  return "*** *** ***";
-}
-
-function formatIbanDisplay(iban, revealed) {
-  const compact = String(iban || "").replace(/\s/g, "").toUpperCase();
-  if (!compact) return "-";
-  if (!revealed) {
-    return `${compact.slice(0, 4)} **** **** ${compact.slice(-4)}`;
-  }
-  return compact.replace(/(.{4})/g, "$1 ").trim();
+function maskRoutingNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) return "*** *** ***";
+  return `*** *** ${digits.slice(-4)}`;
 }
 
 function getAvailableBalance(user) {
@@ -547,13 +532,13 @@ function updateSensitiveToggleButtons() {
 }
 
 function bindSortCodeInputs() {
-  document.querySelectorAll('input[name="sortCode"], input[name="recipientSortCode"]').forEach((input) => {
+  document.querySelectorAll('input[name="routingNumber"], input[name="recipientRoutingNumber"]').forEach((input) => {
     if (input.dataset.sortBound === "true") return;
     input.dataset.sortBound = "true";
     input.addEventListener("blur", () => {
-      const digits = input.value.replace(/\D/g, "").slice(0, 6);
-      if (digits.length === 6) {
-        input.value = `${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4, 6)}`;
+      const digits = input.value.replace(/\D/g, "").slice(0, 9);
+      if (digits.length === 9) {
+        input.value = digits;
       }
     });
   });
@@ -568,21 +553,6 @@ function bindSensitiveDetailControls() {
       if (currentUser) showDashboard(currentUser);
     });
   });
-
-  const copyButton = document.querySelector("#copyIbanButton");
-  if (copyButton && copyButton.dataset.bound !== "true") {
-    copyButton.dataset.bound = "true";
-    copyButton.addEventListener("click", async () => {
-      if (!currentUser) return;
-      const iban = currentUser.account.iban || `ASAVUS330000${currentUser.account.number}`;
-      try {
-        await navigator.clipboard.writeText(iban.replace(/\s/g, ""));
-        setStatus("IBAN copied to clipboard.", true);
-      } catch (error) {
-        setStatus("Unable to copy IBAN on this device.");
-      }
-    });
-  }
 }
 
 async function apiRequest(path, options = {}) {
@@ -673,13 +643,12 @@ function showSettingsModal() {
       <label>Email<input name="email" type="email" value="${escapeHtml(u.email)}" required></label>
       <label>Phone<input name="phone" type="tel" value="${escapeHtml(u.application?.phone || "")}" required></label>
       <label>Address<input name="address" value="${escapeHtml(u.application?.address || "")}" required></label>
-      <label>Product
-        <select name="product">
-          <option value="Current Account" ${u.account.type === "Current Account" ? "selected" : ""}>Current Account</option>
-          <option value="Basic Savings Account" ${u.account.type === "Basic Savings Account" ? "selected" : ""}>Basic Savings Account</option>
-          <option value="Easy Access Deposit Account" ${u.account.type === "Easy Access Deposit Account" ? "selected" : ""}>Easy Access Deposit Account</option>
-        </select>
-      </label>
+<label>Product
+                         <select name="product">
+                           <option value="Checking Account" ${u.account.type === "Checking Account" ? "selected" : ""}>Checking Account</option>
+                           <option value="Savings Account" ${u.account.type === "Savings Account" ? "selected" : ""}>Savings Account</option>
+                         </select>
+                       </label>
       <div class="modal-check-grid">
         <label class="modal-check"><input name="emailAlerts" type="checkbox" ${u.preferences?.emailAlerts !== false ? "checked" : ""}> Email alerts</label>
         <label class="modal-check"><input name="smsAlerts" type="checkbox" ${u.preferences?.smsAlerts ? "checked" : ""}> SMS alerts</label>
@@ -1348,7 +1317,7 @@ signupForm?.addEventListener("submit", async (event) => {
       name: `${data.user.firstName} ${data.user.lastName}`,
       email: data.user.email,
       accountNumber: data.user.account.number,
-      sortCode: data.user.account.sortCode,
+      routingNumber: data.user.account.routingNumber,
       product: data.user.account.type
     }));
     signupForm.reset();
@@ -1487,8 +1456,8 @@ function renderConfirmationPage() {
           <dd>${escapeHtml(details?.accountNumber || "Available in dashboard")}</dd>
         </div>
         <div>
-          <dt>Sort Code</dt>
-          <dd>${escapeHtml(details?.sortCode || "Available in dashboard")}</dd>
+          <dt>Routing Number</dt>
+          <dd>${escapeHtml(details?.routingNumber || "Available in dashboard")}</dd>
         </div>
       </dl>
       <form class="status-check-form" id="applicationStatusForm">

@@ -15,8 +15,7 @@ function buildApprovalEmail(user) {
     "",
     `Account holder: ${fullName}`,
     `Account number: ${user.account.number}`,
-    `Sort code: ${user.account.sortCode}`,
-    `IBAN: ${user.account.iban}`,
+    `Routing number: ${user.account.routingNumber}`,
     `Product: ${user.account.type}`,
     `Available balance: ${formatMoney(user.account.balance, user.account.currency)}`,
     "",
@@ -34,14 +33,13 @@ function buildApprovalEmail(user) {
         <p>Dear ${escapeHtml(fullName)},</p>
         <p>We are pleased to confirm that your Allied Savings account opening application has been approved.</p>
         <p>Your account is now active for online banking.</p>
-        <table style="border-collapse:collapse;margin:18px 0">
-          ${emailRow("Account holder", fullName)}
-          ${emailRow("Account number", user.account.number)}
-          ${emailRow("Sort code", user.account.sortCode)}
-          ${emailRow("IBAN", user.account.iban)}
-          ${emailRow("Product", user.account.type)}
-          ${emailRow("Available balance", formatMoney(user.account.balance, user.account.currency))}
-        </table>
+<table style="border-collapse:collapse;margin:18px 0">
+           ${emailRow("Account holder", fullName)}
+           ${emailRow("Account number", user.account.number)}
+           ${emailRow("Routing number", user.account.routingNumber)}
+           ${emailRow("Product", user.account.type)}
+           ${emailRow("Available balance", formatMoney(user.account.balance, user.account.currency))}
+         </table>
         <p>For your security, please keep your login details private and contact Allied Savings immediately if you do not recognize this account opening.</p>
         <p>Kind regards,<br>Allied Savings Operations</p>
       </div>
