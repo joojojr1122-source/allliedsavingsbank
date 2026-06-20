@@ -152,6 +152,7 @@ If Vercel/Upstash gives you variables named `UPSTASH_REDIS_REST_URL` and `UPSTAS
 The same keys are listed in `.env.example`. After adding or changing environment variables in Vercel, redeploy the project so the serverless API can read them.
 
 Without the KV variables, Vercel can still run the API, but account data may reset because serverless file storage is temporary.
+The dashboard also keeps the edited account holder name in browser storage so the same browser continues showing the changed name after a redeploy, but KV is required for profile changes to persist across browsers and devices.
 
 ## Brevo SMTP
 

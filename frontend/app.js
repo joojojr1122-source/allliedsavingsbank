@@ -1,4 +1,5 @@
 const tokenKey = "bankPortalToken";
+const profileOverridePrefix = "bankPortalProfile:";
 
 const signupForm = document.querySelector("#signupForm");
 const loginForm = document.querySelector("#loginForm");
@@ -102,6 +103,8 @@ function showTab(name) {
 }
 
 function showDashboard(user) {
+  user = applyStoredProfileOverride(user);
+
   portal?.classList.add("is-open");
   signupForm?.classList.add("is-hidden");
   loginForm?.classList.add("is-hidden");
@@ -711,6 +714,7 @@ function showSettingsModal() {
         method: "PATCH",
         body: JSON.stringify(formToJson(form))
       });
+      storeProfileOverride(data.user);
       showDashboard(data.user);
       closeModal();
       setStatus("Details updated.", true);
@@ -898,6 +902,41 @@ function startSessionWatch() {
 
 function setModalStatus(el, msg) {
   if (el) el.textContent = msg;
+}
+
+function getProfileOverrideKey(user) {
+  const accountNumber = user?.account?.number;
+  if (accountNumber) return `${profileOverridePrefix}${accountNumber}`;
+  const email = String(user?.email || "").trim().toLowerCase();
+  return email ? `${profileOverridePrefix}${email}` : "";
+}
+
+function applyStoredProfileOverride(user) {
+  const key = getProfileOverrideKey(user);
+  if (!key) return user;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) || "null");
+    if (!saved?.firstName || !saved?.lastName) return user;
+    return {
+      ...user,
+      firstName: saved.firstName,
+      lastName: saved.lastName
+    };
+  } catch (error) {
+    return user;
+  }
+}
+
+function storeProfileOverride(user) {
+  const key = getProfileOverrideKey(user);
+  if (!key) return;
+
+  localStorage.setItem(key, JSON.stringify({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    savedAt: new Date().toISOString()
+  }));
 }
 
 function updatePasswordStrength(password) {
