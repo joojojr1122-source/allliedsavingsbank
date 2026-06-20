@@ -62,6 +62,7 @@ async function createUser(input) {
       status: "Pending Approval",
       iban: createIban(database.users.length, accountNumber),
       dailyTransferLimit: 1000,
+      monthlyTransferLimit: 100000,
       cardStatus: "Active",
       overdraft: 0
     },
@@ -343,10 +344,16 @@ async function createTransaction(userId, input) {
     beneficiary = getTransferBeneficiary(user, input, beneficiaryId);
 
     const transferLimit = Number(user.account.dailyTransferLimit || 1000);
+    const monthlyTransferLimit = Number(user.account.monthlyTransferLimit || 100000);
     const usedToday = getTodaysTransferTotal(user.transactions || []);
+    const usedThisMonth = getThisMonthsTransferTotal(user.transactions || []);
 
     if (usedToday + amount > transferLimit) {
       throw statusError(400, `Daily transfers are limited to ${formatLimit(transferLimit)}. You have ${formatLimit(Math.max(transferLimit - usedToday, 0))} remaining today`);
+    }
+
+    if (usedThisMonth + amount > monthlyTransferLimit) {
+      throw statusError(400, `Monthly transfers are limited to ${formatLimit(monthlyTransferLimit)}. You have ${formatLimit(Math.max(monthlyTransferLimit - usedThisMonth, 0))} remaining this month`);
     }
   }
 
@@ -531,6 +538,16 @@ function getTodaysTransferTotal(transactions) {
     .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
 }
 
+function getThisMonthsTransferTotal(transactions) {
+  const month = new Date().toISOString().slice(0, 7);
+
+  return transactions
+    .filter((transaction) => transaction.type === "Transfer")
+    .filter((transaction) => !["Failed", "Cancelled"].includes(transaction.status))
+    .filter((transaction) => String(transaction.createdAt || "").slice(0, 7) === month)
+    .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
+}
+
 function settleDueScheduledTransfers(user, now = new Date()) {
   ensureAccountShape(user);
 
@@ -629,6 +646,7 @@ function ensureAccountShape(user) {
   user.account.currency = user.account.currency || "USD";
   user.account.iban = user.account.iban || `ASAVUS330000${user.account.number}`;
   user.account.dailyTransferLimit = user.account.dailyTransferLimit || 1000;
+  user.account.monthlyTransferLimit = user.account.monthlyTransferLimit || 100000;
   user.account.cardStatus = user.account.cardStatus || "Active";
   user.account.overdraft = Number(user.account.overdraft || 0);
   user.beneficiaries = user.beneficiaries || [];
@@ -938,6 +956,7 @@ async function updateAccountControls(userId, input) {
 
   const cardStatus = cleanName(input.cardStatus || user.account.cardStatus);
   const dailyTransferLimit = Number(input.dailyTransferLimit || user.account.dailyTransferLimit);
+  const monthlyTransferLimit = Number(input.monthlyTransferLimit || user.account.monthlyTransferLimit);
 
   if (!["Active", "Frozen"].includes(cardStatus)) {
     throw statusError(400, "Choose a valid card status");
@@ -947,8 +966,13 @@ async function updateAccountControls(userId, input) {
     throw statusError(400, "Daily transfer limit must be between USD 50 and USD 5,000");
   }
 
+  if (!Number.isFinite(monthlyTransferLimit) || monthlyTransferLimit < dailyTransferLimit || monthlyTransferLimit > 100000) {
+    throw statusError(400, "Monthly transfer limit must be between the daily limit and USD 100,000");
+  }
+
   user.account.cardStatus = cardStatus;
   user.account.dailyTransferLimit = Number(dailyTransferLimit.toFixed(2));
+  user.account.monthlyTransferLimit = Number(monthlyTransferLimit.toFixed(2));
   appendAudit(user, "ACCOUNT_CONTROLS_UPDATED");
 
   await writeDatabase(database);

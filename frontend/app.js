@@ -37,6 +37,7 @@ const beneficiarySelect = document.querySelector("#beneficiarySelect");
 const controlsForm = document.querySelector("#controlsForm");
 const cardStatusSelect = document.querySelector("#cardStatusSelect");
 const dailyTransferLimitInput = document.querySelector("#dailyTransferLimitInput");
+const monthlyTransferLimitInput = document.querySelector("#monthlyTransferLimitInput");
 const downloadStatementBtn = document.querySelector("#downloadStatementBtn");
 const loadingStatus = document.querySelector("#loadingStatus");
 const confirmationPanel = document.querySelector("#confirmationPanel");
@@ -132,6 +133,7 @@ function showDashboard(user) {
   const cardLastFour = user.account.cardLastFour || String(user.account.number).slice(-4);
   setText("#cardStatus", `${user.account.cardStatus || "Active"} - Exp ${user.account.cardExpiry || "-"}`);
   setText("#dailyTransferLimitMetric", formatMoney(user.account.dailyTransferLimit || 1000, user.account.currency));
+  setText("#monthlyTransferLimitMetric", formatMoney(user.account.monthlyTransferLimit || 100000, user.account.currency));
   setText("#cardPreviewName", `${user.firstName} ${user.lastName}`.trim().toUpperCase());
   setText("#savedPayeesCount", String((user.beneficiaries || []).length));
   setText("#cardPreviewNumber", `**** **** **** ${cardLastFour}`);
@@ -145,6 +147,7 @@ function showDashboard(user) {
 
   if (cardStatusSelect) cardStatusSelect.value = user.account.cardStatus || "Active";
   if (dailyTransferLimitInput) dailyTransferLimitInput.value = user.account.dailyTransferLimit || 1000;
+  if (monthlyTransferLimitInput) monthlyTransferLimitInput.value = user.account.monthlyTransferLimit || 100000;
 
   allTransactions = user.transactions || [];
   renderTransactions(allTransactions, user.account.currency);
@@ -280,8 +283,11 @@ function confirmTransferSubmission(payload) {
     sortCode: payload.recipientSortCode || ""
   };
   const transferLimit = Number(currentUser.account.dailyTransferLimit || 1000);
+  const monthlyTransferLimit = Number(currentUser.account.monthlyTransferLimit || 100000);
   const usedToday = getTodaysTransferTotal(allTransactions);
+  const usedThisMonth = getThisMonthsTransferTotal(allTransactions);
   const remaining = Math.max(transferLimit - usedToday - amount, 0);
+  const monthlyRemaining = Math.max(monthlyTransferLimit - usedThisMonth - amount, 0);
   const scheduled = payload.scheduledFor
     ? new Date(payload.scheduledFor).toLocaleDateString("en-US")
     : "Today";
@@ -301,6 +307,7 @@ function confirmTransferSubmission(payload) {
           <div><dt>Reference</dt><dd>${escapeHtml((payload.description || "Transfer").slice(0, 18))}</dd></div>
           <div><dt>Payment Date</dt><dd>${escapeHtml(scheduled)}</dd></div>
           <div><dt>Remaining Daily Limit</dt><dd>${escapeHtml(formatMoney(remaining, currentUser.account.currency))}</dd></div>
+          <div><dt>Remaining Monthly Limit</dt><dd>${escapeHtml(formatMoney(monthlyRemaining, currentUser.account.currency))}</dd></div>
         </dl>
         <div class="modal-actions">
           <button class="primary-button confirm-transfer-btn" type="button">Confirm Transfer</button>
@@ -323,7 +330,17 @@ function getTodaysTransferTotal(transactions) {
   const today = new Date().toISOString().slice(0, 10);
   return (transactions || [])
     .filter((transaction) => transaction.type === "Transfer")
+    .filter((transaction) => !["Failed", "Cancelled"].includes(transaction.status))
     .filter((transaction) => String(transaction.createdAt || "").slice(0, 10) === today)
+    .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
+}
+
+function getThisMonthsTransferTotal(transactions) {
+  const month = new Date().toISOString().slice(0, 7);
+  return (transactions || [])
+    .filter((transaction) => transaction.type === "Transfer")
+    .filter((transaction) => !["Failed", "Cancelled"].includes(transaction.status))
+    .filter((transaction) => String(transaction.createdAt || "").slice(0, 7) === month)
     .reduce((total, transaction) => total + Math.abs(Number(transaction.amount || 0)), 0);
 }
 

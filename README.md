@@ -37,7 +37,7 @@ vercel.json
 - Deposits, withdrawals, and transfers
 - Transfer review step before money leaves the account
 - Saved payees
-- Daily transfer limit controls
+- Daily and monthly transfer limit controls
 - Profile settings with alert preferences and statement frequency
 - Confirmation screens and transaction receipts
 - Printable transaction receipts

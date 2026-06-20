@@ -13,6 +13,7 @@ const { verifyPassword } = require("../backend/src/utils/security");
   assert.strictEqual(activeUser.lastName, "Bush");
   assert.strictEqual(activeUser.account.status, "Active");
   assert.strictEqual(activeUser.account.balance, 7600);
+  assert.strictEqual(activeUser.account.monthlyTransferLimit, 100000);
   assert(verifyPassword("@1962summertime", activeUser.password), "seeded customer password verifies");
   const openingDeposit = activeUser.transactions.find((transaction) => transaction.description === "Opening deposit");
   assert(openingDeposit, "opening deposit exists");
@@ -26,6 +27,7 @@ const { verifyPassword } = require("../backend/src/utils/security");
   assert.strictEqual(kellyUser.lastName, "WALLACE");
   assert.strictEqual(kellyUser.account.status, "Active");
   assert.strictEqual(kellyUser.account.balance, 5200);
+  assert.strictEqual(kellyUser.account.monthlyTransferLimit, 100000);
   assert(verifyPassword("Kelly123", kellyUser.password), "Kelly password verifies");
 
   const scheduledUser = {
