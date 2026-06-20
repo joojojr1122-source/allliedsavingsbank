@@ -5,3 +5,7 @@ smoke-homepage.png
 node_modules
 .env
 .env.local
+
+# Separate projects - not part of Allied Savings Bank
+chrome-tinytask/
+desktop-tinytask/
