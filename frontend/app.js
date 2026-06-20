@@ -770,6 +770,56 @@ function showChangePasswordModal() {
   });
 }
 
+function showLoginVerificationModal(challenge) {
+  openModal(`
+    <div class="modal-header">
+      <h2>Verify Sign-In</h2>
+      <button class="modal-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <form id="loginVerificationForm">
+      <p class="receipt-status">${escapeHtml(challenge.message || `Enter the 6-digit code sent to ${challenge.email || "your email"}.`)}</p>
+      <label>
+        Verification code
+        <input name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+      </label>
+      <div class="modal-actions">
+        <button class="primary-button" type="submit">Verify &amp; Continue</button>
+        <button class="text-button modal-secondary" type="button">Cancel</button>
+      </div>
+      <p class="modal-status" id="loginVerificationStatus"></p>
+    </form>
+  `);
+
+  const form = modalPanel?.querySelector("#loginVerificationForm");
+  const statusEl = modalPanel?.querySelector("#loginVerificationStatus");
+
+  modalPanel?.querySelector(".modal-close")?.addEventListener("click", closeModal);
+  modalPanel?.querySelector(".modal-secondary")?.addEventListener("click", closeModal);
+  form?.querySelector("input")?.focus();
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setModalStatus(statusEl, "Checking code...");
+
+    try {
+      const data = await apiRequest("/api/auth/verify-login", {
+        method: "POST",
+        auth: false,
+        body: JSON.stringify({
+          verificationId: challenge.verificationId,
+          code: formToJson(form).code
+        })
+      });
+
+      localStorage.setItem(tokenKey, data.token);
+      closeModal();
+      goToLoading("Verification complete. Preparing your accounts...");
+    } catch (error) {
+      setModalStatus(statusEl, error.message);
+    }
+  });
+}
+
 function hydrateLoginPage() {
   if (!loginForm) return;
 
@@ -1278,8 +1328,14 @@ loginForm?.addEventListener("submit", async (event) => {
       auth: false,
       body: JSON.stringify(formToJson(loginForm))
     });
-    localStorage.setItem(tokenKey, data.token);
     loginForm.reset();
+    if (data.requiresVerification) {
+      setStatus("Verification code sent.", true);
+      showLoginVerificationModal(data);
+      return;
+    }
+
+    localStorage.setItem(tokenKey, data.token);
     goToLoading();
   } catch (error) {
     setStatus(error.message);

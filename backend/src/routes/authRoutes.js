@@ -2,6 +2,7 @@ const {
   getApplicationStatus,
   signup,
   login,
+  verifyLogin,
   logout,
   handleChangePassword,
   requestPasswordResetController,
@@ -22,6 +23,11 @@ async function handleAuthRoute(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/auth/login") {
     await login(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/auth/verify-login") {
+    await verifyLogin(req, res);
     return;
   }
 

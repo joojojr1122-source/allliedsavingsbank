@@ -1,4 +1,7 @@
+const crypto = require("crypto");
 const { readJsonBody, sendJson } = require("../utils/http");
+const { readDatabase, writeDatabase } = require("../services/databaseService");
+const { queueLoginVerificationEmail } = require("../services/emailService");
 const {
   changePassword,
   createUser,
@@ -12,7 +15,10 @@ const {
   resetPassword
 } = require("../services/userService");
 const { createSession, deleteSession, getTokenFromRequest, getUserIdFromRequest } = require("../services/sessionService");
-const { verifyPassword } = require("../utils/security");
+const { hashPassword, verifyPassword } = require("../utils/security");
+
+const LOGIN_CODE_TTL_MS = 10 * 60 * 1000;
+const LOGIN_CODE_MAX_ATTEMPTS = 5;
 
 async function signup(req, res) {
   try {
@@ -63,6 +69,71 @@ async function login(req, res) {
       return;
     }
 
+    const challenge = await createLoginVerificationChallenge(user.id);
+    await queueLoginVerificationEmail(challenge.user, challenge.code);
+
+    sendJson(res, 200, {
+      requiresVerification: true,
+      verificationId: challenge.id,
+      email: maskEmail(user.email),
+      message: `We sent a 6-digit verification code to ${maskEmail(user.email)}.`
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    sendJson(res, error.status || 500, { error: error.message || "Login failed" });
+  }
+}
+
+async function verifyLogin(req, res) {
+  try {
+    const body = await readJsonBody(req);
+    const verificationId = String(body.verificationId || "").trim();
+    const code = String(body.code || "").replace(/\D/g, "");
+
+    if (!verificationId || code.length !== 6) {
+      sendJson(res, 400, { error: "Enter the 6-digit verification code" });
+      return;
+    }
+
+    const database = await readDatabase();
+    const user = (database.users || []).find((item) => item.security?.loginVerification?.id === verificationId);
+
+    if (!user) {
+      sendJson(res, 404, { error: "Verification request was not found. Please sign in again." });
+      return;
+    }
+
+    const challenge = user.security.loginVerification;
+
+    if (new Date(challenge.expiresAt).getTime() < Date.now()) {
+      delete user.security.loginVerification;
+      appendAuthAudit(user, "LOGIN_VERIFICATION_EXPIRED");
+      await writeDatabase(database);
+      sendJson(res, 410, { error: "Verification code expired. Please sign in again." });
+      return;
+    }
+
+    if (!verifyPassword(code, challenge.codeHash)) {
+      challenge.attempts = Number(challenge.attempts || 0) + 1;
+
+      if (challenge.attempts >= LOGIN_CODE_MAX_ATTEMPTS) {
+        delete user.security.loginVerification;
+        appendAuthAudit(user, "LOGIN_VERIFICATION_LOCKED");
+        await writeDatabase(database);
+        await recordFailedLogin(user.email);
+        sendJson(res, 423, { error: "Too many incorrect verification attempts. Please sign in again." });
+        return;
+      }
+
+      await writeDatabase(database);
+      sendJson(res, 401, { error: "Verification code is incorrect" });
+      return;
+    }
+
+    delete user.security.loginVerification;
+    appendAuthAudit(user, "LOGIN_VERIFICATION_SUCCESS");
+    await writeDatabase(database);
+
     const loggedInUser = await recordSuccessfulLogin(user.id);
     const token = createSession(user.id);
 
@@ -71,8 +142,8 @@ async function login(req, res) {
       user: publicUser(loggedInUser || user)
     });
   } catch (error) {
-    console.error("Login error:", error);
-    sendJson(res, 500, { error: error.message || "Login failed" });
+    console.error("Login verification error:", error);
+    sendJson(res, error.status || 500, { error: error.message || "Login verification failed" });
   }
 }
 
@@ -182,8 +253,54 @@ module.exports = {
   getApplicationStatus,
   signup,
   login,
+  verifyLogin,
   logout,
   handleChangePassword,
   requestPasswordResetController,
   resetPasswordController
 };
+
+async function createLoginVerificationChallenge(userId) {
+  const database = await readDatabase();
+  const user = (database.users || []).find((item) => item.id === userId);
+
+  if (!user) {
+    const error = new Error("Account was not found");
+    error.status = 404;
+    throw error;
+  }
+
+  const code = String(crypto.randomInt(100000, 1000000));
+  const id = crypto.randomUUID();
+  user.security = user.security || {};
+  user.security.loginVerification = {
+    id,
+    codeHash: hashPassword(code),
+    expiresAt: new Date(Date.now() + LOGIN_CODE_TTL_MS).toISOString(),
+    attempts: 0,
+    createdAt: new Date().toISOString()
+  };
+  appendAuthAudit(user, "LOGIN_VERIFICATION_CREATED");
+
+  await writeDatabase(database);
+
+  return { id, code, user };
+}
+
+function appendAuthAudit(user, action) {
+  user.auditLog = user.auditLog || [];
+  user.auditLog.unshift({
+    id: crypto.randomUUID(),
+    action,
+    note: "Email verification",
+    createdAt: new Date().toISOString()
+  });
+  user.auditLog = user.auditLog.slice(0, 100);
+}
+
+function maskEmail(email) {
+  const [name, domain] = String(email || "").split("@");
+  if (!name || !domain) return "your email";
+  const visible = name.slice(0, 2);
+  return `${visible}${"*".repeat(Math.max(name.length - 2, 3))}@${domain}`;
+}

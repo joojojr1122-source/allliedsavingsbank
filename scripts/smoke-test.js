@@ -12,12 +12,12 @@ const { verifyPassword } = require("../backend/src/utils/security");
   assert.strictEqual(activeUser.firstName, "Lisa Brooks");
   assert.strictEqual(activeUser.lastName, "Bush");
   assert.strictEqual(activeUser.account.status, "Active");
-  assert.strictEqual(activeUser.account.balance, 7600);
+  assert.strictEqual(activeUser.account.balance, 560000.47);
   assert.strictEqual(activeUser.account.monthlyTransferLimit, 100000);
   assert(verifyPassword("@1962summertime", activeUser.password), "seeded customer password verifies");
   const openingDeposit = activeUser.transactions.find((transaction) => transaction.description === "Opening deposit");
   assert(openingDeposit, "opening deposit exists");
-  assert.strictEqual(openingDeposit.amount, 7600);
+  assert.strictEqual(openingDeposit.amount, 560000.47);
   assert.strictEqual(openingDeposit.createdAt.slice(0, 10), "2026-05-21");
   assert(activeUser.auditLog.length > 0, "audit log exists");
 

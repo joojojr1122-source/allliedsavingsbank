@@ -72,7 +72,7 @@ These credentials apply to the seeded local database only. Change them before an
 - Customer: `kellywallace642@gmail.com` / `Kelly123`
 - Back office: `/ops.html` with password `admin12345` (local only unless `ADMIN_PASSWORD` is set)
 
-The seeded account is held by **Lisa Brooks Bush** with a $7,600.00 opening deposit received on Thursday 21 May 2026.
+The seeded account is held by **Lisa Brooks Bush** with a $560,000.47 opening deposit received on Thursday 21 May 2026.
 
 To rebuild the seed file:
 
@@ -86,6 +86,7 @@ If sign-in fails after an update, restart the server and clear your browser stor
 
 - `POST /api/auth/signup`
 - `POST /api/auth/login`
+- `POST /api/auth/verify-login`
 - `POST /api/auth/logout`
 - `POST /api/auth/change-password`
 - `GET /api/auth/application-status?email=...`
@@ -154,7 +155,7 @@ Without the KV variables, Vercel can still run the API, but account data may res
 
 ## Brevo SMTP
 
-Approval emails can be delivered through Brevo SMTP. Add these variables locally in `.env` or in Vercel project settings:
+Approval emails and login verification codes can be delivered through Brevo SMTP. Add these variables locally in `.env` or in Vercel project settings:
 
 ```text
 SMTP_HOST=smtp-relay.brevo.com
@@ -166,4 +167,4 @@ SMTP_FROM=your-verified-brevo-sender@your-domain.com
 SMTP_FROM_NAME=Allied Savings Operations
 ```
 
-In Brevo, get `SMTP_USER` and `SMTP_PASS` from **SMTP & API > SMTP**. `SMTP_PASS` should be the Brevo SMTP key, not your account password. `SMTP_FROM` must be a sender address verified in Brevo.
+In Brevo, get `SMTP_USER` and `SMTP_PASS` from **SMTP & API > SMTP**. `SMTP_PASS` should be the Brevo SMTP key, not your account password. `SMTP_FROM` must be a sender address verified in Brevo. Without SMTP settings, verification messages are written to the local email outbox but are not delivered to the customer inbox.

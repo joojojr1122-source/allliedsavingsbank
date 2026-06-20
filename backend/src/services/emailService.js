@@ -49,6 +49,38 @@ function buildApprovalEmail(user) {
   };
 }
 
+function buildLoginVerificationEmail(user, code) {
+  const fullName = `${user.firstName} ${user.lastName}`.trim() || "Customer";
+  const subject = "Your Allied Savings sign-in verification code";
+  const lines = [
+    `Dear ${fullName},`,
+    "",
+    "Use the verification code below to complete your Allied Savings online banking sign-in.",
+    "",
+    `Verification code: ${code}`,
+    "",
+    "This code expires in 10 minutes. If you did not try to sign in, please change your password and contact Allied Savings support immediately.",
+    "",
+    "Kind regards,",
+    "Allied Savings Security"
+  ];
+
+  return {
+    subject,
+    text: lines.join("\n"),
+    html: `
+      <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55">
+        <p>Dear ${escapeHtml(fullName)},</p>
+        <p>Use the verification code below to complete your Allied Savings online banking sign-in.</p>
+        <p style="font-size:28px;letter-spacing:6px;font-weight:700;margin:22px 0;color:#14345a">${escapeHtml(code)}</p>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you did not try to sign in, please change your password and contact Allied Savings support immediately.</p>
+        <p>Kind regards,<br>Allied Savings Security</p>
+      </div>
+    `.trim()
+  };
+}
+
 async function queueApprovalEmail(email) {
   const database = await readDatabase();
   const user = (database.users || []).find((item) => item.email === String(email || "").trim().toLowerCase());
@@ -88,6 +120,66 @@ async function queueApprovalEmail(email) {
     createdAt: outboxEntry.createdAt
   });
   user.notificationState = user.notificationState || { readIds: [], readAtById: {} };
+
+  await writeDatabase(database);
+
+  if (smtpConfigured) {
+    try {
+      await sendSmtpMail({
+        to: outboxEntry.to,
+        subject: outboxEntry.subject,
+        text: outboxEntry.text,
+        html: outboxEntry.html
+      });
+
+      outboxEntry.status = "Sent";
+      outboxEntry.sentAt = new Date().toISOString();
+      await writeDatabase(database);
+    } catch (error) {
+      outboxEntry.status = "Failed";
+      outboxEntry.error = error.message || "SMTP delivery failed";
+      await writeDatabase(database);
+      throw statusError(502, `SMTP delivery failed: ${outboxEntry.error}`);
+    }
+  }
+
+  return outboxEntry;
+}
+
+async function queueLoginVerificationEmail(user, code) {
+  const database = await readDatabase();
+  const storedUser = (database.users || []).find((item) => item.id === user.id);
+
+  if (!storedUser) {
+    throw statusError(404, "Account was not found");
+  }
+
+  database.emailOutbox = database.emailOutbox || [];
+
+  const message = buildLoginVerificationEmail(storedUser, code);
+  const smtpConfigured = hasSmtpConfig();
+  const outboxEntry = {
+    id: crypto.randomUUID(),
+    type: "LOGIN_VERIFICATION",
+    status: "Queued",
+    to: storedUser.email,
+    subject: message.subject,
+    text: message.text,
+    html: message.html,
+    createdAt: new Date().toISOString(),
+    sentAt: "",
+    provider: smtpConfigured ? "smtp" : "local-outbox",
+    error: ""
+  };
+
+  database.emailOutbox.unshift(outboxEntry);
+  storedUser.auditLog = storedUser.auditLog || [];
+  storedUser.auditLog.unshift({
+    id: crypto.randomUUID(),
+    action: "LOGIN_VERIFICATION_QUEUED",
+    note: outboxEntry.id,
+    createdAt: outboxEntry.createdAt
+  });
 
   await writeDatabase(database);
 
@@ -341,6 +433,8 @@ function statusError(status, message) {
 
 module.exports = {
   buildApprovalEmail,
+  buildLoginVerificationEmail,
   getLatestApprovalEmail,
-  queueApprovalEmail
+  queueApprovalEmail,
+  queueLoginVerificationEmail
 };
