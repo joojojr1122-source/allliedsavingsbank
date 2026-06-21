@@ -1179,7 +1179,7 @@ adminTransactions?.addEventListener("click", async (event) => {
   if (!approveBtn && !denyBtn) return;
 
   const password = sessionStorage.getItem("adminPassword");
-  const txId = approveBtn?.dataset.adminTxId || denyBtn?.dataset.adminTxId;
+  const txId = approveBtn?.dataset.adminTxApprove || denyBtn?.dataset.adminTxDeny;
   const email = approveBtn?.dataset.adminTxEmail || denyBtn?.dataset.adminTxEmail;
   const action = approveBtn ? "approve" : "deny";
 

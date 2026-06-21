@@ -181,8 +181,10 @@ async function getAdminSummary(req, res) {
       .map((transaction) => ({
         id: transaction.id,
         userId: transaction.userId || "",
-        userEmail: users.find((u) => u.transactions?.some((t) => t.id === transaction.id))?.email || "",
-        userName: users.find((u) => u.transactions?.some((t) => t.id === transaction.id))?.name || "",
+        userEmail: users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id))?.email || "",
+        userName: users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id))
+          ? `${users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id)).firstName || ""} ${users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id)).lastName || ""}`.trim()
+          : "",
         type: transaction.type,
         description: transaction.description,
         amount: Number(transaction.amount || 0),
