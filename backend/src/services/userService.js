@@ -356,6 +356,11 @@ async function createTransaction(userId, input) {
   }
 
   const signedAmount = type === "Deposit" ? amount : -amount;
+  const nextBalance = Number((user.account.balance + signedAmount).toFixed(2));
+
+  if (nextBalance < 0) {
+    throw statusError(400, "Insufficient available balance");
+  }
 
   user.transactions = user.transactions || [];
   user.transactions.unshift({
@@ -366,10 +371,10 @@ async function createTransaction(userId, input) {
     category,
     tags,
     amount: Number(signedAmount.toFixed(2)),
-    balanceAfter: isScheduledTransfer ? user.account.balance : nextBalance,
+    balanceAfter: user.account.balance,
     createdAt: new Date().toISOString(),
-    scheduledFor: isScheduledTransfer ? scheduledFor : "",
-    status: isScheduledTransfer ? "Pending" : "Completed",
+    scheduledFor: type === "Transfer" ? scheduledFor : "",
+    status: "Pending",
     reference: createReference(type, user.account.number),
     beneficiary,
     repeatFrequency: type === "Transfer" ? repeatFrequency : "Once",
