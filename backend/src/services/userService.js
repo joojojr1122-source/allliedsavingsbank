@@ -314,7 +314,6 @@ async function createTransaction(userId, input) {
   }
 
   ensureAccountShape(user);
-  settleDueScheduledTransfers(user);
 
   if (user.account.status !== "Active") {
     throw statusError(403, "This account is not active");
@@ -356,17 +355,7 @@ async function createTransaction(userId, input) {
     }
   }
 
-  const isScheduledTransfer = type === "Transfer" && scheduledFor && scheduledFor > new Date().toISOString().slice(0, 10);
   const signedAmount = type === "Deposit" ? amount : -amount;
-  const nextBalance = Number((user.account.balance + signedAmount).toFixed(2));
-
-  if (!isScheduledTransfer && nextBalance < 0) {
-    throw statusError(400, "Insufficient available balance");
-  }
-
-  if (!isScheduledTransfer) {
-    user.account.balance = nextBalance;
-  }
 
   user.transactions = user.transactions || [];
   user.transactions.unshift({
@@ -376,18 +365,88 @@ async function createTransaction(userId, input) {
     category,
     tags,
     amount: Number(signedAmount.toFixed(2)),
-    balanceAfter: isScheduledTransfer ? user.account.balance : nextBalance,
+    balanceAfter: user.account.balance,
     createdAt: new Date().toISOString(),
-    scheduledFor: isScheduledTransfer ? scheduledFor : "",
-    status: isScheduledTransfer ? "Pending" : "Completed",
+    scheduledFor: scheduledFor || "",
+    status: "Pending",
     reference: createReference(type, user.account.number),
     beneficiary,
     repeatFrequency: type === "Transfer" ? repeatFrequency : "Once",
     processedAt: "",
     lastEditedAt: ""
   });
-  appendAudit(user, isScheduledTransfer ? "SCHEDULED_TRANSFER_CREATED" : type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
+  appendAudit(user, type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
 
+  await writeDatabase(database);
+  return user;
+}
+
+async function approveTransaction(userId, transactionId) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  const txIndex = user.transactions.findIndex((t) => t.id === transactionId);
+
+  if (txIndex === -1) {
+    throw statusError(404, "Transaction not found");
+  }
+
+  const tx = user.transactions[txIndex];
+
+  if (tx.status !== "Pending") {
+    throw statusError(400, "Only pending transactions can be approved");
+  }
+
+  const amount = Number(tx.amount || 0);
+  const nextBalance = Number((user.account.balance + amount).toFixed(2));
+
+  if (nextBalance < 0) {
+    throw statusError(400, "Insufficient available balance");
+  }
+
+  tx.status = "Completed";
+  tx.processedAt = new Date().toISOString();
+  tx.balanceAfter = nextBalance;
+  user.account.balance = nextBalance;
+
+  appendAudit(user, "TRANSACTION_APPROVED", tx.reference || tx.id);
+  await writeDatabase(database);
+  return user;
+}
+
+async function denyTransaction(userId, transactionId) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  const txIndex = user.transactions.findIndex((t) => t.id === transactionId);
+
+  if (txIndex === -1) {
+    throw statusError(404, "Transaction not found");
+  }
+
+  const tx = user.transactions[txIndex];
+
+  if (tx.status !== "Pending") {
+    throw statusError(400, "Only pending transactions can be denied");
+  }
+
+  tx.status = "Denied";
+  tx.processedAt = new Date().toISOString();
+  tx.balanceAfter = user.account.balance;
+
+  appendAudit(user, "TRANSACTION_DENIED", tx.reference || tx.id);
   await writeDatabase(database);
   return user;
 }
@@ -1005,6 +1064,8 @@ module.exports = {
   updateAccountStatusAsAdmin,
   createUser,
   createTransaction,
+  approveTransaction,
+  denyTransaction,
   updateScheduledTransaction,
   settleDueScheduledTransfers,
   createBeneficiary,

@@ -1767,6 +1767,86 @@ button {
   font-size: 12px;
 }
 
+.admin-tx-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  justify-content: center;
+}
+
+.admin-tx-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-tx-btn {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.admin-tx-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.tx-approve-btn {
+  background: #14763c;
+}
+
+.tx-approve-btn:hover:not(:disabled) {
+  background: #0f5a2d;
+}
+
+.tx-deny-btn {
+  background: #9c1b1b;
+}
+
+.tx-deny-btn:hover:not(:disabled) {
+  background: #7a1515;
+}
+
+.tx-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tx-status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.tx-status-completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.tx-status-denied {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.tx-status-cancelled {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.tx-status-default {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
 .receipt-link.primary-button {
   display: inline-grid;
   place-items: center;

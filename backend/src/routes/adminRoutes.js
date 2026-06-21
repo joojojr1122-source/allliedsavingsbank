@@ -4,7 +4,9 @@ const {
   getPersistenceStatus,
   rejectAccountAsAdmin,
   sendApprovalEmailAsAdmin,
-  updateAccountStatus
+  updateAccountStatus,
+  approveTransactionAsAdmin,
+  denyTransactionAsAdmin
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -47,6 +49,18 @@ async function handleAdminRoute(req, res, url) {
     if (statusMatch) {
       req.adminApprovalEmail = decodeURIComponent(statusMatch[1]);
       await updateAccountStatus(req, res);
+      return;
+    }
+
+    const txMatch = url.pathname.match(/^\/api\/admin\/transaction\/([^/]+)\/([^/]+)\/(approve|deny)\/?$/);
+    if (txMatch) {
+      req.adminTransactionUserEmail = decodeURIComponent(txMatch[1]);
+      req.adminTransactionId = decodeURIComponent(txMatch[2]);
+      if (txMatch[3] === "approve") {
+        await approveTransactionAsAdmin(req, res);
+      } else {
+        await denyTransactionAsAdmin(req, res);
+      }
       return;
     }
   }

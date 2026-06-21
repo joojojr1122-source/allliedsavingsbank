@@ -8,6 +8,8 @@ const {
   getUserById,
   markNotificationsRead,
   publicUser,
+  approveTransaction: approveTx,
+  denyTransaction: denyTx,
   updateAccountControls: saveAccountControls,
   updateScheduledTransaction,
   updateUserProfile
@@ -259,6 +261,48 @@ async function markNotificationsAsRead(req, res) {
   }
 }
 
+async function approveTransaction(req, res) {
+  const userId = getUserIdFromRequest(req);
+
+  if (!userId) {
+    sendJson(res, 401, { error: "You need to login first" });
+    return;
+  }
+
+  if (!req.transactionId) {
+    sendJson(res, 400, { error: "Transaction ID is required" });
+    return;
+  }
+
+  try {
+    const user = await approveTx(userId, req.transactionId);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Approval failed" });
+  }
+}
+
+async function denyTransaction(req, res) {
+  const userId = getUserIdFromRequest(req);
+
+  if (!userId) {
+    sendJson(res, 401, { error: "You need to login first" });
+    return;
+  }
+
+  if (!req.transactionId) {
+    sendJson(res, 400, { error: "Transaction ID is required" });
+    return;
+  }
+
+  try {
+    const user = await denyTx(userId, req.transactionId);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Denial failed" });
+  }
+}
+
 module.exports = {
   addBeneficiary,
   deleteBeneficiary,
@@ -269,5 +313,7 @@ module.exports = {
   deleteTransaction,
   updateAccountControls,
   markNotificationsAsRead,
-  updateProfile
+  updateProfile,
+  approveTransaction,
+  denyTransaction
 };

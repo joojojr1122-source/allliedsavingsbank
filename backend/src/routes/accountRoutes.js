@@ -6,7 +6,9 @@ const {
   listTransactions,
   deleteTransaction,
   updateAccountControls,
-  updateProfile
+  updateProfile,
+  approveTransaction,
+  denyTransaction
 } = require("../controllers/accountController");
 const { sendJson } = require("../utils/http");
 
@@ -39,6 +41,19 @@ async function handleAccountRoute(req, res, url) {
   if (req.method === "POST" && url.pathname === "/api/account/transactions") {
     await postTransaction(req, res);
     return;
+  }
+
+  if (req.method === "PATCH") {
+    const match = url.pathname.match(/^\/api\/account\/transaction\/([^/]+)\/(approve|deny)\/?$/);
+    if (match) {
+      req.transactionId = match[1];
+      if (match[2] === "approve") {
+        await approveTransaction(req, res);
+      } else {
+        await denyTransaction(req, res);
+      }
+      return;
+    }
   }
 
   if (req.method === "DELETE") {

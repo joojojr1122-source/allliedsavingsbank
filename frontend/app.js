@@ -360,18 +360,23 @@ function renderTransactions(transactions, currency) {
       month: "short",
       year: "numeric"
     });
+
+    const statusTag = `<span class="tx-status-badge tx-status-${escapeHtml(transaction.status.toLowerCase())}">${escapeHtml(transaction.status)}</span>`;
+
     const removeTitle = transaction.status === "Pending" ? "Cancel payment" : "Reverse transaction";
     const removeBtn = `<button class="tx-remove-btn" data-tx-delete="${escapeHtml(transaction.id)}" title="${removeTitle}">&#128465;</button>`;
+
     return `
       <article class="transaction-item" data-tx-id="${escapeHtml(transaction.id)}">
         <div>
           <strong>${escapeHtml(transaction.type)}</strong>
           <span>${escapeHtml(transaction.description)}</span>
-          <small>${date} &middot; ${escapeHtml(transaction.status)} &middot; ${escapeHtml(transaction.reference || "PENDING")}</small>
+          <small>${date} &middot; ${escapeHtml(transaction.reference || "PENDING")}</small>
           ${transaction.scheduledFor ? `<small>Scheduled for ${new Date(transaction.scheduledFor).toLocaleDateString("en-US")}</small>` : ""}
           ${transaction.beneficiary ? `<small>To ${escapeHtml(transaction.beneficiary.name)} &middot; ${escapeHtml(transaction.beneficiary.routingNumber || "")} ${escapeHtml(transaction.beneficiary.accountNumber)}</small>` : ""}
         </div>
         <div class="tx-item-right">
+          ${statusTag}
           <span class="transaction-amount ${amountClass}">${formatMoney(transaction.amount, currency)}</span>
           ${removeBtn}
         </div>
@@ -1026,15 +1031,34 @@ function renderAdminSummary() {
     </article>
   `).join("") || emptyState("No matching accounts", "Try changing the status filter or search term.");
 
-  adminTransactions.innerHTML = data.recentTransactions.map((transaction) => `
-    <article class="admin-row">
-      <div>
-        <strong>${escapeHtml(transaction.type)}</strong>
-        <span>${escapeHtml(transaction.reference || "PENDING")} &middot; ${escapeHtml(transaction.description || "")}</span>
-      </div>
-      <div>${formatMoney(transaction.amount, "USD")}</div>
-    </article>
-  `).join("") || `<p class="form-note">No transactions yet.</p>`;
+  adminTransactions.innerHTML = data.recentTransactions.map((transaction) => {
+    const statusClass = transaction.status === "Pending" ? "tx-status-pending"
+      : transaction.status === "Completed" ? "tx-status-completed"
+      : transaction.status === "Denied" ? "tx-status-denied"
+      : transaction.status === "Cancelled" ? "tx-status-cancelled"
+      : "tx-status-default";
+
+    const actionButtons = transaction.status === "Pending"
+      ? `<div class="admin-tx-actions">
+           <button class="tx-approve-btn admin-tx-btn" data-admin-tx-approve="${escapeHtml(transaction.id)}" data-admin-tx-email="${escapeHtml(transaction.userEmail)}" type="button">Approve</button>
+           <button class="tx-deny-btn admin-tx-btn" data-admin-tx-deny="${escapeHtml(transaction.id)}" data-admin-tx-email="${escapeHtml(transaction.userEmail)}" type="button">Deny</button>
+         </div>`
+      : "";
+
+    return `
+      <article class="admin-row">
+        <div>
+          <strong>${escapeHtml(transaction.type)}</strong>
+          <span>${escapeHtml(transaction.userName || transaction.userEmail || "Unknown")} &middot; ${escapeHtml(transaction.reference || "PENDING")} &middot; ${escapeHtml(transaction.description || "")}</span>
+          <span class="tx-status-badge ${statusClass}">${escapeHtml(transaction.status)}</span>
+        </div>
+        <div class="admin-tx-right">
+          <span>${formatMoney(transaction.amount, "USD")}</span>
+          ${actionButtons}
+        </div>
+      </article>
+    `;
+  }).join("") || `<p class="form-note">No transactions yet.</p>`;
 }
 
 if (settingsButton) settingsButton.addEventListener("click", showSettingsModal);
@@ -1147,6 +1171,39 @@ adminUsers?.addEventListener("click", async (event) => {
     if (adminStatus) adminStatus.textContent = error.message;
   }
 });
+
+adminTransactions?.addEventListener("click", async (event) => {
+  const approveBtn = event.target.closest("[data-admin-tx-approve]");
+  const denyBtn = event.target.closest("[data-admin-tx-deny]");
+
+  if (!approveBtn && !denyBtn) return;
+
+  const password = sessionStorage.getItem("adminPassword");
+  const txId = approveBtn?.dataset.adminTxId || denyBtn?.dataset.adminTxId;
+  const email = approveBtn?.dataset.adminTxEmail || denyBtn?.dataset.adminTxEmail;
+  const action = approveBtn ? "approve" : "deny";
+
+  if (!password || !txId || !email) return;
+
+  const btn = approveBtn || denyBtn;
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = "Working...";
+
+  try {
+    await apiRequest(`/api/admin/transaction/${encodeURIComponent(email)}/${encodeURIComponent(txId)}/${action}`, {
+      auth: false,
+      method: "PATCH",
+      headers: { "X-Admin-Password": password }
+    });
+    await loadAdminSummary(password);
+  } catch (error) {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    if (adminStatus) adminStatus.textContent = error.message;
+  }
+});
+
 if (mobileMenuToggle) {
   mobileMenuToggle.addEventListener("click", () => {
     const isOpen = header.classList.toggle("is-menu-open");
@@ -1389,6 +1446,19 @@ async function restoreSession() {
         window.location.assign(next);
       }, 1200);
     } catch (error) {
+      // Session expired or invalid - redirect to login
+      localStorage.removeItem(tokenKey);
+      window.location.assign("/login.html");
+    }
+    return;
+  }
+
+  // If on dashboard page, handle session restoration
+  if (isDashboardPage) {
+    try {
+      const data = await apiRequest("/api/account/me");
+      showDashboard(data.user);
+    } catch (error) {
       localStorage.removeItem(tokenKey);
       window.location.assign("/login.html");
     }
@@ -1418,13 +1488,7 @@ async function restoreSession() {
     return;
   }
 
-  try {
-    const data = await apiRequest("/api/account/me");
-    showDashboard(data.user);
-  } catch (error) {
-    localStorage.removeItem(tokenKey);
-    if (isDashboardPage || isLoadingPage) window.location.assign("/login.html");
-  }
+  // This point should not be reached - all pages are handled above
 }
 
 function renderConfirmationPage() {

@@ -1,6 +1,15 @@
 const { getDatabaseInfo, readDatabase } = require("../services/databaseService");
 const { getLatestApprovalEmail, queueApprovalEmail } = require("../services/emailService");
-const { approvePendingAccount, publicUser, rejectPendingAccount, updateAccountStatusAsAdmin } = require("../services/userService");
+const {
+  approvePendingAccount,
+  publicUser,
+  rejectPendingAccount,
+  updateAccountStatusAsAdmin,
+  approveTransaction,
+  denyTransaction,
+  findUserByEmail,
+  getUserById
+} = require("../services/userService");
 const { readJsonBody, sendJson } = require("../utils/http");
 
 function isAdminRequest(req) {
@@ -80,6 +89,52 @@ async function updateAccountStatus(req, res) {
   }
 }
 
+async function approveTransactionAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminTransactionUserEmail || "";
+    const transactionId = req.adminTransactionId || "";
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+      sendJson(res, 404, { error: "User not found" });
+      return;
+    }
+
+    const updatedUser = await approveTransaction(user.id, transactionId);
+    sendJson(res, 200, { user: publicUser(updatedUser) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Transaction approval failed" });
+  }
+}
+
+async function denyTransactionAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminTransactionUserEmail || "";
+    const transactionId = req.adminTransactionId || "";
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+      sendJson(res, 404, { error: "User not found" });
+      return;
+    }
+
+    const updatedUser = await denyTransaction(user.id, transactionId);
+    sendJson(res, 200, { user: publicUser(updatedUser) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Transaction denial failed" });
+  }
+}
+
 async function getAdminSummary(req, res) {
   if (!isAdminRequest(req)) {
     sendJson(res, 401, { error: "Admin access denied" });
@@ -125,6 +180,9 @@ async function getAdminSummary(req, res) {
     recentTransactions: transactions
       .map((transaction) => ({
         id: transaction.id,
+        userId: transaction.userId || "",
+        userEmail: users.find((u) => u.transactions?.some((t) => t.id === transaction.id))?.email || "",
+        userName: users.find((u) => u.transactions?.some((t) => t.id === transaction.id))?.name || "",
         type: transaction.type,
         description: transaction.description,
         amount: Number(transaction.amount || 0),
@@ -146,6 +204,8 @@ module.exports = {
   sendApprovalEmailAsAdmin,
   rejectAccountAsAdmin,
   updateAccountStatus,
+  approveTransactionAsAdmin,
+  denyTransactionAsAdmin,
   getAdminSummary,
   getPersistenceStatus
 };
