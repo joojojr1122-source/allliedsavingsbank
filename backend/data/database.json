@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-06-20T20:43:00.000Z",
+  "updatedAt": "2026-06-21T12:21:52.044Z",
   "users": [
     {
       "id": "acct-offshore-001",
@@ -36,6 +36,60 @@
       },
       "beneficiaries": [],
       "transactions": [
+        {
+          "id": "702d6eb3-665c-4b18-98b1-f8a7c5c1eeda",
+          "userId": "acct-offshore-001",
+          "type": "Withdrawal",
+          "description": "Will be denied",
+          "category": "Withdrawal",
+          "tags": [],
+          "amount": -50,
+          "balanceAfter": 559900.47,
+          "createdAt": "2026-06-21T12:21:52.038Z",
+          "scheduledFor": "",
+          "status": "Denied",
+          "reference": "DB21JUN420742",
+          "beneficiary": null,
+          "repeatFrequency": "Once",
+          "processedAt": "2026-06-21T12:21:52.041Z",
+          "lastEditedAt": ""
+        },
+        {
+          "id": "b4c46f37-35e7-4015-8d51-9593409a5298",
+          "userId": "acct-offshore-001",
+          "type": "Withdrawal",
+          "description": "Test ATM offshore",
+          "category": "Withdrawal",
+          "tags": [],
+          "amount": -100,
+          "balanceAfter": 559900.47,
+          "createdAt": "2026-06-21T12:21:51.974Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "DB21JUN420742",
+          "beneficiary": null,
+          "repeatFrequency": "Once",
+          "processedAt": "2026-06-21T12:21:52.031Z",
+          "lastEditedAt": ""
+        },
+        {
+          "id": "ee388632-5d77-4b95-b93f-bd7aa47fed4f",
+          "userId": "acct-offshore-001",
+          "type": "Withdrawal",
+          "description": "Test ATM withdrawal offshore",
+          "category": "Withdrawal",
+          "tags": [],
+          "amount": -100,
+          "balanceAfter": 559900.47,
+          "createdAt": "2026-06-21T12:20:16.933Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "DB21JUN420742",
+          "beneficiary": null,
+          "repeatFrequency": "Once",
+          "processedAt": "",
+          "lastEditedAt": ""
+        },
         {
           "id": "tx-opening-001",
           "userId": "acct-offshore-001",
@@ -79,6 +133,36 @@
       },
       "auditLog": [
         {
+          "id": "f702fb61-3b95-44e7-bb8a-739e41009102",
+          "action": "TRANSACTION_DENIED",
+          "note": "DB21JUN420742",
+          "createdAt": "2026-06-21T12:21:52.041Z"
+        },
+        {
+          "id": "643bd3af-ded3-4901-9c0e-00c8db2b5896",
+          "action": "WITHDRAWAL_CREATED",
+          "note": "",
+          "createdAt": "2026-06-21T12:21:52.039Z"
+        },
+        {
+          "id": "56135a85-3229-4386-b53c-11e3cdf2920f",
+          "action": "TRANSACTION_APPROVED",
+          "note": "DB21JUN420742",
+          "createdAt": "2026-06-21T12:21:52.031Z"
+        },
+        {
+          "id": "1240926a-7322-442d-a37b-f872a7416c5b",
+          "action": "WITHDRAWAL_CREATED",
+          "note": "",
+          "createdAt": "2026-06-21T12:21:52.006Z"
+        },
+        {
+          "id": "5d69e724-3223-4279-b354-88ffa17b81c3",
+          "action": "WITHDRAWAL_CREATED",
+          "note": "",
+          "createdAt": "2026-06-21T12:20:17.040Z"
+        },
+        {
           "id": "audit-login-001",
           "action": "LOGIN_SUCCESS",
           "note": "Web browser",
@@ -102,7 +186,12 @@
         "failedLoginAttempts": 0,
         "lockedUntil": ""
       },
-      "createdAt": "2024-11-08T11:20:00.000Z"
+      "createdAt": "2024-11-08T11:20:00.000Z",
+      "passwordReset": {
+        "token": "",
+        "expiresAt": "",
+        "requestedAt": ""
+      }
     },
     {
       "id": "acct-kelly-001",
@@ -138,6 +227,24 @@
       },
       "beneficiaries": [],
       "transactions": [
+        {
+          "id": "ccb202ad-5330-46d5-a920-ba0714100b02",
+          "userId": "acct-kelly-001",
+          "type": "Deposit",
+          "description": "Test deposit kelly",
+          "category": "Deposit",
+          "tags": [],
+          "amount": 250,
+          "balanceAfter": 5450,
+          "createdAt": "2026-06-21T12:21:52.012Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "CR21JUN421642",
+          "beneficiary": null,
+          "repeatFrequency": "Once",
+          "processedAt": "2026-06-21T12:21:52.036Z",
+          "lastEditedAt": ""
+        },
         {
           "id": "tx-kelly-opening-001",
           "userId": "acct-kelly-001",
@@ -180,6 +287,18 @@
         "statementFrequency": "Monthly"
       },
       "auditLog": [
+        {
+          "id": "72850e08-964a-4dcd-8236-cf1a77726d62",
+          "action": "TRANSACTION_APPROVED",
+          "note": "CR21JUN421642",
+          "createdAt": "2026-06-21T12:21:52.036Z"
+        },
+        {
+          "id": "8ab6fc87-c837-40c7-8071-b31d0754c5fc",
+          "action": "DEPOSIT_CREATED",
+          "note": "",
+          "createdAt": "2026-06-21T12:21:52.012Z"
+        },
         {
           "id": "audit-kelly-deposit-001",
           "action": "DEPOSIT_CREATED",
