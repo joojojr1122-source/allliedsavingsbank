@@ -813,6 +813,51 @@ button {
   color: #ffffff;
 }
 
+.balance-box__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.balance-box__grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.balance-box__grid span {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+
+.balance-box__grid strong {
+  font-size: 36px;
+  line-height: 1.1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.balance-box__secondary {
+  font-size: 30px !important;
+  opacity: 0.88;
+}
+
+.balance-box__pending {
+  font-size: 30px !important;
+  color: #f7d7d7;
+}
+
+@media (max-width: 860px) {
+  .balance-box__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 .approval-strip {
   margin-top: 18px;
   padding: 12px 14px;
