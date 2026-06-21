@@ -145,6 +145,15 @@ async function getAdminSummary(req, res) {
   const users = database.users || [];
   const transactions = users.flatMap((user) => user.transactions || []);
 
+  const userByTransactionId = new Map();
+  users.forEach((user) => {
+    (user.transactions || []).forEach((tx) => {
+      if (!userByTransactionId.has(tx.id)) {
+        userByTransactionId.set(tx.id, user);
+      }
+    });
+  });
+
   sendJson(res, 200, {
     database: getDatabaseInfo(),
     totals: {
@@ -178,20 +187,21 @@ async function getAdminSummary(req, res) {
       };
     }).sort((a, b) => String(b.openedAt).localeCompare(String(a.openedAt))),
     recentTransactions: transactions
-      .map((transaction) => ({
-        id: transaction.id,
-        userId: transaction.userId || "",
-        userEmail: users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id))?.email || "",
-        userName: users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id))
-          ? `${users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id)).firstName || ""} ${users.find((u) => (u.transactions || []).some((t) => t.id === transaction.id)).lastName || ""}`.trim()
-          : "",
-        type: transaction.type,
-        description: transaction.description,
-        amount: Number(transaction.amount || 0),
-        status: transaction.status,
-        reference: transaction.reference || "",
-        createdAt: transaction.createdAt
-      }))
+      .map((tx) => {
+        const owner = userByTransactionId.get(tx.id);
+        return {
+          id: tx.id,
+          userId: owner?.id || tx.userId || "",
+          userEmail: owner?.email || tx.userEmail || "",
+          userName: owner ? `${owner.firstName || ""} ${owner.lastName || ""}`.trim() : "",
+          type: tx.type,
+          description: tx.description,
+          amount: Number(tx.amount || 0),
+          status: tx.status,
+          reference: tx.reference || "",
+          createdAt: tx.createdAt
+        };
+      })
       .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
       .slice(0, 20)
   });

@@ -38,6 +38,7 @@
       "transactions": [
         {
           "id": "tx-opening-001",
+          "userId": "acct-offshore-001",
           "type": "Account Opening",
           "description": "Account opened",
           "amount": 0,
@@ -51,6 +52,7 @@
         },
         {
           "id": "tx-opening-deposit-001",
+          "userId": "acct-offshore-001",
           "type": "Deposit",
           "description": "Opening deposit",
           "amount": 560000.47,
@@ -138,6 +140,7 @@
       "transactions": [
         {
           "id": "tx-kelly-opening-001",
+          "userId": "acct-kelly-001",
           "type": "Account Opening",
           "description": "Account opened",
           "amount": 0,
@@ -151,6 +154,7 @@
         },
         {
           "id": "tx-kelly-opening-deposit-001",
+          "userId": "acct-kelly-001",
           "type": "Deposit",
           "description": "Opening deposit",
           "amount": 5200,
