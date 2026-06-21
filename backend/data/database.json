@@ -1,7 +1,138 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-06-21T12:21:52.044Z",
+  "updatedAt": "2026-06-21T23:58:18.375Z",
   "users": [
+    {
+      "id": "acct-kelly-001",
+      "firstName": "KELLY",
+      "lastName": "WALLACE",
+      "email": "kellywallace642@gmail.com",
+      "password": "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e",
+      "application": {
+        "product": "Checking Account",
+        "phone": "555-0164",
+        "address": "1200 Commerce Street, Dallas, TX 75202",
+        "dateOfBirth": "1988-07-19",
+        "employmentStatus": "Employed",
+        "status": "Approved",
+        "decisionReason": "",
+        "submittedAt": "2026-06-12T10:00:00.000Z",
+        "decidedAt": "2026-06-12T11:30:00.000Z"
+      },
+      "account": {
+        "type": "Checking Account",
+        "number": "80421642",
+        "routingNumber": "026009593",
+        "currency": "USD",
+        "balance": 5200,
+        "openedAt": "2026-06-12T11:45:00.000Z",
+        "status": "Active",
+        "dailyTransferLimit": 2500,
+        "monthlyTransferLimit": 100000,
+        "cardStatus": "Active",
+        "cardLastFour": "1642",
+        "cardExpiry": "10/29",
+        "overdraft": 0
+      },
+      "beneficiaries": [],
+      "transactions": [
+        {
+          "id": "ccb202ad-5330-46d5-a920-ba0714100b02",
+          "userId": "acct-kelly-001",
+          "type": "Deposit",
+          "description": "Test deposit kelly",
+          "category": "Deposit",
+          "tags": [],
+          "amount": 250,
+          "balanceAfter": 5450,
+          "createdAt": "2026-06-21T12:21:52.012Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "CR21JUN421642",
+          "beneficiary": null,
+          "repeatFrequency": "Once",
+          "processedAt": "2026-06-21T12:21:52.036Z",
+          "lastEditedAt": ""
+        },
+        {
+          "id": "tx-kelly-opening-001",
+          "userId": "acct-kelly-001",
+          "type": "Account Opening",
+          "description": "Account opened",
+          "amount": 0,
+          "balanceAfter": 0,
+          "createdAt": "2026-06-12T11:45:00.000Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "OPENING",
+          "category": "Account",
+          "tags": []
+        },
+        {
+          "id": "tx-kelly-opening-deposit-001",
+          "userId": "acct-kelly-001",
+          "type": "Deposit",
+          "description": "Opening deposit",
+          "amount": 5200,
+          "balanceAfter": 5200,
+          "createdAt": "2026-06-12T12:10:00.000Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "DEP12JUN804216",
+          "category": "Incoming Payment",
+          "tags": [
+            "credit",
+            "checking"
+          ]
+        }
+      ],
+      "notificationState": {
+        "readIds": [],
+        "readAtById": {}
+      },
+      "preferences": {
+        "emailAlerts": true,
+        "smsAlerts": false,
+        "statementFrequency": "Monthly"
+      },
+      "auditLog": [
+        {
+          "id": "72850e08-964a-4dcd-8236-cf1a77726d62",
+          "action": "TRANSACTION_APPROVED",
+          "note": "CR21JUN421642",
+          "createdAt": "2026-06-21T12:21:52.036Z"
+        },
+        {
+          "id": "8ab6fc87-c837-40c7-8071-b31d0754c5fc",
+          "action": "DEPOSIT_CREATED",
+          "note": "",
+          "createdAt": "2026-06-21T12:21:52.012Z"
+        },
+        {
+          "id": "audit-kelly-deposit-001",
+          "action": "DEPOSIT_CREATED",
+          "note": "Opening deposit - DEP12JUN804216",
+          "createdAt": "2026-06-12T12:10:00.000Z"
+        },
+        {
+          "id": "audit-kelly-approved-001",
+          "action": "ACCOUNT_APPROVED",
+          "note": "",
+          "createdAt": "2026-06-12T11:30:00.000Z"
+        }
+      ],
+      "security": {
+        "lastLoginAt": "",
+        "failedLoginAttempts": 0,
+        "lockedUntil": ""
+      },
+      "createdAt": "2026-06-12T10:00:00.000Z",
+      "passwordReset": {
+        "token": "",
+        "expiresAt": "",
+        "requestedAt": ""
+      }
+    },
     {
       "id": "acct-offshore-001",
       "firstName": "Joella",
@@ -186,143 +317,12 @@
         "failedLoginAttempts": 0,
         "lockedUntil": ""
       },
-      "createdAt": "2024-11-08T11:20:00.000Z",
-      "passwordReset": {
-        "token": "",
-        "expiresAt": "",
-        "requestedAt": ""
-      }
-    },
-    {
-      "id": "acct-kelly-001",
-      "firstName": "KELLY",
-      "lastName": "WALLACE",
-      "email": "kellywallace642@gmail.com",
-      "password": "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e",
-      "application": {
-        "product": "Checking Account",
-        "phone": "555-0164",
-        "address": "1200 Commerce Street, Dallas, TX 75202",
-        "dateOfBirth": "1988-07-19",
-        "employmentStatus": "Employed",
-        "status": "Approved",
-        "decisionReason": "",
-        "submittedAt": "2026-06-12T10:00:00.000Z",
-        "decidedAt": "2026-06-12T11:30:00.000Z"
-      },
-      "account": {
-        "type": "Checking Account",
-        "number": "80421642",
-        "routingNumber": "026009593",
-        "currency": "USD",
-        "balance": 5200,
-        "openedAt": "2026-06-12T11:45:00.000Z",
-        "status": "Active",
-        "dailyTransferLimit": 2500,
-        "monthlyTransferLimit": 100000,
-        "cardStatus": "Active",
-        "cardLastFour": "1642",
-        "cardExpiry": "10/29",
-        "overdraft": 0
-      },
-      "beneficiaries": [],
-      "transactions": [
-        {
-          "id": "ccb202ad-5330-46d5-a920-ba0714100b02",
-          "userId": "acct-kelly-001",
-          "type": "Deposit",
-          "description": "Test deposit kelly",
-          "category": "Deposit",
-          "tags": [],
-          "amount": 250,
-          "balanceAfter": 5450,
-          "createdAt": "2026-06-21T12:21:52.012Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "CR21JUN421642",
-          "beneficiary": null,
-          "repeatFrequency": "Once",
-          "processedAt": "2026-06-21T12:21:52.036Z",
-          "lastEditedAt": ""
-        },
-        {
-          "id": "tx-kelly-opening-001",
-          "userId": "acct-kelly-001",
-          "type": "Account Opening",
-          "description": "Account opened",
-          "amount": 0,
-          "balanceAfter": 0,
-          "createdAt": "2026-06-12T11:45:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "OPENING",
-          "category": "Account",
-          "tags": []
-        },
-        {
-          "id": "tx-kelly-opening-deposit-001",
-          "userId": "acct-kelly-001",
-          "type": "Deposit",
-          "description": "Opening deposit",
-          "amount": 5200,
-          "balanceAfter": 5200,
-          "createdAt": "2026-06-12T12:10:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "DEP12JUN804216",
-          "category": "Incoming Payment",
-          "tags": [
-            "credit",
-            "checking"
-          ]
-        }
-      ],
-      "notificationState": {
-        "readIds": [],
-        "readAtById": {}
-      },
-      "preferences": {
-        "emailAlerts": true,
-        "smsAlerts": false,
-        "statementFrequency": "Monthly"
-      },
-      "auditLog": [
-        {
-          "id": "72850e08-964a-4dcd-8236-cf1a77726d62",
-          "action": "TRANSACTION_APPROVED",
-          "note": "CR21JUN421642",
-          "createdAt": "2026-06-21T12:21:52.036Z"
-        },
-        {
-          "id": "8ab6fc87-c837-40c7-8071-b31d0754c5fc",
-          "action": "DEPOSIT_CREATED",
-          "note": "",
-          "createdAt": "2026-06-21T12:21:52.012Z"
-        },
-        {
-          "id": "audit-kelly-deposit-001",
-          "action": "DEPOSIT_CREATED",
-          "note": "Opening deposit - DEP12JUN804216",
-          "createdAt": "2026-06-12T12:10:00.000Z"
-        },
-        {
-          "id": "audit-kelly-approved-001",
-          "action": "ACCOUNT_APPROVED",
-          "note": "",
-          "createdAt": "2026-06-12T11:30:00.000Z"
-        }
-      ],
-      "security": {
-        "lastLoginAt": "",
-        "failedLoginAttempts": 0,
-        "lockedUntil": ""
-      },
       "passwordReset": {
         "token": "",
         "expiresAt": "",
         "requestedAt": ""
       },
-      "createdAt": "2026-06-12T10:00:00.000Z"
+      "createdAt": "2024-11-08T11:20:00.000Z"
     }
   ]
 }
