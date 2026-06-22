@@ -1,6 +1,15 @@
 const crypto = require("crypto");
 const { readDatabase, writeDatabase } = require("./databaseService");
 const { hashPassword, verifyPassword } = require("../utils/security");
+const {
+  buildApprovalEmail,
+  buildLoginVerificationEmail,
+  buildPendingTransactionEmail,
+  getLatestApprovalEmail,
+  queueApprovalEmail,
+  queueLoginVerificationEmail,
+  queueTransactionNotification
+} = require("./emailService");
 
 async function createUser(input) {
   const firstName = cleanName(input.firstName);
@@ -382,6 +391,13 @@ async function createTransaction(userId, input) {
     lastEditedAt: ""
   });
   appendAudit(user, type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
+
+  const pendingTransaction = user.transactions[0];
+  if (pendingTransaction && pendingTransaction.status === "Pending") {
+    queueTransactionNotification(pendingTransaction, user).catch((error) => {
+      console.error("Failed to queue transaction notification:", error);
+    });
+  }
 
   await writeDatabase(database);
   return user;

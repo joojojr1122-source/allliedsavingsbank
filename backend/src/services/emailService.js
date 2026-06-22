@@ -79,6 +79,106 @@ function buildLoginVerificationEmail(user, code) {
   };
 }
 
+function buildPendingTransactionEmail(transaction, customer) {
+  const fullName = `${customer.firstName} ${customer.lastName}`.trim();
+  const subject = `Pending transaction approval needed - ${customer.firstName} ${customer.lastName}`;
+  const amount = formatMoney(Math.abs(Number(transaction.amount || 0)), "USD");
+  const type = transaction.type || "Transaction";
+  const reference = transaction.reference || transaction.id;
+
+  const lines = [
+    `Dear Admin,`,
+    "",
+    "A new transaction requires your approval.",
+    "",
+    `Customer: ${fullName}`,
+    `Email: ${customer.email}`,
+    `Account: ${customer.account?.number || "N/A"}`,
+    `Type: ${type}`,
+    `Description: ${transaction.description || "No description"}`,
+    `Amount: ${amount}`,
+    `Reference: ${reference}`,
+    `Created: ${new Date(transaction.createdAt).toLocaleString("en-US")}`,
+    "",
+    "Please log in to the admin panel to review and approve or deny this transaction.",
+    "",
+    "Kind regards,",
+    "Allied Savings Operations"
+  ];
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55">
+      <p>Dear Admin,</p>
+      <p>A new transaction requires your approval.</p>
+      <table style="border-collapse:collapse;margin:18px 0">
+        ${emailRow("Customer", fullName)}
+        ${emailRow("Email", customer.email)}
+        ${emailRow("Account", customer.account?.number || "N/A")}
+        ${emailRow("Type", type)}
+        ${emailRow("Description", transaction.description || "No description")}
+        ${emailRow("Amount", amount)}
+        ${emailRow("Reference", reference)}
+        ${emailRow("Created", new Date(transaction.createdAt).toLocaleString("en-US"))}
+      </table>
+      <p>Please log in to the admin panel to review and approve or deny this transaction.</p>
+      <p>Kind regards,<br>Allied Savings Operations</p>
+    </div>
+  `.trim();
+
+  return { subject, text: lines.join("\n"), html };
+}
+
+async function queueTransactionNotification(transaction, customer) {
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM;
+
+  if (!adminEmail) {
+    return null;
+  }
+
+  const database = await readDatabase();
+  const message = buildPendingTransactionEmail(transaction, customer);
+  const smtpConfigured = hasSmtpConfig();
+  const outboxEntry = {
+    id: crypto.randomUUID(),
+    type: "PENDING_TRANSACTION",
+    status: "Queued",
+    to: adminEmail,
+    subject: message.subject,
+    text: message.text,
+    html: message.html,
+    createdAt: new Date().toISOString(),
+    sentAt: "",
+    provider: smtpConfigured ? "smtp" : "local-outbox",
+    error: ""
+  };
+
+  database.emailOutbox = database.emailOutbox || [];
+  database.emailOutbox.unshift(outboxEntry);
+  await writeDatabase(database);
+
+  if (smtpConfigured) {
+    try {
+      await sendSmtpMail({
+        to: outboxEntry.to,
+        subject: outboxEntry.subject,
+        text: outboxEntry.text,
+        html: outboxEntry.html
+      });
+
+      outboxEntry.status = "Sent";
+      outboxEntry.sentAt = new Date().toISOString();
+      await writeDatabase(database);
+    } catch (error) {
+      outboxEntry.status = "Failed";
+      outboxEntry.error = error.message || "SMTP delivery failed";
+      await writeDatabase(database);
+      console.error("SMTP delivery failed:", outboxEntry.error);
+    }
+  }
+
+  return outboxEntry;
+}
+
 async function queueApprovalEmail(email) {
   const database = await readDatabase();
   const user = (database.users || []).find((item) => item.email === String(email || "").trim().toLowerCase());
@@ -432,7 +532,9 @@ function statusError(status, message) {
 module.exports = {
   buildApprovalEmail,
   buildLoginVerificationEmail,
+  buildPendingTransactionEmail,
   getLatestApprovalEmail,
   queueApprovalEmail,
-  queueLoginVerificationEmail
+  queueLoginVerificationEmail,
+  queueTransactionNotification
 };
