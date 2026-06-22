@@ -158,7 +158,7 @@
         "balance": 560000.47,
         "openedAt": "2024-11-12T09:15:00.000Z",
         "status": "Active",
-        "dailyTransferLimit": 2500,
+        "dailyTransferLimit": 100000,
         "monthlyTransferLimit": 100000,
         "cardStatus": "Active",
         "cardLastFour": "4821",
