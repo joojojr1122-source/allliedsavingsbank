@@ -137,7 +137,7 @@ async function queueApprovalEmail(email) {
       outboxEntry.status = "Failed";
       outboxEntry.error = error.message || "SMTP delivery failed";
       await writeDatabase(database);
-      throw statusError(502, `SMTP delivery failed: ${outboxEntry.error}`);
+      console.error("SMTP delivery failed:", outboxEntry.error);
     }
   }
 
@@ -197,7 +197,7 @@ async function queueLoginVerificationEmail(user, code) {
       outboxEntry.status = "Failed";
       outboxEntry.error = error.message || "SMTP delivery failed";
       await writeDatabase(database);
-      throw statusError(502, `SMTP delivery failed: ${outboxEntry.error}`);
+      console.error("SMTP delivery failed:", outboxEntry.error);
     }
   }
 
