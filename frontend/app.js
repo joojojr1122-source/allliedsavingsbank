@@ -1097,7 +1097,10 @@ adminLoginForm?.addEventListener("submit", async (event) => {
 });
 adminRefreshButton?.addEventListener("click", async () => {
   const password = sessionStorage.getItem("adminPassword");
-  if (!password) return;
+  if (!password) {
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops.html first.";
+    return;
+  }
   await loadAdminSummary(password);
 });
 
@@ -1112,7 +1115,12 @@ adminUsers?.addEventListener("click", async (event) => {
   const email = button.dataset.email;
   const action = button.dataset.adminAction;
 
-  if (!password || !email || !action) return;
+  if (!password) {
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops.html first.";
+    return;
+  }
+
+  if (!email || !action) return;
 
   button.disabled = true;
   const originalLabel = button.textContent;
@@ -1184,7 +1192,12 @@ adminTransactions?.addEventListener("click", async (event) => {
   const email = approveBtn?.dataset.adminTxEmail || denyBtn?.dataset.adminTxEmail;
   const action = approveBtn ? "approve" : "deny";
 
-  if (!password || !txId || !email) return;
+  if (!password) {
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops.html first.";
+    return;
+  }
+
+  if (!txId || !email) return;
 
   const btn = approveBtn || denyBtn;
   btn.disabled = true;
@@ -1475,6 +1488,7 @@ async function restoreSession() {
         adminDashboard?.classList.remove("is-hidden");
       } catch (error) {
         sessionStorage.removeItem("adminPassword");
+        if (adminStatus) adminStatus.textContent = "Admin session invalid. Please log in again.";
       }
     }
     return;
