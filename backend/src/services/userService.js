@@ -224,7 +224,10 @@ async function getUserById(id) {
 
   ensureAccountShape(user);
 
-  if (settleDueScheduledTransfers(user)) {
+  const settledScheduled = settleDueScheduledTransfers(user);
+  const settledApproved = settleDueApprovedTransactions(user);
+
+  if (settledScheduled || settledApproved) {
     await writeDatabase(database);
   }
 
@@ -432,8 +435,9 @@ async function approveTransaction(userId, transactionId) {
     throw statusError(400, "Insufficient available balance");
   }
 
-  tx.status = "Completed";
+  tx.status = "Approved";
   tx.processedAt = new Date().toISOString();
+  tx.completedAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   tx.balanceAfter = nextBalance;
   user.account.balance = nextBalance;
 
@@ -657,6 +661,28 @@ function settleDueScheduledTransfers(user, now = new Date()) {
         }
       }
 
+      changed = true;
+    });
+
+  return changed;
+}
+
+function settleDueApprovedTransactions(user, now = new Date()) {
+  ensureAccountShape(user);
+
+  const today = now.toISOString();
+  let changed = false;
+
+  (user.transactions || [])
+    .filter((transaction) => (
+      transaction.status === "Approved" &&
+      transaction.completedAt &&
+      transaction.completedAt <= today
+    ))
+    .forEach((transaction) => {
+      transaction.status = "Completed";
+      transaction.balanceAfter = transaction.balanceAfter || user.account.balance || 0;
+      appendAudit(user, "TRANSACTION_SETTLED", transaction.reference || transaction.id);
       changed = true;
     });
 

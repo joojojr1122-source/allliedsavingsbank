@@ -1033,6 +1033,7 @@ function renderAdminSummary() {
 
   adminTransactions.innerHTML = data.recentTransactions.map((transaction) => {
     const statusClass = transaction.status === "Pending" ? "tx-status-pending"
+      : transaction.status === "Approved" ? "tx-status-approved"
       : transaction.status === "Completed" ? "tx-status-completed"
       : transaction.status === "Denied" ? "tx-status-denied"
       : transaction.status === "Cancelled" ? "tx-status-cancelled"
