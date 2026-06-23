@@ -21,7 +21,7 @@ function isAdminRequest(req) {
     if (isProduction) {
       return false;
     }
-    return providedPassword === "admin12345";
+    return providedPassword === "Admin4142";
   }
 
   return providedPassword === configuredPassword;
