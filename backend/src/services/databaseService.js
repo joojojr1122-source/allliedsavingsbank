@@ -1,3 +1,4 @@
+const { Pool } = require("pg");
 const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
@@ -6,14 +7,17 @@ const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
 const SEED_SCHEMA_VERSION = 5;
 const SEED_LOGIN_EMAIL = "offshorea704@gmail.com";
-const DATABASE_PATH = process.env.VERCEL
+const DATABASE_PATH = process.env.VERCEL && !process.env.DATABASE_URL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
 const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "bank-portal-database";
+const NEON_DATABASE_URL = process.env.DATABASE_URL || "";
 const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
 let vercelDatabaseCache = null;
+let pgPool = null;
+let pgReady = false;
 
 function cloneSeedDatabase() {
   return JSON.parse(JSON.stringify(SEED_DATABASE));
@@ -25,6 +29,58 @@ async function readSeedDatabase() {
     return JSON.parse(content);
   } catch (error) {
     return cloneSeedDatabase();
+  }
+}
+
+function getPgPool() {
+  if (!NEON_DATABASE_URL) {
+    return null;
+  }
+
+  if (!pgPool) {
+    pgPool = new Pool({
+      connectionString: NEON_DATABASE_URL,
+      max: 3,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+    });
+  }
+
+  return pgPool;
+}
+
+async function ensureNeonTable(pool) {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS portal_data (
+      key TEXT PRIMARY KEY,
+      json_data JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `);
+}
+
+async function withPgPool(callback) {
+  const pool = getPgPool();
+
+  if (!pool) {
+    return null;
+  }
+
+  if (!pgReady) {
+    await ensureNeonTable(pool);
+    pgReady = true;
+  }
+
+  try {
+    const client = await pool.connect();
+    try {
+      return await callback(client);
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("databaseService: Neon query failed", error);
+    return null;
   }
 }
 
@@ -49,7 +105,20 @@ async function applySeedIfStale(database) {
 async function readDatabase() {
   let database;
 
-  if (hasRemoteDatabase()) {
+  if (NEON_DATABASE_URL) {
+    const row = await withPgPool(async (client) => {
+      const result = await client.query(
+        "SELECT json_data FROM portal_data WHERE key = $1",
+        [REMOTE_DATABASE_KEY]
+      );
+      const record = result.rows[0];
+      return record ? record.json_data : null;
+    });
+
+    if (row) {
+      database = typeof row === "string" ? JSON.parse(row) : row;
+    }
+  } else if (hasRemoteDatabase()) {
     database = await readRemoteDatabase();
   } else if (process.env.VERCEL) {
     if (!vercelDatabaseCache) {
@@ -60,6 +129,10 @@ async function readDatabase() {
     await ensureDatabaseFile();
     const content = await fs.readFile(DATABASE_PATH, "utf8");
     database = JSON.parse(content);
+  }
+
+  if (!database) {
+    database = await readSeedDatabase();
   }
 
   const synced = await applySeedIfStale(database);
@@ -79,12 +152,31 @@ async function readDatabase() {
 async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
+  if (NEON_DATABASE_URL) {
+    const written = await withPgPool(async (client) => {
+      await client.query(
+        `
+        INSERT INTO portal_data (key, json_data, updated_at)
+        VALUES ($1, $2::jsonb, now())
+        ON CONFLICT (key)
+        DO UPDATE SET
+          json_data = EXCLUDED.json_data::jsonb,
+          updated_at = EXCLUDED.updated_at
+        `,
+        [REMOTE_DATABASE_KEY, JSON.stringify(database)]
+      );
+    });
+
+    if (!written) {
+      console.error("databaseService: Neon write failed (continuing without persist)");
+    }
+    return;
+  }
+
   if (hasRemoteDatabase()) {
     try {
       await writeRemoteDatabase(database);
     } catch (error) {
-      // Login and other flows call write after reads; a misconfigured KV/Upstash
-      // Some stored records may not include an updated password hash and must not break sign-in.
       console.error("databaseService: remote write failed (continuing without persist)", error);
     }
     return;
@@ -114,9 +206,9 @@ function hasRemoteDatabase() {
 
 function getDatabaseInfo() {
   return {
-    mode: hasRemoteDatabase() ? "remote" : process.env.VERCEL ? "vercel-memory" : "local",
+    mode: NEON_DATABASE_URL ? "neon" : hasRemoteDatabase() ? "remote" : process.env.VERCEL ? "vercel-memory" : "local",
     key: REMOTE_DATABASE_KEY,
-    persistent: hasRemoteDatabase(),
+    persistent: Boolean(NEON_DATABASE_URL || hasRemoteDatabase()),
     schemaVersion: SEED_SCHEMA_VERSION,
     seedLoginEmail: SEED_LOGIN_EMAIL
   };
@@ -166,8 +258,17 @@ async function writeRemoteDatabase(database) {
   }
 }
 
+async function closePool() {
+  if (pgPool) {
+    await pgPool.end();
+    pgPool = null;
+    pgReady = false;
+  }
+}
+
 module.exports = {
   getDatabaseInfo,
   readDatabase,
-  writeDatabase
+  writeDatabase,
+  closePool
 };

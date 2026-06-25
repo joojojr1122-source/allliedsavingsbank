@@ -9,6 +9,9 @@
     "test": "node scripts/smoke-test.js",
     "deploy": "vercel --prod"
   },
+  "dependencies": {
+    "pg": "^8.11.0"
+  },
   "keywords": [
     "banking-portal",
     "frontend",

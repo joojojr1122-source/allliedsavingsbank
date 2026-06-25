@@ -8,7 +8,7 @@ loadLocalEnv();
 const { handleAuthRoute } = require("./routes/authRoutes");
 const { handleAccountRoute } = require("./routes/accountRoutes");
 const { handleAdminRoute } = require("./routes/adminRoutes");
-const { getDatabaseInfo } = require("./services/databaseService");
+const { getDatabaseInfo, closePool } = require("./services/databaseService");
 const { sendJson, sendStaticFile } = require("./utils/http");
 
 const PORT = process.env.PORT || 3000;
@@ -65,4 +65,14 @@ server.listen(PORT, () => {
   console.log(`Banking portal running at http://localhost:${PORT}`);
   console.log("Customer login: offshorea704@gmail.com / @1962summertime");
   console.log("Or account number: 80420742 with the same password");
+});
+
+process.on("SIGINT", async () => {
+  await closePool();
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  await closePool();
+  process.exit(0);
 });
