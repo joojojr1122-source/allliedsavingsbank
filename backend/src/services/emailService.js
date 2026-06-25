@@ -305,6 +305,9 @@ async function queueLoginVerificationEmail(user, code) {
 }
 
 function hasSmtpConfig() {
+  if (process.env.DISABLE_SMTP === "true") {
+    return false;
+  }
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
