@@ -1,7 +1,8 @@
-const { Pool } = require("pg");
+const { Neon } = require("@neondatabase/serverless");
 const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
+const { sql } = require("@neondatabase/serverless");
 
 const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
@@ -16,8 +17,8 @@ const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_R
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
 let vercelDatabaseCache = null;
-let pgPool = null;
-let pgReady = false;
+let neonClient = null;
+let neonReady = false;
 
 function cloneSeedDatabase() {
   return JSON.parse(JSON.stringify(SEED_DATABASE));
@@ -32,70 +33,56 @@ async function readSeedDatabase() {
   }
 }
 
-function getPgPool() {
+function getNeonClient() {
   if (!NEON_DATABASE_URL) {
     console.error("databaseService: DATABASE_URL not configured, Neon disabled");
     return null;
   }
 
-  if (!pgPool) {
-    console.error("databaseService: Creating new Neon pool with URL:", NEON_DATABASE_URL.replace(/\/\/.*@/, "//***@"));
+  if (!neonClient) {
+    console.error("databaseService: Creating new Neon serverless client");
     try {
-      const url = new URL(NEON_DATABASE_URL);
-      const searchParams = new URLSearchParams(url.search);
-      searchParams.delete("channel_binding");
-      searchParams.delete("sslmode");
-      searchParams.set("uselibpqcompat", "true");
-      url.search = searchParams.toString();
-
-      pgPool = new Pool({
-        connectionString: url.toString(),
-        ssl: { rejectUnauthorized: false },
-        max: 3,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
-      });
-
-      pgPool.on("error", (error) => {
-        console.error("databaseService: Pool error", error);
-        pgReady = false;
-      });
+      neonClient = new Neon(NEON_DATABASE_URL);
     } catch (error) {
-      console.error("databaseService: Failed to create pool", error);
+      console.error("databaseService: Failed to create Neon client", error);
       return null;
     }
   }
 
-  return pgPool;
+  return neonClient;
 }
 
-async function ensureNeonTable(pool) {
+async function ensureNeonTable() {
+  const client = getNeonClient();
+  if (!client) return;
+
   try {
-    await pool.query(`
+    await client`
       CREATE TABLE IF NOT EXISTS portal_data (
         key TEXT PRIMARY KEY,
         json_data JSONB NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       )
-    `);
+    `;
+    neonReady = true;
   } catch (error) {
     console.error("databaseService: ensureNeonTable failed", error);
     throw error;
   }
 }
 
-async function withPgPool(callback) {
-  const pool = getPgPool();
+async function withNeonClient(callback) {
+  const client = getNeonClient();
 
-  if (!pool) {
-    console.error("databaseService: Neon pool unavailable");
+  if (!client) {
+    console.error("databaseService: Neon client unavailable");
     return null;
   }
 
-  if (!pgReady) {
+  if (!neonReady) {
     try {
-      await ensureNeonTable(pool);
-      pgReady = true;
+      await ensureNeonTable();
+      neonReady = true;
     } catch (error) {
       console.error("databaseService: ensureNeonTable failed", error);
       return null;
@@ -103,12 +90,7 @@ async function withPgPool(callback) {
   }
 
   try {
-    const client = await pool.connect();
-    try {
-      return await callback(client);
-    } finally {
-      client.release();
-    }
+    return await callback(client);
   } catch (error) {
     console.error("databaseService: Neon query failed", error);
     return null;
@@ -137,11 +119,10 @@ async function readDatabase() {
   let database;
 
   if (NEON_DATABASE_URL) {
-    const row = await withPgPool(async (client) => {
-      const result = await client.query(
-        "SELECT json_data FROM portal_data WHERE key = $1",
-        [REMOTE_DATABASE_KEY]
-      );
+    const row = await withNeonClient(async (client) => {
+      const result = await client(sql`
+        SELECT json_data FROM portal_data WHERE key = ${REMOTE_DATABASE_KEY}
+      `);
       const record = result.rows[0];
       return record ? record.json_data : null;
     });
@@ -184,18 +165,15 @@ async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
   if (NEON_DATABASE_URL) {
-    const written = await withPgPool(async (client) => {
-      await client.query(
-        `
+    const written = await withNeonClient(async (client) => {
+      await client(sql`
         INSERT INTO portal_data (key, json_data, updated_at)
-        VALUES ($1, $2::jsonb, now())
+        VALUES (${REMOTE_DATABASE_KEY}, ${JSON.stringify(database)}::jsonb, now())
         ON CONFLICT (key)
         DO UPDATE SET
           json_data = EXCLUDED.json_data::jsonb,
           updated_at = EXCLUDED.updated_at
-        `,
-        [REMOTE_DATABASE_KEY, JSON.stringify(database)]
-      );
+      `);
     });
 
     if (!written) {
@@ -290,10 +268,10 @@ async function writeRemoteDatabase(database) {
 }
 
 async function closePool() {
-  if (pgPool) {
-    await pgPool.end();
-    pgPool = null;
-    pgReady = false;
+  if (neonClient) {
+    await neonClient.end();
+    neonClient = null;
+    neonReady = false;
   }
 }
 
