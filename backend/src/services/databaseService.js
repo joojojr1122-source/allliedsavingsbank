@@ -18,6 +18,7 @@ const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTA
 let vercelDatabaseCache = null;
 let pgPool = null;
 let pgReady = false;
+let lastConnectionError = null;
 
 function cloneSeedDatabase() {
   return JSON.parse(JSON.stringify(SEED_DATABASE));
@@ -39,7 +40,7 @@ function getCleanNeonUrl() {
     url.search = "";
     return url.toString();
   } catch (error) {
-    console.error("databaseService: Invalid DATABASE_URL", error);
+    console.error("[DB] Invalid DATABASE_URL", error);
     return null;
   }
 }
@@ -47,12 +48,17 @@ function getCleanNeonUrl() {
 function getPgPool() {
   const cleanUrl = getCleanNeonUrl();
   if (!cleanUrl) {
-    console.error("databaseService: DATABASE_URL not configured or invalid, Neon disabled");
+    console.error("[DB] DATABASE_URL not configured or invalid, Neon disabled");
     return null;
   }
 
+  // Force pool reset if previous connection failed
+  if (lastConnectionError && !pgPool) {
+    lastConnectionError = null;
+  }
+
   if (!pgPool) {
-    console.error("databaseService: Creating pg pool for Neon");
+    console.error("[DB] Creating pg pool for Neon. URL:", cleanUrl.replace(/\/\/.*@/, "//***@"));
     try {
       pgPool = new Pool({
         connectionString: cleanUrl,
@@ -63,11 +69,13 @@ function getPgPool() {
       });
 
       pgPool.on("error", (error) => {
-        console.error("databaseService: Pool error", error);
+        console.error("[DB] Pool error:", error);
+        console.error("[DB] Pool error stack:", error.stack);
         pgReady = false;
       });
     } catch (error) {
-      console.error("databaseService: Failed to create pool", error);
+      console.error("[DB] Failed to instantiate Pool:", error);
+      console.error("[DB] Pool instantiation stack:", error.stack);
       return null;
     }
   }
@@ -84,8 +92,12 @@ async function ensureNeonTable(pool) {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `);
+    pgReady = true;
   } catch (error) {
-    console.error("databaseService: ensureNeonTable failed", error);
+    console.error("[DB] ensureNeonTable FAILED:", error);
+    console.error("[DB] ensureNeonTable stack:", error.stack);
+    console.error("[DB] Error code:", error.code);
+    console.error("[DB] Error message:", error.message);
     throw error;
   }
 }
@@ -94,7 +106,7 @@ async function withPgPool(callback) {
   const pool = getPgPool();
 
   if (!pool) {
-    console.error("databaseService: Neon pool unavailable");
+    console.error("[DB] Neon pool unavailable via getPgPool()");
     return null;
   }
 
@@ -103,7 +115,8 @@ async function withPgPool(callback) {
       await ensureNeonTable(pool);
       pgReady = true;
     } catch (error) {
-      console.error("databaseService: ensureNeonTable failed", error);
+      console.error("[DB] ensureNeonTable failed -> resetting pool");
+      await closePool();
       return null;
     }
   }
@@ -116,7 +129,10 @@ async function withPgPool(callback) {
       client.release();
     }
   } catch (error) {
-    console.error("databaseService: Neon query failed", error);
+    console.error("[DB] Neon query failed:", error);
+    console.error("[DB] Neon query stack:", error.stack);
+    console.error("[DB] Error code:", error.code);
+    console.error("[DB] Error message:", error.message);
     return null;
   }
 }
@@ -178,7 +194,7 @@ async function readDatabase() {
     try {
       await writeDatabase(synced);
     } catch (error) {
-      console.error("databaseService: could not persist seed refresh", error);
+      console.error("[DB] could not persist seed refresh", error);
     }
     return synced;
   }
@@ -191,7 +207,7 @@ async function writeDatabase(database) {
 
   if (NEON_DATABASE_URL) {
     const written = await withPgPool(async (client) => {
-      await client.query(
+      const result = await client.query(
         `
         INSERT INTO portal_data (key, json_data, updated_at)
         VALUES ($1, $2::jsonb, now())
@@ -202,10 +218,11 @@ async function writeDatabase(database) {
         `,
         [REMOTE_DATABASE_KEY, JSON.stringify(database)]
       );
+      console.log("[DB] writeDatabase result:", result.rowCount, "rows affected");
     });
 
     if (!written) {
-      console.error("databaseService: Neon write failed (continuing without persist)");
+      console.error("[DB] Neon write failed (continuing without persist)");
     }
     return;
   }
@@ -214,7 +231,7 @@ async function writeDatabase(database) {
     try {
       await writeRemoteDatabase(database);
     } catch (error) {
-      console.error("databaseService: remote write failed (continuing without persist)", error);
+      console.error("[DB] remote write failed (continuing without persist)", error);
     }
     return;
   }
@@ -269,7 +286,7 @@ async function readRemoteDatabase() {
       try {
         return JSON.parse(payload.result);
       } catch (parseError) {
-        console.error("databaseService: remote JSON parse failed, using seed", parseError);
+        console.error("[DB] remote JSON parse failed, using seed", parseError);
         return readSeedDatabase();
       }
     }
@@ -300,6 +317,7 @@ async function closePool() {
     await pgPool.end();
     pgPool = null;
     pgReady = false;
+    lastConnectionError = null;
   }
 }
 
