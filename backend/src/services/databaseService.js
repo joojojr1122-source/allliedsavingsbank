@@ -40,14 +40,14 @@ function getPgPool() {
   if (!pgPool) {
     const url = new URL(NEON_DATABASE_URL);
     const searchParams = new URLSearchParams(url.search);
-    const hasChannelBinding = searchParams.has("channel_binding");
-    if (hasChannelBinding) {
-      searchParams.delete("channel_binding");
-      url.search = searchParams.toString();
-    }
+    searchParams.delete("channel_binding");
+    searchParams.delete("sslmode");
+    searchParams.set("uselibpqcompat", "true");
+    url.search = searchParams.toString();
 
     pgPool = new Pool({
       connectionString: url.toString(),
+      ssl: { rejectUnauthorized: false },
       max: 3,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
