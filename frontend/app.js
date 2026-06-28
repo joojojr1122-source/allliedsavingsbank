@@ -572,8 +572,19 @@ async function apiRequest(path, options = {}) {
       ...(options.headers || {})
     }
   });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "Something went wrong");
+
+  const contentType = response.headers.get("content-type") || "";
+  let data;
+  if (contentType.includes("application/json")) {
+    data = await response.json();
+  } else {
+    data = { error: await response.text() || `HTTP ${response.status}` };
+  }
+
+  if (!response.ok) {
+    const message = data.error || data.message || "Something went wrong";
+    throw new Error(message);
+  }
   return data;
 }
 

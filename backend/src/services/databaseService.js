@@ -92,14 +92,17 @@ async function ensureNeonTable(pool) {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `);
+    console.log("[DB] Neon table ensured successfully");
     pgReady = true;
+    return true;
   } catch (error) {
     console.error("[DB] ensureNeonTable FAILED:", error);
-    console.error("[DB] ensureNeonTable stack:", error.stack);
     console.error("[DB] Error code:", error.code);
     console.error("[DB] Error message:", error.message);
-    throw error;
+    pgReady = false;
+    return false;
   }
+}
 }
 
 async function withPgPool(callback) {
@@ -111,12 +114,10 @@ async function withPgPool(callback) {
   }
 
   if (!pgReady) {
-    try {
-      await ensureNeonTable(pool);
-      pgReady = true;
-    } catch (error) {
-      console.error("[DB] ensureNeonTable failed -> resetting pool");
-      await closePool();
+    const tableReady = await ensureNeonTable(pool);
+    if (!tableReady) {
+      console.error("[DB] Neon table setup failed - falling back to local/seeded data");
+      await closePoolSilently();
       return null;
     }
   }
@@ -314,13 +315,22 @@ async function writeRemoteDatabase(database) {
   }
 }
 
-async function closePool() {
-  if (pgPool) {
-    await pgPool.end();
+async function closePoolSilently() {
+  try {
+    if (pgPool) {
+      await pgPool.end();
+    }
+  } catch (error) {
+    // ignore cleanup errors
+  } finally {
     pgPool = null;
     pgReady = false;
-    lastConnectionError = null;
   }
+}
+
+async function closePool() {
+  await closePoolSilently();
+}
 }
 
 module.exports = {
