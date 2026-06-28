@@ -211,6 +211,31 @@ async function getPersistenceStatus(req, res) {
   sendJson(res, 200, { database: getDatabaseInfo() });
 }
 
+async function getEmailOutbox(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const database = await readDatabase();
+    const outbox = (database.emailOutbox || []).slice(0, 20).map((entry) => ({
+      id: entry.id,
+      type: entry.type,
+      status: entry.status,
+      to: entry.to,
+      subject: entry.subject,
+      provider: entry.provider,
+      error: entry.error,
+      createdAt: entry.createdAt,
+      sentAt: entry.sentAt
+    }));
+    sendJson(res, 200, { outbox });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Failed to read email outbox" });
+  }
+}
+
 module.exports = {
   approveAccountAsAdmin,
   sendApprovalEmailAsAdmin,
@@ -219,5 +244,6 @@ module.exports = {
   approveTransactionAsAdmin,
   denyTransactionAsAdmin,
   getAdminSummary,
-  getPersistenceStatus
+  getPersistenceStatus,
+  getEmailOutbox
 };

@@ -1,6 +1,7 @@
 const {
   approveAccountAsAdmin,
   getAdminSummary,
+  getEmailOutbox,
   getPersistenceStatus,
   rejectAccountAsAdmin,
   sendApprovalEmailAsAdmin,
@@ -18,6 +19,11 @@ async function handleAdminRoute(req, res, url) {
 
   if (req.method === "GET" && url.pathname === "/api/admin/persistence") {
     await getPersistenceStatus(req, res);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/email-outbox") {
+    await getEmailOutbox(req, res);
     return;
   }
 
