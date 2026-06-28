@@ -158,7 +158,7 @@ async function queueTransactionNotification(transaction, customer) {
 
   if (smtpConfigured) {
     try {
-      await sendSmtpMail({
+      await sendEmail({
         to: outboxEntry.to,
         subject: outboxEntry.subject,
         text: outboxEntry.text,
@@ -223,7 +223,7 @@ async function queueApprovalEmail(email) {
 
   if (smtpConfigured) {
     try {
-      await sendSmtpMail({
+      await sendEmail({
         to: outboxEntry.to,
         subject: outboxEntry.subject,
         text: outboxEntry.text,
@@ -283,7 +283,7 @@ async function queueLoginVerificationEmail(user, code) {
 
   if (smtpConfigured) {
     try {
-      await sendSmtpMail({
+      await sendEmail({
         to: outboxEntry.to,
         subject: outboxEntry.subject,
         text: outboxEntry.text,
@@ -308,7 +308,52 @@ function hasSmtpConfig() {
   if (process.env.DISABLE_SMTP === "true") {
     return false;
   }
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  const hasSmpt = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  const hasResend = Boolean(process.env.RESEND_API_KEY);
+  return hasSmpt || hasResend;
+}
+
+async function sendEmail(message) {
+  if (process.env.RESEND_API_KEY) {
+    return await sendResendMail(message);
+  }
+  await sendSmtpMail(message);
+}
+
+async function sendResendMail(message) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
+  const from = message.from || process.env.SMTP_FROM || "";
+  const fromName = message.fromName || process.env.SMTP_FROM_NAME || "Allied Savings Operations";
+
+  if (!from) {
+    throw new Error("Email 'from' address is not configured. Set RESEND_API_KEY or SMTP_FROM.");
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: `${fromName} <${from}>`,
+      to: message.to,
+      subject: message.subject,
+      text: message.text,
+      html: message.html
+    })
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Resend API error ${response.status}: ${errorBody}`);
+  }
+
+  return await response.json();
 }
 
 async function sendSmtpMail(message) {

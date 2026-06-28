@@ -15,23 +15,18 @@ Set these in your Vercel dashboard under Settings → Environment Variables:
 | `SMTP_PASS` | Brevo SMTP key | No |
 | `SMTP_FROM` | From email address | No |
 | `SMTP_FROM_NAME` | From display name | No |
-| `KV_REST_API_URL` | Vercel KV or Upstash Redis URL | For cross-instance sync |
-| `KV_REST_API_TOKEN` | Vercel KV or Upstash Redis token | For cross-instance sync |
-| `BANK_DATABASE_KEY` | KV storage key (default: `bank-portal-database`) | No |
+| `RESEND_API_KEY` | Resend API key (replaces Brevo SMTP) | For email delivery |
+| `DATABASE_URL` | Neon PostgreSQL connection string | Yes (production) |
 
 ### Free Database for Cross-Device Sync
 
-To enable transaction approval across different devices, add a Vercel KV or Upstash Redis store:
+To enable transaction approval across different devices, use **Neon PostgreSQL** (free tier):
 
-1. **Vercel KV (recommended):**
-   - Go to your Vercel project → Storage → Create Database → KV
-   - Copy the `KV_REST_API_URL` and `KV_REST_API_TOKEN`
-   - Add them as environment variables in Vercel
+1. Go to [console.neon.tech](https://console.neon.tech) → create a project
+2. Copy the connection string (starts with `postgresql://`)
+3. Add it as `DATABASE_URL` in Vercel environment variables
 
-2. **Upstash Redis (free tier):**
-   - Go to [upstash.com](https://upstash.com) → create free Redis database
-   - Copy the REST API URL and Token
-   - Add as `KV_REST_API_URL` and `KV_REST_API_TOKEN`
+The app creates the required table automatically on first deploy.
 
 ### Local Development
 Copy `.env.local` to `.env` and fill in your values:
