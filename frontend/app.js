@@ -49,6 +49,7 @@ const adminStatus = document.querySelector("#adminStatus");
 const adminMetrics = document.querySelector("#adminMetrics");
 const adminUsers = document.querySelector("#adminUsers");
 const adminTransactions = document.querySelector("#adminTransactions");
+const adminEmailOutbox = document.querySelector("#adminEmailOutbox");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
 const adminSearch = document.querySelector("#adminSearch");
 const adminStatusFilter = document.querySelector("#adminStatusFilter");
@@ -980,6 +981,51 @@ async function loadAdminSummary(password) {
   renderAdminSummary();
 }
 
+async function loadAdminEmailOutbox(password) {
+  if (!adminEmailOutbox) return;
+
+  try {
+    const data = await apiRequest("/api/admin/email-outbox", {
+      auth: false,
+      headers: { "X-Admin-Password": password }
+    });
+    renderAdminEmailOutbox(data.outbox || []);
+  } catch (error) {
+    adminEmailOutbox.innerHTML = `<p class="form-note">Failed to load email outbox: ${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function renderAdminEmailOutbox(entries) {
+  if (!adminEmailOutbox) return;
+
+  if (!entries.length) {
+    adminEmailOutbox.innerHTML = `<p class="form-note">No emails sent yet.</p>`;
+    return;
+  }
+
+  adminEmailOutbox.innerHTML = entries.map((entry) => {
+    const statusColor = entry.status === "Sent" ? "green" : entry.status === "Failed" ? "red" : "orange";
+    const verificationCode = entry.type === "LOGIN_VERIFICATION" && entry.text
+      ? entry.text.match(/Verification code: (\d{6})/)?.[1]
+      : null;
+
+    return `
+      <article class="admin-row">
+        <div>
+          <strong>${escapeHtml(entry.type)}</strong>
+          <span>To: ${escapeHtml(entry.to)} &middot; ${escapeHtml(entry.subject)}</span>
+          <small>${entry.createdAt ? new Date(entry.createdAt).toLocaleString("en-US") : "-"} &middot; ${escapeHtml(entry.provider)}</small>
+          ${entry.error ? `<small style="color:#c00">Error: ${escapeHtml(entry.error)}</small>` : ""}
+          ${verificationCode ? `<small style="color:#080;font-weight:700">CODE: ${verificationCode}</small>` : ""}
+        </div>
+        <div class="admin-tx-right">
+          <span class="tx-status-badge tx-status-${entry.status === "Sent" ? "completed" : entry.status === "Failed" ? "denied" : "pending"}" style="background:var(--${statusColor}-bg, #eee);color:var(--${statusColor}-text, #333)">${escapeHtml(entry.status)}</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
 function renderAdminSummary() {
   if (!latestAdminSummary || !adminMetrics || !adminUsers || !adminTransactions) return;
 
@@ -1084,13 +1130,14 @@ adminLoginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const password = formToJson(adminLoginForm).adminPassword;
   if (adminStatus) adminStatus.textContent = "Loading admin console...";
-  try {
-    sessionStorage.setItem("adminPassword", password);
-    await loadAdminSummary(password);
-    adminLoginPanel?.classList.add("is-hidden");
-    adminDashboard?.classList.remove("is-hidden");
-    if (adminStatus) adminStatus.textContent = "";
-  } catch (error) {
+   try {
+     sessionStorage.setItem("adminPassword", password);
+     await loadAdminSummary(password);
+     await loadAdminEmailOutbox(password);
+     adminLoginPanel?.classList.add("is-hidden");
+     adminDashboard?.classList.remove("is-hidden");
+     if (adminStatus) adminStatus.textContent = "";
+   } catch (error) {
     sessionStorage.removeItem("adminPassword");
     if (adminStatus) adminStatus.textContent = error.message;
   }
@@ -1102,6 +1149,7 @@ adminRefreshButton?.addEventListener("click", async () => {
     return;
   }
   await loadAdminSummary(password);
+  await loadAdminEmailOutbox(password);
 });
 
 adminSearch?.addEventListener("input", renderAdminSummary);
@@ -1484,6 +1532,7 @@ async function restoreSession() {
     if (password) {
       try {
         await loadAdminSummary(password);
+        await loadAdminEmailOutbox(password);
         adminLoginPanel?.classList.add("is-hidden");
         adminDashboard?.classList.remove("is-hidden");
       } catch (error) {
