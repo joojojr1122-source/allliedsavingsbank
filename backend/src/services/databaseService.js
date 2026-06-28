@@ -34,29 +34,36 @@ async function readSeedDatabase() {
 
 function getPgPool() {
   if (!NEON_DATABASE_URL) {
+    console.error("databaseService: DATABASE_URL not configured, Neon disabled");
     return null;
   }
 
   if (!pgPool) {
-    const url = new URL(NEON_DATABASE_URL);
-    const searchParams = new URLSearchParams(url.search);
-    searchParams.delete("channel_binding");
-    searchParams.delete("sslmode");
-    searchParams.set("uselibpqcompat", "true");
-    url.search = searchParams.toString();
+    console.error("databaseService: Creating new Neon pool with URL:", NEON_DATABASE_URL.replace(/\/\/.*@/, "//***@"));
+    try {
+      const url = new URL(NEON_DATABASE_URL);
+      const searchParams = new URLSearchParams(url.search);
+      searchParams.delete("channel_binding");
+      searchParams.delete("sslmode");
+      searchParams.set("uselibpqcompat", "true");
+      url.search = searchParams.toString();
 
-    pgPool = new Pool({
-      connectionString: url.toString(),
-      ssl: { rejectUnauthorized: false },
-      max: 3,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    });
+      pgPool = new Pool({
+        connectionString: url.toString(),
+        ssl: { rejectUnauthorized: false },
+        max: 3,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+      });
 
-    pgPool.on("error", (error) => {
-      console.error("databaseService: Pool error", error);
-      pgReady = false;
-    });
+      pgPool.on("error", (error) => {
+        console.error("databaseService: Pool error", error);
+        pgReady = false;
+      });
+    } catch (error) {
+      console.error("databaseService: Failed to create pool", error);
+      return null;
+    }
   }
 
   return pgPool;
@@ -81,6 +88,7 @@ async function withPgPool(callback) {
   const pool = getPgPool();
 
   if (!pool) {
+    console.error("databaseService: Neon pool unavailable");
     return null;
   }
 
