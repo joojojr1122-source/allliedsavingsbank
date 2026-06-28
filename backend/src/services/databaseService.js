@@ -103,7 +103,6 @@ async function ensureNeonTable(pool) {
     return false;
   }
 }
-}
 
 async function withPgPool(callback) {
   const pool = getPgPool();
@@ -227,8 +226,6 @@ async function writeDatabase(database) {
     }
     return;
   }
-    return;
-  }
 
   if (hasRemoteDatabase()) {
     try {
@@ -330,7 +327,6 @@ async function closePoolSilently() {
 
 async function closePool() {
   await closePoolSilently();
-}
 }
 
 module.exports = {
