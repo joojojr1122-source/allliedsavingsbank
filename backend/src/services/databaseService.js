@@ -38,11 +38,24 @@ function getPgPool() {
   }
 
   if (!pgPool) {
+    const url = new URL(NEON_DATABASE_URL);
+    const searchParams = new URLSearchParams(url.search);
+    const hasChannelBinding = searchParams.has("channel_binding");
+    if (hasChannelBinding) {
+      searchParams.delete("channel_binding");
+      url.search = searchParams.toString();
+    }
+
     pgPool = new Pool({
-      connectionString: NEON_DATABASE_URL,
+      connectionString: url.toString(),
       max: 3,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
+    });
+
+    pgPool.on("error", (error) => {
+      console.error("databaseService: Pool error", error);
+      pgReady = false;
     });
   }
 
@@ -50,13 +63,18 @@ function getPgPool() {
 }
 
 async function ensureNeonTable(pool) {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS portal_data (
-      key TEXT PRIMARY KEY,
-      json_data JSONB NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-    )
-  `);
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS portal_data (
+        key TEXT PRIMARY KEY,
+        json_data JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
+  } catch (error) {
+    console.error("databaseService: ensureNeonTable failed", error);
+    throw error;
+  }
 }
 
 async function withPgPool(callback) {
@@ -67,8 +85,13 @@ async function withPgPool(callback) {
   }
 
   if (!pgReady) {
-    await ensureNeonTable(pool);
-    pgReady = true;
+    try {
+      await ensureNeonTable(pool);
+      pgReady = true;
+    } catch (error) {
+      console.error("databaseService: ensureNeonTable failed", error);
+      return null;
+    }
   }
 
   try {
