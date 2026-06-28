@@ -206,8 +206,8 @@ async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
   if (NEON_DATABASE_URL) {
-    const written = await withPgPool(async (client) => {
-      const result = await client.query(
+    const result = await withPgPool(async (client) => {
+      const insertResult = await client.query(
         `
         INSERT INTO portal_data (key, json_data, updated_at)
         VALUES ($1, $2::jsonb, now())
@@ -218,12 +218,14 @@ async function writeDatabase(database) {
         `,
         [REMOTE_DATABASE_KEY, JSON.stringify(database)]
       );
-      console.log("[DB] writeDatabase result:", result.rowCount, "rows affected");
+      return insertResult;
     });
 
-    if (!written) {
-      console.error("[DB] Neon write failed (continuing without persist)");
+    if (!result || result.rowCount === 0) {
+      console.error("[DB] Neon write failed or no rows affected:", result);
     }
+    return;
+  }
     return;
   }
 
