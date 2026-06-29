@@ -314,10 +314,16 @@ function hasSmtpConfig() {
 }
 
 async function sendEmail(message) {
-  if (process.env.RESEND_API_KEY && !hasSmtpConfig()) {
-    return await sendResendMail(message);
+  if (process.env.RESEND_API_KEY) {
+    try {
+      return await sendResendMail(message);
+    } catch (resendError) {
+      console.error("Resend failed, falling back to SMTP:", resendError.message);
+    }
   }
-  await sendSmtpMail(message);
+  if (process.env.SMTP_USER) {
+    await sendSmtpMail(message);
+  }
 }
 
 async function sendResendMail(message) {
