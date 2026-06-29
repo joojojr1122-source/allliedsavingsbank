@@ -20,6 +20,33 @@ let pgPool = null;
 let pgReady = false;
 let lastConnectionError = null;
 
+let dbMutex = null;
+let dbQueue = [];
+
+function withDbLock(callback) {
+  return new Promise((resolve, reject) => {
+    dbQueue.push(async () => {
+      try {
+        const result = await callback();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      } finally {
+        dbMutex = null;
+        processDbQueue();
+      }
+    });
+    processDbQueue();
+  });
+}
+
+function processDbQueue() {
+  if (dbMutex || !dbQueue.length) return;
+  dbMutex = true;
+  const next = dbQueue.shift();
+  Promise.resolve(next()).catch(() => {});
+}
+
 function cloneSeedDatabase() {
   return JSON.parse(JSON.stringify(SEED_DATABASE));
 }
@@ -156,93 +183,122 @@ async function applySeedIfStale(database) {
 }
 
 async function readDatabase() {
-  let database;
-
   if (NEON_DATABASE_URL) {
-    const row = await withPgPool(async (client) => {
-      const result = await client.query(
-        "SELECT json_data FROM portal_data WHERE key = $1",
-        [REMOTE_DATABASE_KEY]
-      );
-      const record = result.rows[0];
-      return record ? record.json_data : null;
+    return withDbLock(async () => {
+      let database;
+      const row = await withPgPool(async (client) => {
+        const result = await client.query(
+          "SELECT json_data FROM portal_data WHERE key = $1",
+          [REMOTE_DATABASE_KEY]
+        );
+        const record = result.rows[0];
+        return record ? record.json_data : null;
+      });
+
+      if (row) {
+        database = typeof row === "string" ? JSON.parse(row) : row;
+      }
+
+      if (!database) {
+        database = await readSeedDatabase();
+      }
+
+      const synced = await applySeedIfStale(database);
+
+      if (synced !== database) {
+        try {
+          await writeDatabase(synced);
+        } catch (error) {
+          console.error("[DB] could not persist seed refresh", error);
+        }
+        return synced;
+      }
+
+      return database;
     });
-
-    if (row) {
-      database = typeof row === "string" ? JSON.parse(row) : row;
-    }
-  } else if (hasRemoteDatabase()) {
-    database = await readRemoteDatabase();
-  } else if (process.env.VERCEL) {
-    if (!vercelDatabaseCache) {
-      vercelDatabaseCache = await readSeedDatabase();
-    }
-    database = vercelDatabaseCache;
-  } else {
-    await ensureDatabaseFile();
-    const content = await fs.readFile(DATABASE_PATH, "utf8");
-    database = JSON.parse(content);
   }
 
-  if (!database) {
-    database = await readSeedDatabase();
-  }
+  return withDbLock(async () => {
+    let database;
 
-  const synced = await applySeedIfStale(database);
-
-  if (synced !== database) {
-    try {
-      await writeDatabase(synced);
-    } catch (error) {
-      console.error("[DB] could not persist seed refresh", error);
+    if (hasRemoteDatabase()) {
+      database = await readRemoteDatabase();
+    } else if (process.env.VERCEL) {
+      if (!vercelDatabaseCache) {
+        vercelDatabaseCache = await readSeedDatabase();
+      }
+      database = vercelDatabaseCache;
+    } else {
+      await ensureDatabaseFile();
+      const content = await fs.readFile(DATABASE_PATH, "utf8");
+      database = JSON.parse(content);
     }
-    return synced;
-  }
 
-  return database;
+    if (!database) {
+      database = await readSeedDatabase();
+    }
+
+    const synced = await applySeedIfStale(database);
+
+    if (synced !== database) {
+      try {
+        await writeDatabase(synced);
+      } catch (error) {
+        console.error("[DB] could not persist seed refresh", error);
+      }
+      return synced;
+    }
+
+    return database;
+  });
 }
 
 async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
-  if (NEON_DATABASE_URL) {
-    const result = await withPgPool(async (client) => {
-      const insertResult = await client.query(
-        `
-        INSERT INTO portal_data (key, json_data, updated_at)
-        VALUES ($1, $2::jsonb, now())
-        ON CONFLICT (key)
-        DO UPDATE SET
-          json_data = EXCLUDED.json_data::jsonb,
-          updated_at = EXCLUDED.updated_at
-        `,
-        [REMOTE_DATABASE_KEY, JSON.stringify(database)]
-      );
-      return insertResult;
-    });
+  return withDbLock(async () => {
+    if (NEON_DATABASE_URL) {
+      const result = await withPgPool(async (client) => {
+        const insertResult = await client.query(
+          `
+          INSERT INTO portal_data (key, json_data, updated_at)
+          VALUES ($1, $2::jsonb, now())
+          ON CONFLICT (key)
+          DO UPDATE SET
+            json_data = EXCLUDED.json_data::jsonb,
+            updated_at = EXCLUDED.updated_at
+          `,
+          [REMOTE_DATABASE_KEY, JSON.stringify(database)]
+        );
+        return insertResult;
+      });
 
-    if (!result || result.rowCount === 0) {
-      console.error("[DB] Neon write failed or no rows affected:", result);
+      if (!result || result.rowCount === 0) {
+        console.error("[DB] Neon write failed or no rows affected:", result);
+      }
+      return;
     }
-    return;
-  }
 
-  if (hasRemoteDatabase()) {
-    try {
-      await writeRemoteDatabase(database);
-    } catch (error) {
-      console.error("[DB] remote write failed (continuing without persist)", error);
+    if (hasRemoteDatabase()) {
+      try {
+        await writeRemoteDatabase(database);
+      } catch (error) {
+        console.error("[DB] remote write failed (continuing without persist)", error);
+      }
+      return;
     }
-    return;
-  }
 
-  if (process.env.VERCEL) {
-    vercelDatabaseCache = database;
-    return;
-  }
+    if (process.env.VERCEL) {
+      vercelDatabaseCache = database;
+      return;
+    }
 
-  await ensureDatabaseFile();
-  await fs.writeFile(DATABASE_PATH, JSON.stringify(database, null, 2));
+    await ensureDatabaseFile();
+    const payload = JSON.stringify(database, null, 2);
+    console.error("[DB] Writing to", DATABASE_PATH, "user count:", (database.users || []).length, "payload length:", payload.length);
+    await fs.writeFile(DATABASE_PATH, payload);
+    console.error("[DB] Write complete");
+  });
 }
 
 async function ensureDatabaseFile() {
