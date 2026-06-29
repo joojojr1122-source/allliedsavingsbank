@@ -314,7 +314,7 @@ function hasSmtpConfig() {
 }
 
 async function sendEmail(message) {
-  if (process.env.RESEND_API_KEY) {
+  if (process.env.RESEND_API_KEY && !hasSmtpConfig()) {
     return await sendResendMail(message);
   }
   await sendSmtpMail(message);
