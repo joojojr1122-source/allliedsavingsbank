@@ -1282,6 +1282,16 @@ button {
   opacity: 0.5;
 }
 
+.site-notice {
+  background: #fff3cd;
+  color: #333333;
+  text-align: center;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 14px;
+  border-bottom: 1px solid #e0c000;
+}
+
 .status {
   min-height: 24px;
   margin: 0;
