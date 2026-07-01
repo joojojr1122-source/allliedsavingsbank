@@ -4,3 +4,5 @@ Disallow: /api/
 Disallow: /admin.html
 Disallow: /ops.html
 Disallow: /dashboard.html
+
+Sitemap: https://alliedsaving.com/sitemap.xml
