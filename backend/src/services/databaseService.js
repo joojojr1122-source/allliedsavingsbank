@@ -257,27 +257,28 @@ async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
   return withDbLock(async () => {
-    if (NEON_DATABASE_URL) {
-      const result = await withPgPool(async (client) => {
-        const insertResult = await client.query(
-          `
+  if (NEON_DATABASE_URL) {
+    const result = await withPgPool(async (client) => {
+      const insertResult = await client.query(
+        `
           INSERT INTO portal_data (key, json_data, updated_at)
           VALUES ($1, $2::jsonb, now())
           ON CONFLICT (key)
           DO UPDATE SET
             json_data = EXCLUDED.json_data::jsonb,
             updated_at = EXCLUDED.updated_at
-          `,
-          [REMOTE_DATABASE_KEY, JSON.stringify(database)]
-        );
-        return insertResult;
-      });
+        `,
+        [REMOTE_DATABASE_KEY, JSON.stringify(database)]
+      );
+      return insertResult;
+    });
 
-      if (!result || result.rowCount === 0) {
-        console.error("[DB] Neon write failed or no rows affected:", result);
-      }
-      return;
+    if (!result || result.rowCount === 0) {
+      console.error("[DB] Neon write failed or no rows affected:", result);
+      throw new Error("Neon write failed");
     }
+    return;
+  }
 
     if (hasRemoteDatabase()) {
       try {

@@ -852,9 +852,17 @@ button {
 }
 
 @media (max-width: 860px) {
-  .balance-box__grid {
+  .admin-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+  }
+
+  .admin-tx-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-tx-btn {
+    min-height: 44px;
   }
 }
 
@@ -2107,6 +2115,19 @@ button {
 
   .admin-row {
     grid-template-columns: 1fr;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-tx-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-tx-btn {
+    min-height: 44px;
   }
 }
 
