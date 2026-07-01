@@ -171,6 +171,78 @@
       "dest": "/frontend/privacy.html"
     },
     {
+      "src": "/terms",
+      "dest": "/frontend/terms.html"
+    },
+    {
+      "src": "/terms.html",
+      "dest": "/frontend/terms.html"
+    },
+    {
+      "src": "/privacy.html",
+      "dest": "/frontend/privacy.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/frontend/login.html"
+    },
+    {
+      "src": "/login.html",
+      "dest": "/frontend/login.html"
+    },
+    {
+      "src": "/signup",
+      "dest": "/frontend/signup.html"
+    },
+    {
+      "src": "/signup.html",
+      "dest": "/frontend/signup.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/frontend/dashboard.html"
+    },
+    {
+      "src": "/dashboard.html",
+      "dest": "/frontend/dashboard.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/frontend/admin.html"
+    },
+    {
+      "src": "/admin.html",
+      "dest": "/frontend/admin.html"
+    },
+    {
+      "src": "/ops",
+      "dest": "/frontend/ops.html"
+    },
+    {
+      "src": "/ops.html",
+      "dest": "/frontend/ops.html"
+    },
+    {
+      "src": "/loading",
+      "dest": "/frontend/loading.html"
+    },
+    {
+      "src": "/loading.html",
+      "dest": "/frontend/loading.html"
+    },
+    {
+      "src": "/confirmation",
+      "dest": "/frontend/confirmation.html"
+    },
+    {
+      "src": "/confirmation.html",
+      "dest": "/frontend/confirmation.html"
+    },
+    {
+      "src": "/open-account",
+      "dest": "/frontend/signup.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
