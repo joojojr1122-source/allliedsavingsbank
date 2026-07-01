@@ -15,18 +15,24 @@ Set these in your Vercel dashboard under Settings → Environment Variables:
 | `SMTP_PASS` | Brevo SMTP key | No |
 | `SMTP_FROM` | From email address | No |
 | `SMTP_FROM_NAME` | From display name | No |
-| `RESEND_API_KEY` | Resend API key (replaces Brevo SMTP) | For email delivery |
+| `RESEND_API_KEY` | Resend API key (preferred email delivery) | For email delivery |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob token (preferred persistent storage) | For cross-device sync |
 | `DATABASE_URL` | Neon PostgreSQL connection string | Yes (production) |
 
-### Free Database for Cross-Device Sync
+### Persistent Storage for Cross-Device Sync
 
-To enable transaction approval across different devices, use **Neon PostgreSQL** (free tier):
+**Recommended: Vercel Blob**
+1. Go to Vercel → your project → **Storage** → **Create Database** → **Blob**
+2. Copy the `BLOB_READ_WRITE_TOKEN`
+3. Add it as `BLOB_READ_WRITE_TOKEN` in Vercel environment variables
+4. **Delete** `DATABASE_URL` if you were using NVV
 
+**Alternative: NVV PostgreSQL**
 1. Go to [console.neon.tech](https://console.neon.tech) → create a project
 2. Copy the connection string (starts with `postgresql://`)
 3. Add it as `DATABASE_URL` in Vercel environment variables
 
-The app creates the required table automatically on first deploy.
+The app creates the required table/blob key automatically on first deploy.
 
 ### Local Development
 Copy `.env.local` to `.env` and fill in your values:
