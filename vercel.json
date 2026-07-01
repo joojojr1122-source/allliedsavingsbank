@@ -163,40 +163,12 @@
       "dest": "/frontend/sitemap.xml"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/frontend/assets/$1"
+      "src": "/terms",
+      "dest": "/frontend/terms.html"
     },
     {
-      "src": "/dashboard(?:\\.html)?",
-      "dest": "/frontend/dashboard.html"
-    },
-    {
-      "src": "/login(?:\\.html)?",
-      "dest": "/frontend/login.html"
-    },
-    {
-      "src": "/signup(?:\\.html)?",
-      "dest": "/frontend/signup.html"
-    },
-    {
-      "src": "/open-account(?:\\.html)?",
-      "dest": "/frontend/signup.html"
-    },
-    {
-      "src": "/loading(?:\\.html)?",
-      "dest": "/frontend/loading.html"
-    },
-    {
-      "src": "/confirmation(?:\\.html)?",
-      "dest": "/frontend/confirmation.html"
-    },
-    {
-      "src": "/admin(?:\\.html)?",
-      "dest": "/frontend/admin.html"
-    },
-    {
-      "src": "/ops(?:\\.html)?",
-      "dest": "/frontend/ops.html"
+      "src": "/privacy",
+      "dest": "/frontend/privacy.html"
     },
     {
       "src": "/(.*)",
