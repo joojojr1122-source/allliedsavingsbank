@@ -988,6 +988,8 @@ async function loadAdminSummary(password) {
   latestAdminSummary = await apiRequest("/api/admin/summary", {
     auth: false,
     headers: { "X-Admin-Password": password }
+  }).catch((error) => {
+    throw new Error(`Admin summary failed: ${error.message}`);
   });
   renderAdminSummary();
 }
@@ -1094,6 +1096,7 @@ function renderAdminSummary() {
       : transaction.status === "Completed" ? "tx-status-completed"
       : transaction.status === "Denied" ? "tx-status-denied"
       : transaction.status === "Cancelled" ? "tx-status-cancelled"
+      : transaction.status === "Reversed" ? "tx-status-default"
       : "tx-status-default";
 
     const actionButtons = transaction.status === "Pending"

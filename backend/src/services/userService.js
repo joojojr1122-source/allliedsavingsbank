@@ -437,7 +437,7 @@ async function approveTransaction(userId, transactionId) {
 
   tx.status = "Approved";
   tx.processedAt = new Date().toISOString();
-  tx.completedAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  tx.completedAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
   tx.balanceAfter = nextBalance;
   user.account.balance = nextBalance;
 
@@ -680,9 +680,11 @@ function settleDueApprovedTransactions(user, now = new Date()) {
       transaction.completedAt <= today
     ))
     .forEach((transaction) => {
-      transaction.status = "Completed";
-      transaction.balanceAfter = transaction.balanceAfter || user.account.balance || 0;
-      appendAudit(user, "TRANSACTION_SETTLED", transaction.reference || transaction.id);
+      const amount = Number(transaction.amount || 0);
+      user.account.balance = Number((user.account.balance - amount).toFixed(2));
+      transaction.status = "Reversed";
+      transaction.balanceAfter = user.account.balance;
+      appendAudit(user, "TRANSACTION_REVERSED", transaction.reference || transaction.id);
       changed = true;
     });
 

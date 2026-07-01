@@ -1923,6 +1923,11 @@ button {
   color: #383d41;
 }
 
+.tx-status-reversed {
+  background: #fff3cd;
+  color: #856404;
+}
+
 .tx-status-default {
   background: #e2e3e5;
   color: #383d41;
