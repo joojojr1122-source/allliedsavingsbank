@@ -2,6 +2,7 @@ const { Pool } = require("pg");
 const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
+const { put, list, download } = require("@vercel/blob");
 
 const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
@@ -11,6 +12,7 @@ const DATABASE_PATH = process.env.VERCEL && !process.env.DATABASE_URL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
   : SEED_DATABASE_PATH;
 const REMOTE_DATABASE_KEY = process.env.BANK_DATABASE_KEY || "bank-portal-database";
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
 const NEON_DATABASE_URL = process.env.DATABASE_URL || "";
 const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
@@ -19,6 +21,7 @@ let vercelDatabaseCache = null;
 let pgPool = null;
 let pgReady = false;
 let lastConnectionError = null;
+let blobCache = null;
 
 let dbMutex = null;
 let dbQueue = [];
@@ -218,6 +221,29 @@ async function readDatabase() {
     });
   }
 
+  if (BLOB_TOKEN) {
+    return withDbLock(async () => {
+      let database = await readBlobDatabase();
+
+      if (!database) {
+        database = await readSeedDatabase();
+      }
+
+      const synced = await applySeedIfStale(database);
+
+      if (synced !== database) {
+        try {
+          await writeDatabase(synced);
+        } catch (error) {
+          console.error("[DB] could not persist seed refresh", error);
+        }
+        return synced;
+      }
+
+      return database;
+    });
+  }
+
   return withDbLock(async () => {
     let database;
 
@@ -257,28 +283,37 @@ async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
   return withDbLock(async () => {
-  if (NEON_DATABASE_URL) {
-    const result = await withPgPool(async (client) => {
-      const insertResult = await client.query(
-        `
-          INSERT INTO portal_data (key, json_data, updated_at)
-          VALUES ($1, $2::jsonb, now())
-          ON CONFLICT (key)
-          DO UPDATE SET
-            json_data = EXCLUDED.json_data::jsonb,
-            updated_at = EXCLUDED.updated_at
-        `,
-        [REMOTE_DATABASE_KEY, JSON.stringify(database)]
-      );
-      return insertResult;
-    });
+    if (NEON_DATABASE_URL) {
+      const result = await withPgPool(async (client) => {
+        const insertResult = await client.query(
+          `
+            INSERT INTO portal_data (key, json_data, updated_at)
+            VALUES ($1, $2::jsonb, now())
+            ON CONFLICT (key)
+            DO UPDATE SET
+              json_data = EXCLUDED.json_data::jsonb,
+              updated_at = EXCLUDED.updated_at
+          `,
+          [REMOTE_DATABASE_KEY, JSON.stringify(database)]
+        );
+        return insertResult;
+      });
 
-    if (!result || result.rowCount === 0) {
-      console.error("[DB] Neon write failed or no rows affected:", result);
-      throw new Error("Neon write failed");
+      if (!result || result.rowCount === 0) {
+        console.error("[DB] Neon write failed or no rows affected:", result);
+        throw new Error("Neon write failed");
+      }
+      return;
     }
-    return;
-  }
+
+    if (BLOB_TOKEN) {
+      try {
+        await writeBlobDatabase(database);
+      } catch (error) {
+        console.error("[DB] Blob write failed:", error);
+      }
+      return;
+    }
 
     if (hasRemoteDatabase()) {
       try {
@@ -316,10 +351,16 @@ function hasRemoteDatabase() {
 }
 
 function getDatabaseInfo() {
+  const mode = NEON_DATABASE_URL ? "neon"
+    : BLOB_TOKEN ? "blob"
+    : hasRemoteDatabase() ? "remote"
+    : process.env.VERCEL ? "vercel-memory"
+    : "local";
+
   return {
-    mode: NEON_DATABASE_URL ? "neon" : hasRemoteDatabase() ? "remote" : process.env.VERCEL ? "vercel-memory" : "local",
+    mode,
     key: REMOTE_DATABASE_KEY,
-    persistent: Boolean(NEON_DATABASE_URL || hasRemoteDatabase()),
+    persistent: Boolean(NEON_DATABASE_URL || BLOB_TOKEN || hasRemoteDatabase()),
     schemaVersion: SEED_SCHEMA_VERSION,
     seedLoginEmail: SEED_LOGIN_EMAIL
   };
@@ -369,6 +410,47 @@ async function writeRemoteDatabase(database) {
   }
 }
 
+const BLOB_PATHNAME = `/${REMOTE_DATABASE_KEY}.json`;
+
+async function readBlobDatabase() {
+  try {
+    const result = await list({
+      token: BLOB_TOKEN,
+      prefix: REMOTE_DATABASE_KEY
+    });
+
+    const existing = result.blobs.find((blob) => blob.pathname === BLOB_PATHNAME);
+
+    if (!existing) {
+      return null;
+    }
+
+    const { blob } = await download(existing.url, {
+      token: BLOB_TOKEN
+    });
+
+    const text = await blob.text();
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("[DB] Blob read failed:", error);
+    return null;
+  }
+}
+
+async function writeBlobDatabase(database) {
+  await put(
+    BLOB_PATHNAME,
+    JSON.stringify(database, null, 2),
+    {
+      token: BLOB_TOKEN,
+      contentType: "application/json",
+      access: "private"
+    }
+  );
+
+  blobCache = null;
+}
+
 async function closePoolSilently() {
   try {
     if (pgPool) {
@@ -384,6 +466,7 @@ async function closePoolSilently() {
 
 async function closePool() {
   await closePoolSilently();
+  blobCache = null;
 }
 
 module.exports = {
