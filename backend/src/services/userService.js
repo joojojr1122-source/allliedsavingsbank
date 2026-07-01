@@ -677,7 +677,8 @@ function settleDueApprovedTransactions(user, now = new Date()) {
     .filter((transaction) => (
       transaction.status === "Approved" &&
       transaction.completedAt &&
-      transaction.completedAt <= today
+      transaction.completedAt <= today &&
+      (transaction.type === "Withdrawal" || transaction.type === "Transfer")
     ))
     .forEach((transaction) => {
       const amount = Number(transaction.amount || 0);
