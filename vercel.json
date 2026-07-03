@@ -171,18 +171,6 @@
       "dest": "/frontend/privacy.html"
     },
     {
-      "src": "/terms",
-      "dest": "/frontend/terms.html"
-    },
-    {
-      "src": "/terms.html",
-      "dest": "/frontend/terms.html"
-    },
-    {
-      "src": "/privacy.html",
-      "dest": "/frontend/privacy.html"
-    },
-    {
       "src": "/login",
       "dest": "/frontend/login.html"
     },
