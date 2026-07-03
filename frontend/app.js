@@ -67,9 +67,9 @@ const passwordStrengthText = document.querySelector("#passwordStrengthText");
 const passwordStrengthBar = document.querySelector("#passwordStrengthBar");
 
 const slides = [
-  { title: "Allied Savings", image: "/assets/slider-cards.png", link: "/signup.html" },
-  { title: "Online Banking", image: "/assets/slider-cards.png", link: "/login.html" },
-  { title: "Personal Savings", image: "/assets/slider-cards.png", link: "/signup.html" }
+  { title: "Allied Savings", image: "/assets/slider-cards.png", link: "/open-account" },
+  { title: "Online Banking", image: "/assets/slider-cards.png", link: "/login" },
+  { title: "Personal Savings", image: "/assets/slider-cards.png", link: "/open-account" }
 ];
 let sensitiveDetailsVisible = false;
 let slideIndex = 0;
@@ -207,7 +207,7 @@ function renderAuditList(entries) {
 }
 
 function buildDashboardUrl() {
-  return "/dashboard.html";
+  return "/dashboard";
 }
 
 const loadingMessages = [
@@ -220,7 +220,7 @@ const loadingMessages = [
 function goToLoading(message, next = buildDashboardUrl()) {
   const copy = message || loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
   sessionStorage.setItem("bankLoadingMessage", copy);
-  window.location.assign(`/loading.html?next=${encodeURIComponent(next)}`);
+    window.location.assign(`/loading?next=${encodeURIComponent(next)}`);
 }
 
 function openReceiptModal(receipt) {
@@ -856,7 +856,7 @@ function startSessionWatch() {
 
     if (idleMs > 12 * 60 * 1000) {
       localStorage.removeItem(tokenKey);
-      window.location.assign("/login.html");
+      window.location.assign("/login");
       return;
     }
 
@@ -1159,7 +1159,7 @@ adminLoginForm?.addEventListener("submit", async (event) => {
 adminRefreshButton?.addEventListener("click", async () => {
   const password = sessionStorage.getItem("adminPassword");
   if (!password) {
-    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops.html first.";
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops first.";
     return;
   }
   await loadAdminSummary(password);
@@ -1178,7 +1178,7 @@ adminUsers?.addEventListener("click", async (event) => {
   const action = button.dataset.adminAction;
 
   if (!password) {
-    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops.html first.";
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops first.";
     return;
   }
 
@@ -1255,7 +1255,7 @@ adminTransactions?.addEventListener("click", async (event) => {
   const action = approveBtn ? "approve" : "deny";
 
   if (!password) {
-    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops.html first.";
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops first.";
     return;
   }
 
@@ -1419,7 +1419,7 @@ signupButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
     event.preventDefault();
     if (isHomePage || !signupForm) {
-      window.location.assign("/signup.html");
+      window.location.assign("/open-account");
       return;
     }
     showTab("signup");
@@ -1430,7 +1430,7 @@ loginButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
     event.preventDefault();
     if (isHomePage || !loginForm) {
-      window.location.assign("/login.html");
+      window.location.assign("/login");
       return;
     }
     showTab("login");
@@ -1454,7 +1454,7 @@ signupForm?.addEventListener("submit", async (event) => {
       product: data.user.account.type
     }));
     signupForm.reset();
-    window.location.assign("/confirmation.html");
+    window.location.assign("/confirmation");
   } catch (error) {
     setStatus(error.message);
   }
@@ -1489,7 +1489,7 @@ logoutButton?.addEventListener("click", async () => {
   } finally {
     localStorage.removeItem(tokenKey);
     if (isDashboardPage) {
-      window.location.assign("/login.html");
+      window.location.assign("/login");
     } else {
       showTab("login");
       setStatus("You have been logged out.", true);
@@ -1504,7 +1504,7 @@ async function restoreSession() {
   }
 
   if (!localStorage.getItem(tokenKey)) {
-    if (isDashboardPage || isLoadingPage) window.location.assign("/login.html");
+    if (isDashboardPage || isLoadingPage) window.location.assign("/login");
     return;
   }
 
@@ -1524,7 +1524,7 @@ async function restoreSession() {
     } catch (error) {
       // Session expired or invalid - redirect to login
       localStorage.removeItem(tokenKey);
-      window.location.assign("/login.html");
+      window.location.assign("/login");
     }
     return;
   }
@@ -1536,7 +1536,7 @@ async function restoreSession() {
       showDashboard(data.user);
     } catch (error) {
       localStorage.removeItem(tokenKey);
-      window.location.assign("/login.html");
+      window.location.assign("/login");
     }
     return;
   }
@@ -1611,7 +1611,7 @@ function renderConfirmationPage() {
       </form>
       <p class="status-check-result" id="applicationStatusResult"></p>
       <div class="modal-actions">
-        <a class="primary-button receipt-link" href="/login.html">Go to Login</a>
+        <a class="primary-button receipt-link" href="/login">Go to Login</a>
       </div>
     </div>
   `;

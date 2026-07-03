@@ -175,15 +175,7 @@
       "dest": "/frontend/login.html"
     },
     {
-      "src": "/login.html",
-      "dest": "/frontend/login.html"
-    },
-    {
       "src": "/signup",
-      "dest": "/frontend/signup.html"
-    },
-    {
-      "src": "/signup.html",
       "dest": "/frontend/signup.html"
     },
     {
@@ -191,15 +183,7 @@
       "dest": "/frontend/dashboard.html"
     },
     {
-      "src": "/dashboard.html",
-      "dest": "/frontend/dashboard.html"
-    },
-    {
       "src": "/admin",
-      "dest": "/frontend/admin.html"
-    },
-    {
-      "src": "/admin.html",
       "dest": "/frontend/admin.html"
     },
     {
@@ -207,23 +191,11 @@
       "dest": "/frontend/ops.html"
     },
     {
-      "src": "/ops.html",
-      "dest": "/frontend/ops.html"
-    },
-    {
       "src": "/loading",
       "dest": "/frontend/loading.html"
     },
     {
-      "src": "/loading.html",
-      "dest": "/frontend/loading.html"
-    },
-    {
       "src": "/confirmation",
-      "dest": "/frontend/confirmation.html"
-    },
-    {
-      "src": "/confirmation.html",
       "dest": "/frontend/confirmation.html"
     },
     {
