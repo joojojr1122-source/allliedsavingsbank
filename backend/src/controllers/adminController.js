@@ -1,5 +1,9 @@
 const { getDatabaseInfo, readDatabase } = require("../services/databaseService");
-const { getLatestApprovalEmail, queueApprovalEmail } = require("../services/emailService");
+const {
+  getLatestApprovalEmail,
+  queueApprovalEmail,
+  queueCustomEmail
+} = require("../services/emailService");
 const {
   approvePendingAccount,
   publicUser,
@@ -86,6 +90,28 @@ async function updateAccountStatus(req, res) {
     sendJson(res, 200, { user: publicUser(user) });
   } catch (error) {
     sendJson(res, error.status || 500, { error: error.message || "Status update failed" });
+  }
+}
+
+async function sendCustomEmailAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const body = await readJsonBody(req);
+    const { to, subject, text, html, from } = body || {};
+
+    if (!to || !subject || !text) {
+      sendJson(res, 400, { error: "Missing required fields: to, subject, and text are required" });
+      return;
+    }
+
+    const message = await queueCustomEmail({ to, subject, text, html, from });
+    sendJson(res, 200, { message });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Email send failed" });
   }
 }
 
@@ -236,6 +262,49 @@ async function getEmailOutbox(req, res) {
   }
 }
 
+async function getUserTransactionDebug(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = String(req.adminApprovalEmail || "").trim();
+    const database = await readDatabase();
+    const user = (database.users || []).find((item) => item.email === email);
+
+    if (!user) {
+      sendJson(res, 404, { error: "User not found" });
+      return;
+    }
+
+    const transactions = (user.transactions || []).map((tx) => ({
+      id: tx.id,
+      type: tx.type,
+      description: tx.description,
+      amount: Number(tx.amount || 0),
+      status: tx.status,
+      reference: tx.reference || "",
+      createdAt: tx.createdAt,
+      processedAt: tx.processedAt || "",
+      completedAt: tx.completedAt || "",
+      balanceAfter: tx.balanceAfter,
+      beneficiary: tx.beneficiary || null
+    }));
+
+    sendJson(res, 200, {
+      email: user.email,
+      name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+      accountBalance: user.account.balance,
+      accountStatus: user.account.status,
+      transactions,
+      storage: getDatabaseInfo()
+    });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Failed to load user transactions" });
+  }
+}
+
 module.exports = {
   approveAccountAsAdmin,
   sendApprovalEmailAsAdmin,
@@ -245,5 +314,7 @@ module.exports = {
   denyTransactionAsAdmin,
   getAdminSummary,
   getPersistenceStatus,
-  getEmailOutbox
+  getEmailOutbox,
+  getUserTransactionDebug,
+  sendCustomEmailAsAdmin
 };

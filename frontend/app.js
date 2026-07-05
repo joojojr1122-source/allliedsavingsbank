@@ -50,6 +50,9 @@ const adminMetrics = document.querySelector("#adminMetrics");
 const adminUsers = document.querySelector("#adminUsers");
 const adminTransactions = document.querySelector("#adminTransactions");
 const adminEmailOutbox = document.querySelector("#adminEmailOutbox");
+const adminDebugEmail = document.querySelector("#adminDebugEmail");
+const adminDebugUserTx = document.querySelector("#adminDebugUserTx");
+const adminUserDebug = document.querySelector("#adminUserDebug");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
 const adminSearch = document.querySelector("#adminSearch");
 const adminStatusFilter = document.querySelector("#adminStatusFilter");
@@ -1166,6 +1169,56 @@ adminRefreshButton?.addEventListener("click", async () => {
   await loadAdminEmailOutbox(password);
 });
 
+async function loadAdminUserDebug(password) {
+  if (!adminDebugEmail || !adminUserDebug) return;
+
+  const email = (adminDebugEmail.value || "").trim();
+  if (!email) {
+    adminUserDebug.innerHTML = `<p class="form-note">Enter a user email above.</p>`;
+    return;
+  }
+
+  try {
+    const data = await apiRequest(`/api/admin/user-transactions/${encodeURIComponent(email)}`, {
+      auth: false,
+      headers: { "X-Admin-Password": password }
+    });
+
+    if (!data.transactions || !data.transactions.length) {
+      adminUserDebug.innerHTML = `<p class="form-note">No transactions found for ${escapeHtml(email)}.</p>`;
+      return;
+    }
+
+    adminUserDebug.innerHTML = `
+      <p class="form-note"><strong>${escapeHtml(data.name || email)}</strong> &middot; Balance: ${formatMoney(data.accountBalance, "USD")} &middot; Storage: ${escapeHtml(data.storage?.mode || "unknown")}</p>
+      ${data.transactions.map((tx) => `
+        <article class="admin-row">
+          <div>
+            <strong>${escapeHtml(tx.type)}</strong>
+            <span>${escapeHtml(tx.description || "")} &middot; ${escapeHtml(tx.reference || "")}</span>
+            <small>Created: ${tx.createdAt ? new Date(tx.createdAt).toLocaleString("en-US") : "-"} &middot; Processed: ${tx.processedAt ? new Date(tx.processedAt).toLocaleString("en-US") : "-"} &middot; Completed: ${tx.completedAt ? new Date(tx.completedAt).toLocaleString("en-US") : "-"}</small>
+          </div>
+          <div class="admin-tx-right">
+            <span>${formatMoney(tx.amount, "USD")}</span>
+            <span class="tx-status-badge tx-status-${tx.status === "Approved" ? "approved" : tx.status === "Reversed" ? "default" : tx.status === "Denied" ? "denied" : tx.status === "Completed" ? "completed" : tx.status === "Pending" ? "pending" : "default"}">${escapeHtml(tx.status)}</span>
+          </div>
+        </article>
+      `).join("")}
+    `;
+  } catch (error) {
+    adminUserDebug.innerHTML = `<p class="form-note" style="color:#c00">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+adminDebugUserTx?.addEventListener("click", async () => {
+  const password = sessionStorage.getItem("adminPassword");
+  if (!password) {
+    if (adminStatus) adminStatus.textContent = "Admin session expired. Please log in to /ops first.";
+    return;
+  }
+  await loadAdminUserDebug(password);
+});
+
 adminSearch?.addEventListener("input", renderAdminSummary);
 adminStatusFilter?.addEventListener("change", renderAdminSummary);
 
@@ -1279,6 +1332,46 @@ adminTransactions?.addEventListener("click", async (event) => {
     if (adminStatus) adminStatus.textContent = error.message;
   }
 });
+
+if (adminSendEmailForm) {
+  adminSendEmailForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = sessionStorage.getItem("adminPassword");
+    if (!password) {
+      if (adminSendEmailStatus) adminSendEmailStatus.textContent = "Admin session expired. Please log in to /ops first.";
+      return;
+    }
+
+    const data = formToJson(adminSendEmailForm);
+    if (adminSendEmailStatus) adminSendEmailStatus.textContent = "Sending email...";
+
+    try {
+      const result = await apiRequest("/api/admin/send-email", {
+        auth: false,
+        method: "POST",
+        headers: { "X-Admin-Password": password },
+        body: JSON.stringify({
+          to: data.to,
+          subject: data.subject,
+          text: data.text,
+          html: data.html || "",
+          from: data.from || ""
+        })
+      });
+
+      adminSendEmailForm.reset();
+      if (adminSendEmailStatus) {
+        adminSendEmailStatus.textContent = `Email queued for ${result.message.to}.`;
+        adminSendEmailStatus.classList.add("is-success");
+      }
+    } catch (error) {
+      if (adminSendEmailStatus) {
+        adminSendEmailStatus.textContent = error.message;
+        adminSendEmailStatus.classList.remove("is-success");
+      }
+    }
+  });
+}
 
 if (mobileMenuToggle) {
   mobileMenuToggle.addEventListener("click", () => {

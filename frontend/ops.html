@@ -66,6 +66,38 @@
             <div class="admin-table" id="adminEmailOutbox"></div>
             <button class="text-button" id="adminEmailOutboxRefresh" type="button">Refresh Emails</button>
           </article>
+          <article class="admin-panel">
+            <h2>Transaction Debug</h2>
+            <label>
+              User email
+              <input id="adminDebugEmail" type="email" placeholder="user@example.com">
+            </label>
+            <button class="text-button" id="adminDebugUserTx" type="button">Load Transactions</button>
+            <div class="admin-table" id="adminUserDebug"></div>
+          </article>
+          <article class="admin-panel">
+            <h2>Send Email</h2>
+            <form id="adminSendEmailForm" class="admin-form">
+              <label>
+                To
+                <input name="to" type="email" required>
+              </label>
+              <label>
+                Subject
+                <input name="subject" type="text" required>
+              </label>
+              <label>
+                From <span class="form-note">(optional)</span>
+                <input name="from" type="email">
+              </label>
+              <label>
+                Message
+                <textarea name="text" rows="6" required></textarea>
+              </label>
+              <button class="primary-button" type="submit">Send Email</button>
+            </form>
+            <p class="status" id="adminSendEmailStatus"></p>
+          </article>
         </section>
       </section>
     </main>

@@ -3,8 +3,10 @@ const {
   getAdminSummary,
   getEmailOutbox,
   getPersistenceStatus,
+  getUserTransactionDebug,
   rejectAccountAsAdmin,
   sendApprovalEmailAsAdmin,
+  sendCustomEmailAsAdmin,
   updateAccountStatus,
   approveTransactionAsAdmin,
   denyTransactionAsAdmin
@@ -27,6 +29,13 @@ async function handleAdminRoute(req, res, url) {
     return;
   }
 
+  if (req.method === "GET" && url.pathname.startsWith("/api/admin/user-transactions/")) {
+    const email = decodeURIComponent(url.pathname.replace("/api/admin/user-transactions/", ""));
+    req.adminApprovalEmail = email;
+    await getUserTransactionDebug(req, res);
+    return;
+  }
+
   if (req.method === "POST") {
     const approveMatch = url.pathname.match(/^\/api\/admin\/approve-account\/(.+)\/?$/);
     if (approveMatch) {
@@ -39,6 +48,12 @@ async function handleAdminRoute(req, res, url) {
     if (approvalEmailMatch) {
       req.adminApprovalEmail = decodeURIComponent(approvalEmailMatch[1]);
       await sendApprovalEmailAsAdmin(req, res);
+      return;
+    }
+
+    const sendEmailMatch = url.pathname.match(/^\/api\/admin\/send-email\/?$/);
+    if (sendEmailMatch) {
+      await sendCustomEmailAsAdmin(req, res);
       return;
     }
 
