@@ -53,6 +53,8 @@ const adminEmailOutbox = document.querySelector("#adminEmailOutbox");
 const adminDebugEmail = document.querySelector("#adminDebugEmail");
 const adminDebugUserTx = document.querySelector("#adminDebugUserTx");
 const adminUserDebug = document.querySelector("#adminUserDebug");
+const adminSendEmailForm = document.querySelector("#adminSendEmailForm");
+const adminSendEmailStatus = document.querySelector("#adminSendEmailStatus");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
 const adminSearch = document.querySelector("#adminSearch");
 const adminStatusFilter = document.querySelector("#adminStatusFilter");
@@ -1651,7 +1653,6 @@ async function restoreSession() {
   }
 
   if (isAuthPage) {
-    if (window.location.pathname.includes("login")) goToLoading("Restoring your secure session...");
     return;
   }
 
