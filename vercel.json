@@ -155,6 +155,10 @@
       "dest": "/frontend/favicon.svg"
     },
     {
+      "src": "/assets/(.*)",
+      "dest": "/frontend/assets/$1"
+    },
+    {
       "src": "/robots.txt",
       "dest": "/frontend/robots.txt"
     },
