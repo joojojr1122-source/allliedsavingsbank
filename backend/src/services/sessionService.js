@@ -83,9 +83,39 @@ function base64UrlEncode(value) {
   return Buffer.from(value).toString("base64url");
 }
 
+function createStateToken(payload) {
+  const body = base64UrlEncode(JSON.stringify(payload));
+  const signature = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
+  return `${body}.${signature}`;
+}
+
+function verifyStateToken(token) {
+  const [body, signature] = String(token || "").split(".");
+
+  if (!body || !signature) {
+    return null;
+  }
+
+  const expectedSignature = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
+  const received = Buffer.from(signature);
+  const expected = Buffer.from(expectedSignature);
+
+  if (received.length !== expected.length || !crypto.timingSafeEqual(received, expected)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+  } catch (error) {
+    return null;
+  }
+}
+
 module.exports = {
   createSession,
   getTokenFromRequest,
   getUserIdFromRequest,
-  deleteSession
+  deleteSession,
+  createStateToken,
+  verifyStateToken
 };

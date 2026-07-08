@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
   if (req.method === "GET" && (url.pathname === "/health" || url.pathname === "/api/health")) {
     sendJson(res, 200, {
       ok: true,
-      service: "turkishbank-account-portal",
+      service: "allied-savings-account-portal",
       timestamp: new Date().toISOString(),
       database: getDatabaseInfo(),
       environment: {

@@ -14,7 +14,7 @@ const {
   requestPasswordReset,
   resetPassword
 } = require("../services/userService");
-const { createSession, deleteSession, getTokenFromRequest, getUserIdFromRequest } = require("../services/sessionService");
+const { createSession, deleteSession, getTokenFromRequest, getUserIdFromRequest, createStateToken, verifyStateToken } = require("../services/sessionService");
 const { hashPassword, verifyPassword } = require("../utils/security");
 
 const LOGIN_CODE_TTL_MS = 10 * 60 * 1000;
@@ -74,7 +74,7 @@ async function login(req, res) {
 
     sendJson(res, 200, {
       requiresVerification: true,
-      verificationId: challenge.id,
+      verificationId: challenge.token,
       email: maskEmail(user.email),
       message: `We sent a 6-digit verification code to ${maskEmail(user.email)}.`
     });
@@ -95,51 +95,29 @@ async function verifyLogin(req, res) {
       return;
     }
 
-    const database = await readDatabase();
-    const user = (database.users || []).find((item) => item.security?.loginVerification?.id === verificationId);
+    const challenge = verifyStateToken(verificationId);
 
-    if (!user) {
-      sendJson(res, 404, { error: "Verification request was not found. Please sign in again." });
+    if (!challenge || !challenge.userId || !challenge.codeHash) {
+      sendJson(res, 401, { error: "Verification link is invalid. Please sign in again." });
       return;
     }
 
-    const challenge = user.security.loginVerification;
-
     if (new Date(challenge.expiresAt).getTime() < Date.now()) {
-      delete user.security.loginVerification;
-      appendAuthAudit(user, "LOGIN_VERIFICATION_EXPIRED");
-      await writeDatabase(database);
       sendJson(res, 410, { error: "Verification code expired. Please sign in again." });
       return;
     }
 
     if (!verifyPassword(code, challenge.codeHash)) {
-      challenge.attempts = Number(challenge.attempts || 0) + 1;
-
-      if (challenge.attempts >= LOGIN_CODE_MAX_ATTEMPTS) {
-        delete user.security.loginVerification;
-        appendAuthAudit(user, "LOGIN_VERIFICATION_LOCKED");
-        await writeDatabase(database);
-        await recordFailedLogin(user.email);
-        sendJson(res, 423, { error: "Too many incorrect verification attempts. Please sign in again." });
-        return;
-      }
-
-      await writeDatabase(database);
       sendJson(res, 401, { error: "Verification code is incorrect" });
       return;
     }
 
-    delete user.security.loginVerification;
-    appendAuthAudit(user, "LOGIN_VERIFICATION_SUCCESS");
-    await writeDatabase(database);
-
-    const loggedInUser = await recordSuccessfulLogin(user.id);
-    const token = createSession(user.id);
+    const loggedInUser = await recordSuccessfulLogin(challenge.userId);
+    const token = createSession(challenge.userId);
 
     sendJson(res, 200, {
       token,
-      user: publicUser(loggedInUser || user)
+      user: publicUser(loggedInUser)
     });
   } catch (error) {
     console.error("Login verification error:", error);
@@ -271,20 +249,16 @@ async function createLoginVerificationChallenge(userId) {
   }
 
   const code = String(crypto.randomInt(100000, 1000000));
-  const id = crypto.randomUUID();
-  user.security = user.security || {};
-  user.security.loginVerification = {
-    id,
+  const expiresAt = new Date(Date.now() + LOGIN_CODE_TTL_MS).toISOString();
+  const token = createStateToken({
+    userId,
     codeHash: hashPassword(code),
-    expiresAt: new Date(Date.now() + LOGIN_CODE_TTL_MS).toISOString(),
-    attempts: 0,
-    createdAt: new Date().toISOString()
-  };
+    expiresAt
+  });
   appendAuthAudit(user, "LOGIN_VERIFICATION_CREATED");
-
   await writeDatabase(database);
 
-  return { id, code, user };
+  return { token, code, user };
 }
 
 function appendAuthAudit(user, action) {
