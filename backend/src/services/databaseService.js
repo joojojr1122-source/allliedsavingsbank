@@ -415,7 +415,7 @@ async function writeRemoteDatabase(database) {
   }
 }
 
-const BLOB_PATHNAME = `/${REMOTE_DATABASE_KEY}.json`;
+const BLOB_PATHNAME = `${REMOTE_DATABASE_KEY}.json`;
 
 async function readBlobDatabase() {
   try {
@@ -424,7 +424,9 @@ async function readBlobDatabase() {
       prefix: REMOTE_DATABASE_KEY
     });
 
-    const existing = result.blobs.find((blob) => blob.pathname === BLOB_PATHNAME);
+    const existing = result.blobs.find(
+      (blob) => blob.pathname === BLOB_PATHNAME || blob.pathname === BLOB_PATHNAME.replace(/^\//, "")
+    );
 
     if (!existing) {
       return null;
