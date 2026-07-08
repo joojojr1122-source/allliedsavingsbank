@@ -70,7 +70,27 @@ async function login(req, res) {
     }
 
     const challenge = await createLoginVerificationChallenge(user.id);
-    await queueLoginVerificationEmail(challenge.user, challenge.code);
+    const verificationEmail = await queueLoginVerificationEmail(challenge.user, challenge.code);
+    const requireLoginVerification = process.env.REQUIRE_LOGIN_VERIFICATION === "true";
+
+    if (verificationEmail.status !== "Sent") {
+      if (requireLoginVerification) {
+        sendJson(res, 503, {
+          error: `Verification email could not be sent. ${verificationEmail.error || "Check your email delivery settings."}`
+        });
+        return;
+      }
+
+      const loggedInUser = await recordSuccessfulLogin(user.id);
+      const token = createSession(user.id);
+
+      sendJson(res, 200, {
+        token,
+        user: publicUser(loggedInUser),
+        message: "Signed in. Verification email delivery is not available."
+      });
+      return;
+    }
 
     sendJson(res, 200, {
       requiresVerification: true,

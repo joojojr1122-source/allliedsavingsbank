@@ -210,7 +210,8 @@ async function readDatabase() {
 
       if (synced !== database) {
         try {
-          await writeDatabase(synced);
+          synced.updatedAt = new Date().toISOString();
+          await persistDatabase(synced);
         } catch (error) {
           console.error("[DB] could not persist seed refresh", error);
         }
@@ -233,7 +234,8 @@ async function readDatabase() {
 
       if (synced !== database) {
         try {
-          await writeDatabase(synced);
+          synced.updatedAt = new Date().toISOString();
+          await persistDatabase(synced);
         } catch (error) {
           console.error("[DB] could not persist seed refresh", error);
         }
@@ -268,7 +270,8 @@ async function readDatabase() {
 
     if (synced !== database) {
       try {
-        await writeDatabase(synced);
+        synced.updatedAt = new Date().toISOString();
+        await persistDatabase(synced);
       } catch (error) {
         console.error("[DB] could not persist seed refresh", error);
       }
@@ -282,11 +285,14 @@ async function readDatabase() {
 async function writeDatabase(database) {
   database.updatedAt = new Date().toISOString();
 
-  return withDbLock(async () => {
-    if (NEON_DATABASE_URL) {
-      const result = await withPgPool(async (client) => {
-        const insertResult = await client.query(
-          `
+  return withDbLock(async () => persistDatabase(database));
+}
+
+async function persistDatabase(database) {
+  if (NEON_DATABASE_URL) {
+    const result = await withPgPool(async (client) => {
+      const insertResult = await client.query(
+        `
             INSERT INTO portal_data (key, json_data, updated_at)
             VALUES ($1, $2::jsonb, now())
             ON CONFLICT (key)
@@ -294,47 +300,46 @@ async function writeDatabase(database) {
               json_data = EXCLUDED.json_data::jsonb,
               updated_at = EXCLUDED.updated_at
           `,
-          [REMOTE_DATABASE_KEY, JSON.stringify(database)]
-        );
-        return insertResult;
-      });
+        [REMOTE_DATABASE_KEY, JSON.stringify(database)]
+      );
+      return insertResult;
+    });
 
-      if (!result || result.rowCount === 0) {
-        console.error("[DB] Neon write failed or no rows affected:", result);
-        throw new Error("Neon write failed");
-      }
-      return;
+    if (!result || result.rowCount === 0) {
+      console.error("[DB] Neon write failed or no rows affected:", result);
+      throw new Error("Neon write failed");
     }
+    return;
+  }
 
-    if (BLOB_TOKEN) {
-      try {
-        await writeBlobDatabase(database);
-      } catch (error) {
-        console.error("[DB] Blob write failed:", error);
-      }
-      return;
+  if (BLOB_TOKEN) {
+    try {
+      await writeBlobDatabase(database);
+    } catch (error) {
+      console.error("[DB] Blob write failed:", error);
     }
+    return;
+  }
 
-    if (hasRemoteDatabase()) {
-      try {
-        await writeRemoteDatabase(database);
-      } catch (error) {
-        console.error("[DB] remote write failed (continuing without persist)", error);
-      }
-      return;
+  if (hasRemoteDatabase()) {
+    try {
+      await writeRemoteDatabase(database);
+    } catch (error) {
+      console.error("[DB] remote write failed (continuing without persist)", error);
     }
+    return;
+  }
 
-    if (process.env.VERCEL) {
-      vercelDatabaseCache = database;
-      return;
-    }
+  if (process.env.VERCEL) {
+    vercelDatabaseCache = database;
+    return;
+  }
 
-    await ensureDatabaseFile();
-    const payload = JSON.stringify(database, null, 2);
-    console.error("[DB] Writing to", DATABASE_PATH, "user count:", (database.users || []).length, "payload length:", payload.length);
-    await fs.writeFile(DATABASE_PATH, payload);
-    console.error("[DB] Write complete");
-  });
+  await ensureDatabaseFile();
+  const payload = JSON.stringify(database, null, 2);
+  console.error("[DB] Writing to", DATABASE_PATH, "user count:", (database.users || []).length, "payload length:", payload.length);
+  await fs.writeFile(DATABASE_PATH, payload);
+  console.error("[DB] Write complete");
 }
 
 async function ensureDatabaseFile() {

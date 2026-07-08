@@ -129,7 +129,7 @@ function buildPendingTransactionEmail(transaction, customer) {
 }
 
 async function queueTransactionNotification(transaction, customer) {
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM;
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_FROM || process.env.SMTP_FROM;
 
   if (!adminEmail) {
     return null;
@@ -137,7 +137,7 @@ async function queueTransactionNotification(transaction, customer) {
 
   const database = await readDatabase();
   const message = buildPendingTransactionEmail(transaction, customer);
-  const smtpConfigured = hasSmtpConfig();
+  const emailProvider = getEmailProvider();
   const outboxEntry = {
     id: crypto.randomUUID(),
     type: "PENDING_TRANSACTION",
@@ -148,7 +148,7 @@ async function queueTransactionNotification(transaction, customer) {
     html: message.html,
     createdAt: new Date().toISOString(),
     sentAt: "",
-    provider: smtpConfigured ? "smtp" : "local-outbox",
+    provider: emailProvider || "local-outbox",
     error: ""
   };
 
@@ -156,7 +156,7 @@ async function queueTransactionNotification(transaction, customer) {
   database.emailOutbox.unshift(outboxEntry);
   await writeDatabase(database);
 
-  if (smtpConfigured) {
+  if (emailProvider) {
     try {
       await sendEmail({
         to: outboxEntry.to,
@@ -170,9 +170,9 @@ async function queueTransactionNotification(transaction, customer) {
       await writeDatabase(database);
     } catch (error) {
       outboxEntry.status = "Failed";
-      outboxEntry.error = error.message || "SMTP delivery failed";
+      outboxEntry.error = error.message || "Email delivery failed";
       await writeDatabase(database);
-      console.error("SMTP delivery failed:", outboxEntry.error);
+      console.error("Email delivery failed:", outboxEntry.error);
     }
   }
 
@@ -194,7 +194,7 @@ async function queueApprovalEmail(email) {
   database.emailOutbox = database.emailOutbox || [];
 
   const message = buildApprovalEmail(user);
-  const smtpConfigured = hasSmtpConfig();
+  const emailProvider = getEmailProvider();
   const outboxEntry = {
     id: crypto.randomUUID(),
     type: "ACCOUNT_APPROVAL",
@@ -205,7 +205,7 @@ async function queueApprovalEmail(email) {
     html: message.html,
     createdAt: new Date().toISOString(),
     sentAt: "",
-    provider: smtpConfigured ? "smtp" : "local-outbox",
+    provider: emailProvider || "local-outbox",
     error: ""
   };
 
@@ -221,7 +221,7 @@ async function queueApprovalEmail(email) {
 
   await writeDatabase(database);
 
-  if (smtpConfigured) {
+  if (emailProvider) {
     try {
       await sendEmail({
         to: outboxEntry.to,
@@ -235,9 +235,9 @@ async function queueApprovalEmail(email) {
       await writeDatabase(database);
     } catch (error) {
       outboxEntry.status = "Failed";
-      outboxEntry.error = error.message || "SMTP delivery failed";
+      outboxEntry.error = error.message || "Email delivery failed";
       await writeDatabase(database);
-      console.error("SMTP delivery failed:", outboxEntry.error);
+      console.error("Email delivery failed:", outboxEntry.error);
     }
   }
 
@@ -255,7 +255,7 @@ async function queueLoginVerificationEmail(user, code) {
   database.emailOutbox = database.emailOutbox || [];
 
   const message = buildLoginVerificationEmail(storedUser, code);
-  const smtpConfigured = hasSmtpConfig();
+  const emailProvider = getEmailProvider();
   const outboxEntry = {
     id: crypto.randomUUID(),
     type: "LOGIN_VERIFICATION",
@@ -266,7 +266,7 @@ async function queueLoginVerificationEmail(user, code) {
     html: message.html,
     createdAt: new Date().toISOString(),
     sentAt: "",
-    provider: smtpConfigured ? "smtp" : "local-outbox",
+    provider: emailProvider || "local-outbox",
     error: ""
   };
 
@@ -281,7 +281,7 @@ async function queueLoginVerificationEmail(user, code) {
 
   await writeDatabase(database);
 
-  if (smtpConfigured) {
+  if (emailProvider) {
     try {
       await sendEmail({
         to: outboxEntry.to,
@@ -295,9 +295,9 @@ async function queueLoginVerificationEmail(user, code) {
       await writeDatabase(database);
     } catch (error) {
       outboxEntry.status = "Failed";
-      outboxEntry.error = error.message || "SMTP delivery failed";
+      outboxEntry.error = error.message || "Email delivery failed";
       await writeDatabase(database);
-      console.error("SMTP delivery failed:", outboxEntry.error);
+      console.error("Email delivery failed:", outboxEntry.error);
     }
   }
 
@@ -310,7 +310,7 @@ async function queueCustomEmail({ to, subject, text, html, from }) {
   }
 
   const database = await readDatabase();
-  const smtpConfigured = hasSmtpConfig();
+  const emailProvider = getEmailProvider();
   const outboxEntry = {
     id: crypto.randomUUID(),
     type: "CUSTOM_ADMIN_EMAIL",
@@ -322,7 +322,7 @@ async function queueCustomEmail({ to, subject, text, html, from }) {
     from: from ? String(from).trim() : "",
     createdAt: new Date().toISOString(),
     sentAt: "",
-    provider: smtpConfigured ? "smtp" : "local-outbox",
+    provider: emailProvider || "local-outbox",
     error: ""
   };
 
@@ -330,7 +330,7 @@ async function queueCustomEmail({ to, subject, text, html, from }) {
   database.emailOutbox.unshift(outboxEntry);
   await writeDatabase(database);
 
-  if (smtpConfigured) {
+  if (emailProvider) {
     try {
       await sendEmail({
         to: outboxEntry.to,
@@ -345,9 +345,9 @@ async function queueCustomEmail({ to, subject, text, html, from }) {
       await writeDatabase(database);
     } catch (error) {
       outboxEntry.status = "Failed";
-      outboxEntry.error = error.message || "SMTP delivery failed";
+      outboxEntry.error = error.message || "Email delivery failed";
       await writeDatabase(database);
-      console.error("SMTP delivery failed:", outboxEntry.error);
+      console.error("Email delivery failed:", outboxEntry.error);
     }
   }
 
@@ -355,25 +355,30 @@ async function queueCustomEmail({ to, subject, text, html, from }) {
 }
 
 function hasSmtpConfig() {
+  return Boolean(getEmailProvider());
+}
+
+function getEmailProvider() {
   if (process.env.DISABLE_SMTP === "true") {
-    return false;
+    return "";
   }
-  const hasSmpt = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-  const hasResend = Boolean(process.env.RESEND_API_KEY);
-  return hasSmpt || hasResend;
+  if (process.env.RESEND_API_KEY) {
+    return "resend";
+  }
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return "smtp";
+  }
+  return "";
 }
 
 async function sendEmail(message) {
   if (process.env.RESEND_API_KEY) {
-    try {
-      return await sendResendMail(message);
-    } catch (resendError) {
-      console.error("Resend failed, falling back to SMTP:", resendError.message);
-    }
+    return sendResendMail(message);
   }
-  if (process.env.SMTP_USER) {
-    await sendSmtpMail(message);
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return sendSmtpMail(message);
   }
+  throw new Error("Email delivery is not configured");
 }
 
 async function sendResendMail(message) {
@@ -382,11 +387,11 @@ async function sendResendMail(message) {
     throw new Error("RESEND_API_KEY is not configured");
   }
 
-  const from = message.from || process.env.SMTP_FROM || "";
-  const fromName = message.fromName || process.env.SMTP_FROM_NAME || "Allied Savings Operations";
+  const from = message.from || process.env.RESEND_FROM || process.env.SMTP_FROM || "";
+  const fromName = message.fromName || process.env.RESEND_FROM_NAME || process.env.SMTP_FROM_NAME || "Allied Savings Operations";
 
   if (!from) {
-    throw new Error("Email 'from' address is not configured. Set RESEND_API_KEY or SMTP_FROM.");
+    throw new Error("Email 'from' address is not configured. Set RESEND_FROM to a verified Resend sender.");
   }
 
   const response = await fetch("https://api.resend.com/emails", {

@@ -9,6 +9,7 @@ Set these in your Vercel dashboard under Settings → Environment Variables:
 |----------|---------|----------|
 | `ADMIN_PASSWORD` | Admin panel password for `/ops.html` | Yes (production) |
 | `SESSION_SECRET` | Sign customer session tokens | Yes (production) |
+| `REQUIRE_LOGIN_VERIFICATION` | Set to `true` to block login unless the verification email is delivered | No |
 | `SMTP_HOST` | Brevo SMTP server | No |
 | `SMTP_PORT` | SMTP port (587) | No |
 | `SMTP_USER` | Brevo SMTP login | No |
@@ -16,6 +17,8 @@ Set these in your Vercel dashboard under Settings → Environment Variables:
 | `SMTP_FROM` | From email address | No |
 | `SMTP_FROM_NAME` | From display name | No |
 | `RESEND_API_KEY` | Resend API key (preferred email delivery) | For email delivery |
+| `RESEND_FROM` | Verified Resend sender address, for example `onboarding@your-domain.com` | For Resend delivery |
+| `RESEND_FROM_NAME` | Resend sender display name | No |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token (preferred persistent storage) | For cross-device sync |
 | `DATABASE_URL` | Neon PostgreSQL connection string | Yes (production) |
 
