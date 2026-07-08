@@ -437,7 +437,6 @@ async function approveTransaction(userId, transactionId) {
 
   tx.status = "Approved";
   tx.processedAt = new Date().toISOString();
-  tx.completedAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
   tx.balanceAfter = nextBalance;
   user.account.balance = nextBalance;
 

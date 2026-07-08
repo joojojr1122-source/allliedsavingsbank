@@ -251,6 +251,7 @@ async function getEmailOutbox(req, res) {
       status: entry.status,
       to: entry.to,
       subject: entry.subject,
+      text: entry.text,
       provider: entry.provider,
       error: entry.error,
       createdAt: entry.createdAt,

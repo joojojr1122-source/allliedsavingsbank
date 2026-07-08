@@ -304,6 +304,56 @@ async function queueLoginVerificationEmail(user, code) {
   return outboxEntry;
 }
 
+async function queueCustomEmail({ to, subject, text, html, from }) {
+  if (!to || !subject || !text) {
+    throw statusError(400, "Missing required email fields: to, subject, and text are required");
+  }
+
+  const database = await readDatabase();
+  const smtpConfigured = hasSmtpConfig();
+  const outboxEntry = {
+    id: crypto.randomUUID(),
+    type: "CUSTOM_ADMIN_EMAIL",
+    status: "Queued",
+    to: String(to).trim(),
+    subject: String(subject).trim(),
+    text: String(text),
+    html: String(html || ""),
+    from: from ? String(from).trim() : "",
+    createdAt: new Date().toISOString(),
+    sentAt: "",
+    provider: smtpConfigured ? "smtp" : "local-outbox",
+    error: ""
+  };
+
+  database.emailOutbox = database.emailOutbox || [];
+  database.emailOutbox.unshift(outboxEntry);
+  await writeDatabase(database);
+
+  if (smtpConfigured) {
+    try {
+      await sendEmail({
+        to: outboxEntry.to,
+        subject: outboxEntry.subject,
+        text: outboxEntry.text,
+        html: outboxEntry.html || undefined,
+        from: outboxEntry.from || undefined
+      });
+
+      outboxEntry.status = "Sent";
+      outboxEntry.sentAt = new Date().toISOString();
+      await writeDatabase(database);
+    } catch (error) {
+      outboxEntry.status = "Failed";
+      outboxEntry.error = error.message || "SMTP delivery failed";
+      await writeDatabase(database);
+      console.error("SMTP delivery failed:", outboxEntry.error);
+    }
+  }
+
+  return outboxEntry;
+}
+
 function hasSmtpConfig() {
   if (process.env.DISABLE_SMTP === "true") {
     return false;
@@ -590,5 +640,6 @@ module.exports = {
   getLatestApprovalEmail,
   queueApprovalEmail,
   queueLoginVerificationEmail,
-  queueTransactionNotification
+  queueTransactionNotification,
+  queueCustomEmail
 };
