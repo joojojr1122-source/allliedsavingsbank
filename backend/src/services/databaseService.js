@@ -454,7 +454,7 @@ async function writeBlobDatabase(database) {
     await put(BLOB_PATHNAME, JSON.stringify(database, null, 2), {
       token: BLOB_TOKEN,
       contentType: "application/json",
-      access: "private"
+      access: "public"
     });
     blobCache = null;
   } catch (error) {
