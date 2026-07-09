@@ -1,4 +1,4 @@
-const { getDatabaseInfo, readDatabase } = require("../services/databaseService");
+const { getDatabaseInfo, readDatabase, writeDatabase } = require("../services/databaseService");
 const {
   getLatestApprovalEmail,
   queueApprovalEmail,
