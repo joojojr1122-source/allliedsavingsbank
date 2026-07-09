@@ -8,7 +8,8 @@ const {
   updateAccountControls,
   updateProfile,
   approveTransaction,
-  denyTransaction
+  denyTransaction,
+  updateScheduledPayment
 } = require("../controllers/accountController");
 const { sendJson } = require("../utils/http");
 
@@ -44,14 +45,21 @@ async function handleAccountRoute(req, res, url) {
   }
 
   if (req.method === "PATCH") {
-    const match = url.pathname.match(/^\/api\/account\/transaction\/([^/]+)\/(approve|deny)\/?$/);
-    if (match) {
-      req.transactionId = match[1];
-      if (match[2] === "approve") {
+    const approvalMatch = url.pathname.match(/^\/api\/account\/transaction\/([^/]+)\/(approve|deny)\/?$/);
+    if (approvalMatch) {
+      req.transactionId = approvalMatch[1];
+      if (approvalMatch[2] === "approve") {
         await approveTransaction(req, res);
       } else {
         await denyTransaction(req, res);
       }
+      return;
+    }
+
+    const editMatch = url.pathname.match(/^\/api\/account\/transaction\/([^/]+)\/?$/);
+    if (editMatch) {
+      req.transactionId = editMatch[1];
+      await updateScheduledPayment(req, res);
       return;
     }
   }

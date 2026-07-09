@@ -435,8 +435,12 @@ async function approveTransaction(userId, transactionId) {
     throw statusError(400, "Insufficient available balance");
   }
 
+  const now = new Date();
+  const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
   tx.status = "Approved";
-  tx.processedAt = new Date().toISOString();
+  tx.processedAt = now.toISOString();
+  tx.completedAt = twoWeeksFromNow.toISOString();
   tx.balanceAfter = nextBalance;
   user.account.balance = nextBalance;
 
@@ -656,7 +660,7 @@ function settleDueScheduledTransfers(user, now = new Date()) {
         appendAudit(user, "SCHEDULED_TRANSFER_COMPLETED", transaction.reference || "");
 
         if (shouldRepeatTransfer(transaction)) {
-          user.transactions.unshift(buildRecurringTransfer(transaction, now));
+          user.transactions.unshift(buildRecurringTransfer(transaction, now, user));
         }
       }
 
@@ -691,7 +695,7 @@ function settleDueApprovedTransactions(user, now = new Date()) {
   return changed;
 }
 
-function buildRecurringTransfer(transaction, now) {
+function buildRecurringTransfer(transaction, now, user) {
   return {
     id: crypto.randomUUID(),
     type: "Transfer",

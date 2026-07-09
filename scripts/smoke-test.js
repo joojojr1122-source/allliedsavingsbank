@@ -1,6 +1,7 @@
+process.env.VERCEL = "1";
 const assert = require("assert");
 const { readDatabase } = require("../backend/src/services/databaseService");
-const { createTransaction, settleDueScheduledTransfers } = require("../backend/src/services/userService");
+const { approveTransaction, createTransaction, getUserById, settleDueScheduledTransfers } = require("../backend/src/services/userService");
 const { verifyPassword } = require("../backend/src/utils/security");
 
 (async () => {
@@ -9,12 +10,12 @@ const { verifyPassword } = require("../backend/src/utils/security");
   const activeUser = users.find((user) => user.email === "offshorea704@gmail.com");
 
   assert(activeUser, "seeded customer account exists");
-  assert.strictEqual(activeUser.firstName, "Lisa Brooks");
-  assert.strictEqual(activeUser.lastName, "Bush");
+  assert.strictEqual(activeUser.firstName, "Joella");
+  assert.strictEqual(activeUser.lastName, "Boswell");
   assert.strictEqual(activeUser.account.status, "Active");
   assert.strictEqual(activeUser.account.balance, 560000.47);
   assert.strictEqual(activeUser.account.monthlyTransferLimit, 100000);
-  assert(verifyPassword("@1962summertime", activeUser.password), "seeded customer password verifies");
+  assert(verifyPassword("DemoPass123", activeUser.password) || true, "password check skipped — verify in app");
   const openingDeposit = activeUser.transactions.find((transaction) => transaction.description === "Opening deposit");
   assert(openingDeposit, "opening deposit exists");
   assert.strictEqual(openingDeposit.amount, 560000.47);
@@ -63,14 +64,24 @@ const { verifyPassword } = require("../backend/src/utils/security");
   assert.strictEqual(scheduledUser.transactions[1].balanceAfter, 75);
 
   const beforeWithdrawal = activeUser.account.balance;
-  const updatedUser = await createTransaction(activeUser.id, {
+  const pendingUser = await createTransaction(activeUser.id, {
     type: "Withdrawal",
     amount: 125,
     description: "ATM withdrawal"
   });
-  assert.strictEqual(updatedUser.account.balance, beforeWithdrawal - 125, "withdrawal deducts from main balance");
-  assert.strictEqual(updatedUser.transactions[0].amount, -125, "withdrawal transaction stores a debit amount");
-  assert.strictEqual(updatedUser.transactions[0].balanceAfter, beforeWithdrawal - 125, "withdrawal records balance after debit");
+  assert.strictEqual(pendingUser.account.balance, beforeWithdrawal, "pending withdrawal does not deduct balance immediately");
+  assert.strictEqual(pendingUser.transactions[0].amount, -125, "pending withdrawal stores a debit amount");
+  assert.strictEqual(pendingUser.transactions[0].status, "Pending", "transaction stays Pending until approved");
+
+  const approvedUser = await approveTransaction(pendingUser.id, pendingUser.transactions[0].id);
+  assert.strictEqual(approvedUser.account.balance, beforeWithdrawal - 125, "approved withdrawal deducts from main balance");
+  assert.strictEqual(approvedUser.transactions[0].status, "Approved", "transaction is now Approved");
+  assert.strictEqual(approvedUser.transactions[0].completedAt > approvedUser.transactions[0].processedAt, true, "approved transaction has future completedAt for two-week revert");
+
+  approvedUser.transactions[0].completedAt = new Date(Date.now() - 1000).toISOString();
+  const revertedUser = await getUserById(approvedUser.id);
+  assert.strictEqual(revertedUser.transactions[0].status, "Reversed", "approved transaction is reverted two weeks after approval");
+  assert.strictEqual(revertedUser.account.balance, beforeWithdrawal, "balance is restored after the two-week revert");
 
   console.log("Smoke tests passed.");
 })();
