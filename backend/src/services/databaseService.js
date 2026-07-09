@@ -18,6 +18,7 @@ const REMOTE_DATABASE_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_R
 const REMOTE_DATABASE_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
 let vercelDatabaseCache = null;
+let warnedVercelMemory = false;
 let pgPool = null;
 let pgReady = false;
 let lastConnectionError = null;
@@ -331,6 +332,14 @@ async function persistDatabase(database) {
   }
 
   if (process.env.VERCEL) {
+    if (!warnedVercelMemory) {
+      console.error(
+        "[DB] WARNING: BLOB_READ_WRITE_TOKEN (or DATABASE_URL) is not set on Vercel. " +
+        "Writes are kept in ephemeral memory only and reset on every cold start, so transactions " +
+        "will not persist or appear in the admin panel. Set BLOB_READ_WRITE_TOKEN and redeploy."
+      );
+      warnedVercelMemory = true;
+    }
     vercelDatabaseCache = database;
     return;
   }
