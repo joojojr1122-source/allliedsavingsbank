@@ -234,7 +234,39 @@ async function getAdminSummary(req, res) {
 }
 
 async function getPersistenceStatus(req, res) {
-  sendJson(res, 200, { database: getDatabaseInfo() });
+  const info = getDatabaseInfo();
+  try {
+    const database = await readDatabase();
+    const users = database.users || [];
+    const transactions = users.flatMap((user) => user.transactions || []);
+    let writeOk = null;
+    let writeError = "";
+    if (info.persistent) {
+      try {
+        await writeDatabase(database);
+        writeOk = true;
+      } catch (error) {
+        writeOk = false;
+        writeError = error && error.message ? error.message : String(error);
+      }
+    }
+    sendJson(res, 200, {
+      database: info,
+      writeOk,
+      writeError,
+      storage: {
+        schemaVersion: database.schemaVersion,
+        users: users.length,
+        transactions: transactions.length
+      }
+    });
+  } catch (error) {
+    sendJson(res, 200, {
+      database: info,
+      writeOk: false,
+      writeError: error && error.message ? error.message : String(error)
+    });
+  }
 }
 
 async function getEmailOutbox(req, res) {

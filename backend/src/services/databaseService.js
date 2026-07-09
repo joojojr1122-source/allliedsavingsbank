@@ -314,11 +314,7 @@ async function persistDatabase(database) {
   }
 
   if (BLOB_TOKEN) {
-    try {
-      await writeBlobDatabase(database);
-    } catch (error) {
-      console.error("[DB] Blob write failed:", error);
-    }
+    await writeBlobDatabase(database);
     return;
   }
 
@@ -454,17 +450,17 @@ async function readBlobDatabase() {
 }
 
 async function writeBlobDatabase(database) {
-  await put(
-    BLOB_PATHNAME,
-    JSON.stringify(database, null, 2),
-    {
+  try {
+    await put(BLOB_PATHNAME, JSON.stringify(database, null, 2), {
       token: BLOB_TOKEN,
       contentType: "application/json",
       access: "private"
-    }
-  );
-
-  blobCache = null;
+    });
+    blobCache = null;
+  } catch (error) {
+    console.error("[DB] Blob write failed:", error);
+    throw error;
+  }
 }
 
 async function closePoolSilently() {
