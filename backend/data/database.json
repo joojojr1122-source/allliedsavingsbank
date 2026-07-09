@@ -1,7 +1,107 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-06-21T23:58:18.375Z",
+  "updatedAt": "2026-07-09T16:18:29.799Z",
   "users": [
+    {
+      "id": "acct-offshore-001",
+      "firstName": "Joella",
+      "lastName": "Boswell",
+      "email": "offshorea704@gmail.com",
+      "password": "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643",
+      "application": {
+        "product": "Checking Account",
+        "phone": "757 981-4493",
+        "address": "2104 Oregon Ave, Portsmouth, VA 23701",
+        "dateOfBirth": "1985-03-14",
+        "employmentStatus": "Employed",
+        "status": "Approved",
+        "decisionReason": "",
+        "submittedAt": "2024-11-08T11:20:00.000Z",
+        "decidedAt": "2024-11-12T09:00:00.000Z"
+      },
+      "account": {
+        "type": "Checking Account",
+        "number": "80420742",
+        "routingNumber": "026009593",
+        "currency": "USD",
+        "balance": 560000.47,
+        "openedAt": "2024-11-12T09:15:00.000Z",
+        "status": "Active",
+        "dailyTransferLimit": 2500,
+        "monthlyTransferLimit": 100000,
+        "cardStatus": "Active",
+        "cardLastFour": "4821",
+        "cardExpiry": "08/28",
+        "overdraft": 0
+      },
+      "beneficiaries": [],
+      "transactions": [
+        {
+          "id": "tx-opening-001",
+          "type": "Account Opening",
+          "description": "Account opened",
+          "amount": 0,
+          "balanceAfter": 0,
+          "createdAt": "2024-11-12T09:15:00.000Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "OPENING",
+          "category": "Account",
+          "tags": []
+        },
+        {
+          "id": "tx-opening-deposit-001",
+          "type": "Deposit",
+          "description": "Opening deposit",
+          "amount": 560000.47,
+          "balanceAfter": 560000.47,
+          "createdAt": "2026-05-21T11:42:00.000Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "DEP21MAY804207",
+          "category": "Incoming Payment",
+          "tags": [
+            "credit",
+            "savings"
+          ]
+        }
+      ],
+      "notificationState": {
+        "readIds": [],
+        "readAtById": {}
+      },
+      "preferences": {
+        "emailAlerts": true,
+        "smsAlerts": true,
+        "statementFrequency": "Monthly"
+      },
+      "auditLog": [
+        {
+          "id": "audit-login-001",
+          "action": "LOGIN_SUCCESS",
+          "note": "Web browser",
+          "createdAt": "2026-05-22T18:42:00.000Z"
+        },
+        {
+          "id": "audit-deposit-001",
+          "action": "DEPOSIT_CREATED",
+          "note": "Opening deposit - DEP21MAY804207",
+          "createdAt": "2026-05-21T11:42:00.000Z"
+        },
+        {
+          "id": "audit-approved-001",
+          "action": "ACCOUNT_APPROVED",
+          "note": "",
+          "createdAt": "2024-11-12T09:00:00.000Z"
+        }
+      ],
+      "security": {
+        "lastLoginAt": "2026-05-22T18:42:00.000Z",
+        "failedLoginAttempts": 0,
+        "lockedUntil": ""
+      },
+      "createdAt": "2024-11-08T11:20:00.000Z"
+    },
     {
       "id": "acct-kelly-001",
       "firstName": "KELLY",
@@ -37,26 +137,7 @@
       "beneficiaries": [],
       "transactions": [
         {
-          "id": "ccb202ad-5330-46d5-a920-ba0714100b02",
-          "userId": "acct-kelly-001",
-          "type": "Deposit",
-          "description": "Test deposit kelly",
-          "category": "Deposit",
-          "tags": [],
-          "amount": 250,
-          "balanceAfter": 5450,
-          "createdAt": "2026-06-21T12:21:52.012Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "CR21JUN421642",
-          "beneficiary": null,
-          "repeatFrequency": "Once",
-          "processedAt": "2026-06-21T12:21:52.036Z",
-          "lastEditedAt": ""
-        },
-        {
           "id": "tx-kelly-opening-001",
-          "userId": "acct-kelly-001",
           "type": "Account Opening",
           "description": "Account opened",
           "amount": 0,
@@ -70,7 +151,6 @@
         },
         {
           "id": "tx-kelly-opening-deposit-001",
-          "userId": "acct-kelly-001",
           "type": "Deposit",
           "description": "Opening deposit",
           "amount": 5200,
@@ -97,18 +177,6 @@
       },
       "auditLog": [
         {
-          "id": "72850e08-964a-4dcd-8236-cf1a77726d62",
-          "action": "TRANSACTION_APPROVED",
-          "note": "CR21JUN421642",
-          "createdAt": "2026-06-21T12:21:52.036Z"
-        },
-        {
-          "id": "8ab6fc87-c837-40c7-8071-b31d0754c5fc",
-          "action": "DEPOSIT_CREATED",
-          "note": "",
-          "createdAt": "2026-06-21T12:21:52.012Z"
-        },
-        {
           "id": "audit-kelly-deposit-001",
           "action": "DEPOSIT_CREATED",
           "note": "Opening deposit - DEP12JUN804216",
@@ -126,203 +194,13 @@
         "failedLoginAttempts": 0,
         "lockedUntil": ""
       },
-      "createdAt": "2026-06-12T10:00:00.000Z",
-      "passwordReset": {
-        "token": "",
-        "expiresAt": "",
-        "requestedAt": ""
-      }
-    },
-    {
-      "id": "acct-offshore-001",
-      "firstName": "Joella",
-      "lastName": "Boswell",
-      "email": "offshorea704@gmail.com",
-      "password": "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643",
-      "application": {
-        "product": "Checking Account",
-        "phone": "757 981-4493",
-        "address": "2104 Oregon Ave, Portsmouth, VA 23701",
-        "dateOfBirth": "1985-03-14",
-        "employmentStatus": "Employed",
-        "status": "Approved",
-        "decisionReason": "",
-        "submittedAt": "2024-11-08T11:20:00.000Z",
-        "decidedAt": "2024-11-12T09:00:00.000Z"
-      },
-      "account": {
-        "type": "Checking Account",
-        "number": "80420742",
-        "routingNumber": "026009593",
-        "currency": "USD",
-        "balance": 560000.47,
-        "openedAt": "2024-11-12T09:15:00.000Z",
-        "status": "Active",
-        "dailyTransferLimit": 100000,
-        "monthlyTransferLimit": 100000,
-        "cardStatus": "Active",
-        "cardLastFour": "4821",
-        "cardExpiry": "08/28",
-        "overdraft": 0
-      },
-      "beneficiaries": [],
-      "transactions": [
-        {
-          "id": "702d6eb3-665c-4b18-98b1-f8a7c5c1eeda",
-          "userId": "acct-offshore-001",
-          "type": "Withdrawal",
-          "description": "Will be denied",
-          "category": "Withdrawal",
-          "tags": [],
-          "amount": -50,
-          "balanceAfter": 559900.47,
-          "createdAt": "2026-06-21T12:21:52.038Z",
-          "scheduledFor": "",
-          "status": "Denied",
-          "reference": "DB21JUN420742",
-          "beneficiary": null,
-          "repeatFrequency": "Once",
-          "processedAt": "2026-06-21T12:21:52.041Z",
-          "lastEditedAt": ""
-        },
-        {
-          "id": "b4c46f37-35e7-4015-8d51-9593409a5298",
-          "userId": "acct-offshore-001",
-          "type": "Withdrawal",
-          "description": "Test ATM offshore",
-          "category": "Withdrawal",
-          "tags": [],
-          "amount": -100,
-          "balanceAfter": 559900.47,
-          "createdAt": "2026-06-21T12:21:51.974Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "DB21JUN420742",
-          "beneficiary": null,
-          "repeatFrequency": "Once",
-          "processedAt": "2026-06-21T12:21:52.031Z",
-          "lastEditedAt": ""
-        },
-        {
-          "id": "ee388632-5d77-4b95-b93f-bd7aa47fed4f",
-          "userId": "acct-offshore-001",
-          "type": "Withdrawal",
-          "description": "Test ATM withdrawal offshore",
-          "category": "Withdrawal",
-          "tags": [],
-          "amount": -100,
-          "balanceAfter": 559900.47,
-          "createdAt": "2026-06-21T12:20:16.933Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "DB21JUN420742",
-          "beneficiary": null,
-          "repeatFrequency": "Once",
-          "processedAt": "",
-          "lastEditedAt": ""
-        },
-        {
-          "id": "tx-opening-001",
-          "userId": "acct-offshore-001",
-          "type": "Account Opening",
-          "description": "Account opened",
-          "amount": 0,
-          "balanceAfter": 0,
-          "createdAt": "2024-11-12T09:15:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "OPENING",
-          "category": "Account",
-          "tags": []
-        },
-        {
-          "id": "tx-opening-deposit-001",
-          "userId": "acct-offshore-001",
-          "type": "Deposit",
-          "description": "Opening deposit",
-          "amount": 560000.47,
-          "balanceAfter": 560000.47,
-          "createdAt": "2026-05-21T11:42:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "DEP21MAY804207",
-          "category": "Incoming Payment",
-          "tags": [
-            "credit",
-            "savings"
-          ]
-        }
-      ],
-      "notificationState": {
-        "readIds": [],
-        "readAtById": {}
-      },
-      "preferences": {
-        "emailAlerts": true,
-        "smsAlerts": true,
-        "statementFrequency": "Monthly"
-      },
-      "auditLog": [
-        {
-          "id": "f702fb61-3b95-44e7-bb8a-739e41009102",
-          "action": "TRANSACTION_DENIED",
-          "note": "DB21JUN420742",
-          "createdAt": "2026-06-21T12:21:52.041Z"
-        },
-        {
-          "id": "643bd3af-ded3-4901-9c0e-00c8db2b5896",
-          "action": "WITHDRAWAL_CREATED",
-          "note": "",
-          "createdAt": "2026-06-21T12:21:52.039Z"
-        },
-        {
-          "id": "56135a85-3229-4386-b53c-11e3cdf2920f",
-          "action": "TRANSACTION_APPROVED",
-          "note": "DB21JUN420742",
-          "createdAt": "2026-06-21T12:21:52.031Z"
-        },
-        {
-          "id": "1240926a-7322-442d-a37b-f872a7416c5b",
-          "action": "WITHDRAWAL_CREATED",
-          "note": "",
-          "createdAt": "2026-06-21T12:21:52.006Z"
-        },
-        {
-          "id": "5d69e724-3223-4279-b354-88ffa17b81c3",
-          "action": "WITHDRAWAL_CREATED",
-          "note": "",
-          "createdAt": "2026-06-21T12:20:17.040Z"
-        },
-        {
-          "id": "audit-login-001",
-          "action": "LOGIN_SUCCESS",
-          "note": "Web browser",
-          "createdAt": "2026-05-22T18:42:00.000Z"
-        },
-        {
-          "id": "audit-deposit-001",
-          "action": "DEPOSIT_CREATED",
-          "note": "Opening deposit - DEP21MAY804207",
-          "createdAt": "2026-05-21T11:42:00.000Z"
-        },
-        {
-          "id": "audit-approved-001",
-          "action": "ACCOUNT_APPROVED",
-          "note": "",
-          "createdAt": "2024-11-12T09:00:00.000Z"
-        }
-      ],
-      "security": {
-        "lastLoginAt": "2026-05-22T18:42:00.000Z",
-        "failedLoginAttempts": 0,
-        "lockedUntil": ""
-      },
       "passwordReset": {
         "token": "",
         "expiresAt": "",
         "requestedAt": ""
       },
-      "createdAt": "2024-11-08T11:20:00.000Z"
+      "createdAt": "2026-06-12T10:00:00.000Z"
     }
-  ]
+  ],
+  "emailOutbox": []
 }
