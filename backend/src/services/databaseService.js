@@ -2,7 +2,22 @@ const { Pool } = require("pg");
 const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
-const { put, list, download } = require("@vercel/blob");
+const { put, list, get } = require("@vercel/blob");
+
+async function blobStreamToText(stream) {
+  const reader = stream.getReader();
+  const chunks = [];
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(Buffer.from(value));
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
 
 const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
@@ -437,11 +452,17 @@ async function readBlobDatabase() {
       return null;
     }
 
-    const { blob } = await download(existing.url, {
-      token: BLOB_TOKEN
+    const blobResult = await get(existing.url, {
+      token: BLOB_TOKEN,
+      access: "private",
+      useCache: false
     });
 
-    const text = await blob.text();
+    if (!blobResult || !blobResult.stream) {
+      return null;
+    }
+
+    const text = await blobStreamToText(result.stream);
     return JSON.parse(text);
   } catch (error) {
     console.error("[DB] Blob read failed:", error);
@@ -454,7 +475,8 @@ async function writeBlobDatabase(database) {
     await put(BLOB_PATHNAME, JSON.stringify(database, null, 2), {
       token: BLOB_TOKEN,
       contentType: "application/json",
-      access: "public"
+      access: "private",
+      allowOverwrite: true
     });
     blobCache = null;
   } catch (error) {
