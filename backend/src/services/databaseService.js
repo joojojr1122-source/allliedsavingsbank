@@ -462,7 +462,7 @@ async function readBlobDatabase() {
       return null;
     }
 
-    const text = await blobStreamToText(result.stream);
+    const text = await blobStreamToText(blobResult.stream);
     return JSON.parse(text);
   } catch (error) {
     console.error("[DB] Blob read failed:", error);
