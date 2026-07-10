@@ -128,14 +128,13 @@ function buildPendingTransactionEmail(transaction, customer) {
   return { subject, text: lines.join("\n"), html };
 }
 
-async function queueTransactionNotification(transaction, customer) {
+async function queueTransactionNotification(transaction, customer, database) {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_FROM || process.env.SMTP_FROM;
 
   if (!adminEmail) {
     return null;
   }
 
-  const database = await readDatabase();
   const message = buildPendingTransactionEmail(transaction, customer);
   const emailProvider = getEmailProvider();
   const outboxEntry = {
@@ -152,9 +151,17 @@ async function queueTransactionNotification(transaction, customer) {
     error: ""
   };
 
+  // When a caller passes its own `database` (e.g. createTransaction), we mutate
+  // that same object instead of doing our own read+write. This avoids a
+  // read-modify-write race that would otherwise overwrite the caller's pending
+  // transaction. The caller is responsible for the single writeDatabase().
+  const ownsDatabase = Boolean(database);
+  if (!ownsDatabase) {
+    database = await readDatabase();
+  }
+
   database.emailOutbox = database.emailOutbox || [];
   database.emailOutbox.unshift(outboxEntry);
-  await writeDatabase(database);
 
   if (emailProvider) {
     try {
@@ -167,13 +174,15 @@ async function queueTransactionNotification(transaction, customer) {
 
       outboxEntry.status = "Sent";
       outboxEntry.sentAt = new Date().toISOString();
-      await writeDatabase(database);
     } catch (error) {
       outboxEntry.status = "Failed";
       outboxEntry.error = error.message || "Email delivery failed";
-      await writeDatabase(database);
       console.error("Email delivery failed:", outboxEntry.error);
     }
+  }
+
+  if (!ownsDatabase) {
+    await writeDatabase(database);
   }
 
   return outboxEntry;

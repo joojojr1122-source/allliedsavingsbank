@@ -397,7 +397,7 @@ async function createTransaction(userId, input) {
 
   const pendingTransaction = user.transactions[0];
   if (pendingTransaction && pendingTransaction.status === "Pending") {
-    queueTransactionNotification(pendingTransaction, user).catch((error) => {
+    queueTransactionNotification(pendingTransaction, user, database).catch((error) => {
       console.error("Failed to queue transaction notification:", error);
     });
   }
