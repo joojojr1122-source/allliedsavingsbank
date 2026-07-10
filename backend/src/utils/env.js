@@ -2,8 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 function loadLocalEnv() {
-  if (process.env.VERCEL) return;
-
   const envPath = path.join(__dirname, "..", "..", "..", ".env");
 
   if (!fs.existsSync(envPath)) return;

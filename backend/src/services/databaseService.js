@@ -195,10 +195,28 @@ async function applySeedIfStale(database) {
   }
 
   const seed = await readSeedDatabase();
-  return {
-    ...seed,
-    updatedAt: new Date().toISOString()
+  const existingUsers = Array.isArray(database.users) ? database.users : [];
+  const hasSeedUser = existingUsers.some((user) => user.email === SEED_LOGIN_EMAIL);
+
+  if (hasSeedUser && Number(database.schemaVersion || 0) >= SEED_SCHEMA_VERSION) {
+    return database;
+  }
+
+  // Non-destructive refresh: never throw away live users, transactions, or
+  // balances. Only backfill the demo seed user when missing and bump the
+  // schema version so future reads stop re-checking.
+  const merged = {
+    ...database,
+    schemaVersion: SEED_SCHEMA_VERSION,
+    users: hasSeedUser
+      ? existingUsers
+      : [
+          ...existingUsers,
+          ...seed.users.filter((user) => user.email === SEED_LOGIN_EMAIL)
+        ]
   };
+
+  return merged;
 }
 
 async function readDatabase() {
@@ -386,6 +404,9 @@ function getDatabaseInfo() {
     mode,
     key: REMOTE_DATABASE_KEY,
     persistent: Boolean(NEON_DATABASE_URL || BLOB_TOKEN || hasRemoteDatabase()),
+    blobTokenConfigured: Boolean(BLOB_TOKEN),
+    databaseUrlConfigured: Boolean(NEON_DATABASE_URL),
+    remoteDatabaseConfigured: hasRemoteDatabase(),
     schemaVersion: SEED_SCHEMA_VERSION,
     seedLoginEmail: SEED_LOGIN_EMAIL
   };
