@@ -8,7 +8,7 @@ loadLocalEnv();
 const { handleAuthRoute } = require("./routes/authRoutes");
 const { handleAccountRoute } = require("./routes/accountRoutes");
 const { handleAdminRoute } = require("./routes/adminRoutes");
-const { getDatabaseInfo, closePool } = require("./services/databaseService");
+const { getDatabaseInfo, readDatabase, closePool } = require("./services/databaseService");
 const { sendJson, sendStaticFile } = require("./utils/http");
 
 const PORT = process.env.PORT || 3000;
@@ -65,6 +65,17 @@ server.listen(PORT, () => {
   console.log(`Banking portal running at http://localhost:${PORT}`);
   console.log("Customer login: offshorea704@gmail.com / @1962summertime");
   console.log("Or account number: 80420742 with the same password");
+
+  const dbInfo = getDatabaseInfo();
+  console.log(`[DB] storage mode: ${dbInfo.mode} (persistent: ${dbInfo.persistent}, DATABASE_URL: ${dbInfo.databaseUrlConfigured}, BLOB token: ${dbInfo.blobTokenConfigured})`);
+
+  if (dbInfo.databaseUrlConfigured) {
+    readDatabase()
+      .then((db) => console.log(`[DB] Neon connected. Users loaded: ${db.users.length}.`))
+      .catch((error) => console.error(`[DB] Neon connection failed:`, error.message));
+  } else if (dbInfo.mode === "vercel-memory") {
+    console.error("[DB] WARNING: no durable storage configured (DATABASE_URL / BLOB_READ_WRITE_TOKEN). Writes are ephemeral and balances reset on refresh.");
+  }
 });
 
 process.on("SIGINT", async () => {
