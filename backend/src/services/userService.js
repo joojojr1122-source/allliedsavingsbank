@@ -317,6 +317,13 @@ function publicUser(user) {
   };
 }
 
+function ensureSettings(database) {
+  database.settings = database.settings || {};
+  if (database.settings.requireTransactionApproval === undefined) {
+    database.settings.requireTransactionApproval = true;
+  }
+}
+
 async function createTransaction(userId, input) {
   const database = await readDatabase();
   const user = database.users.find((item) => item.id === userId);
@@ -368,11 +375,16 @@ async function createTransaction(userId, input) {
   }
 
   const signedAmount = type === "Deposit" ? amount : -amount;
-  const nextBalance = Number((user.account.balance + signedAmount).toFixed(2));
+  const initialBalance = user.account.balance;
+  const nextBalance = Number((initialBalance + signedAmount).toFixed(2));
 
   if (nextBalance < 0) {
     throw statusError(400, "Insufficient available balance");
   }
+
+  ensureSettings(database);
+
+  const isDebit = type === "Withdrawal" || type === "Transfer";
 
   user.transactions = user.transactions || [];
   user.transactions.unshift({
@@ -383,21 +395,24 @@ async function createTransaction(userId, input) {
     category,
     tags,
     amount: Number(signedAmount.toFixed(2)),
-    balanceAfter: user.account.balance,
+    balanceAfter: nextBalance,
     createdAt: new Date().toISOString(),
     scheduledFor: type === "Transfer" ? scheduledFor : "",
-    status: "Pending",
+    status: isDebit ? "Pending" : "Completed",
     reference: createReference(type, user.account.number),
     beneficiary,
     repeatFrequency: type === "Transfer" ? repeatFrequency : "Once",
-    processedAt: "",
+    processedAt: isDebit ? "" : new Date().toISOString(),
+    completedAt: isDebit ? "" : new Date().toISOString(),
     lastEditedAt: ""
   });
   appendAudit(user, type === "Transfer" ? "TRANSFER_CREATED" : `${type.toUpperCase()}_CREATED`);
 
-  const pendingTransaction = user.transactions[0];
-  if (pendingTransaction && pendingTransaction.status === "Pending") {
-    queueTransactionNotification(pendingTransaction, user, database).catch((error) => {
+  user.account.balance = nextBalance;
+
+  const createdTransaction = user.transactions[0];
+  if (isDebit) {
+    queueTransactionNotification(createdTransaction, user, database).catch((error) => {
       console.error("Failed to queue transaction notification:", error);
     });
   }
@@ -428,21 +443,13 @@ async function approveTransaction(userId, transactionId) {
     throw statusError(400, "Only pending transactions can be approved");
   }
 
-  const amount = Number(tx.amount || 0);
-  const nextBalance = Number((user.account.balance + amount).toFixed(2));
-
-  if (nextBalance < 0) {
-    throw statusError(400, "Insufficient available balance");
-  }
-
   const now = new Date();
   const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
 
   tx.status = "Approved";
   tx.processedAt = now.toISOString();
   tx.completedAt = twoWeeksFromNow.toISOString();
-  tx.balanceAfter = nextBalance;
-  user.account.balance = nextBalance;
+  tx.balanceAfter = user.account.balance;
 
   appendAudit(user, "TRANSACTION_APPROVED", tx.reference || tx.id);
   await writeDatabase(database);
@@ -471,9 +478,13 @@ async function denyTransaction(userId, transactionId) {
     throw statusError(400, "Only pending transactions can be denied");
   }
 
+  const amount = Number(tx.amount || 0);
+  const nextBalance = Number((user.account.balance - amount).toFixed(2));
+
   tx.status = "Denied";
   tx.processedAt = new Date().toISOString();
-  tx.balanceAfter = user.account.balance;
+  tx.balanceAfter = nextBalance;
+  user.account.balance = nextBalance;
 
   appendAudit(user, "TRANSACTION_DENIED", tx.reference || tx.id);
   await writeDatabase(database);
@@ -673,7 +684,7 @@ function settleDueScheduledTransfers(user, now = new Date()) {
 function settleDueApprovedTransactions(user, now = new Date()) {
   ensureAccountShape(user);
 
-  const today = now.toISOString();
+  const today = new Date(now).toISOString();
   let changed = false;
 
   (user.transactions || [])

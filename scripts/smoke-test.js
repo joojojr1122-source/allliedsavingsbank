@@ -1,7 +1,7 @@
 process.env.VERCEL = "1";
 const assert = require("assert");
 const { readDatabase } = require("../backend/src/services/databaseService");
-const { approveTransaction, createTransaction, getUserById, settleDueScheduledTransfers } = require("../backend/src/services/userService");
+const { approveTransaction, createTransaction, denyTransaction, getUserById, settleDueScheduledTransfers } = require("../backend/src/services/userService");
 const { verifyPassword } = require("../backend/src/utils/security");
 
 (async () => {
@@ -69,12 +69,23 @@ const { verifyPassword } = require("../backend/src/utils/security");
     amount: 125,
     description: "ATM withdrawal"
   });
-  assert.strictEqual(pendingUser.account.balance, beforeWithdrawal, "pending withdrawal does not deduct balance immediately");
+  assert.strictEqual(pendingUser.account.balance, beforeWithdrawal - 125, "pending withdrawal deducts balance immediately");
   assert.strictEqual(pendingUser.transactions[0].amount, -125, "pending withdrawal stores a debit amount");
   assert.strictEqual(pendingUser.transactions[0].status, "Pending", "transaction stays Pending until approved");
 
-  const approvedUser = await approveTransaction(pendingUser.id, pendingUser.transactions[0].id);
-  assert.strictEqual(approvedUser.account.balance, beforeWithdrawal - 125, "approved withdrawal deducts from main balance");
+  const deniedUser = await denyTransaction(pendingUser.id, pendingUser.transactions[0].id);
+  assert.strictEqual(deniedUser.account.balance, beforeWithdrawal, "denied withdrawal refunds balance immediately");
+  assert.strictEqual(deniedUser.transactions[0].status, "Denied", "transaction is now Denied");
+
+  const pendingUser2 = await createTransaction(activeUser.id, {
+    type: "Withdrawal",
+    amount: 125,
+    description: "ATM withdrawal 2"
+  });
+  assert.strictEqual(pendingUser2.account.balance, beforeWithdrawal - 125, "second pending withdrawal deducts balance immediately");
+
+  const approvedUser = await approveTransaction(pendingUser2.id, pendingUser2.transactions[0].id);
+  assert.strictEqual(approvedUser.account.balance, beforeWithdrawal - 125, "approved withdrawal keeps deducted balance");
   assert.strictEqual(approvedUser.transactions[0].status, "Approved", "transaction is now Approved");
   assert.strictEqual(approvedUser.transactions[0].completedAt > approvedUser.transactions[0].processedAt, true, "approved transaction has future completedAt for two-week revert");
 
