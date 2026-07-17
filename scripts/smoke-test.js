@@ -10,8 +10,8 @@ const { verifyPassword } = require("../backend/src/utils/security");
   const activeUser = users.find((user) => user.email === "offshorea704@gmail.com");
 
   assert(activeUser, "seeded customer account exists");
-  assert.strictEqual(activeUser.firstName, "Joella");
-  assert.strictEqual(activeUser.lastName, "Boswell");
+  assert.strictEqual(activeUser.firstName, "Lisa");
+  assert.strictEqual(activeUser.lastName, "Bush Brooks");
   assert.strictEqual(activeUser.account.status, "Active");
   assert.strictEqual(activeUser.account.balance, 560000.47);
   assert.strictEqual(activeUser.account.monthlyTransferLimit, 100000);
