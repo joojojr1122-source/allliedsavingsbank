@@ -9,7 +9,8 @@ const {
   sendCustomEmailAsAdmin,
   updateAccountStatus,
   approveTransactionAsAdmin,
-  denyTransactionAsAdmin
+  denyTransactionAsAdmin,
+  createTransactionAsAdmin
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -61,6 +62,13 @@ async function handleAdminRoute(req, res, url) {
     if (rejectMatch) {
       req.adminApprovalEmail = decodeURIComponent(rejectMatch[1]);
       await rejectAccountAsAdmin(req, res);
+      return;
+    }
+
+    const createTxMatch = url.pathname.match(/^\/api\/admin\/transaction\/([^/]+)\/?$/);
+    if (createTxMatch) {
+      req.adminTransactionUserEmail = decodeURIComponent(createTxMatch[1]);
+      await createTransactionAsAdmin(req, res);
       return;
     }
   }

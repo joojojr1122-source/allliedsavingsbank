@@ -11,6 +11,7 @@ const {
   updateAccountStatusAsAdmin,
   approveTransaction,
   denyTransaction,
+  createTransaction,
   findUserByEmail,
   getUserById
 } = require("../services/userService");
@@ -158,6 +159,29 @@ async function denyTransactionAsAdmin(req, res) {
     sendJson(res, 200, { user: publicUser(updatedUser) });
   } catch (error) {
     sendJson(res, error.status || 500, { error: error.message || "Transaction denial failed" });
+  }
+}
+
+async function createTransactionAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminTransactionUserEmail || "";
+    const body = await readJsonBody(req);
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+      sendJson(res, 404, { error: "User not found" });
+      return;
+    }
+
+    const updatedUser = await createTransaction(user.id, body);
+    sendJson(res, 200, { user: publicUser(updatedUser) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Transaction creation failed" });
   }
 }
 
@@ -345,6 +369,7 @@ module.exports = {
   updateAccountStatus,
   approveTransactionAsAdmin,
   denyTransactionAsAdmin,
+  createTransactionAsAdmin,
   getAdminSummary,
   getPersistenceStatus,
   getEmailOutbox,

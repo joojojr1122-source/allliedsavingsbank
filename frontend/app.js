@@ -55,6 +55,8 @@ const adminDebugUserTx = document.querySelector("#adminDebugUserTx");
 const adminUserDebug = document.querySelector("#adminUserDebug");
 const adminSendEmailForm = document.querySelector("#adminSendEmailForm");
 const adminSendEmailStatus = document.querySelector("#adminSendEmailStatus");
+const adminAddTransactionForm = document.querySelector("#adminAddTransactionForm");
+const adminAddTransactionStatus = document.querySelector("#adminAddTransactionStatus");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
 const adminSearch = document.querySelector("#adminSearch");
 const adminStatusFilter = document.querySelector("#adminStatusFilter");
@@ -1370,6 +1372,45 @@ if (adminSendEmailForm) {
       if (adminSendEmailStatus) {
         adminSendEmailStatus.textContent = error.message;
         adminSendEmailStatus.classList.remove("is-success");
+      }
+    }
+  });
+}
+
+if (adminAddTransactionForm) {
+  adminAddTransactionForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = sessionStorage.getItem("adminPassword");
+    if (!password) {
+      if (adminAddTransactionStatus) adminAddTransactionStatus.textContent = "Admin session expired. Please log in to /ops first.";
+      return;
+    }
+
+    const data = formToJson(adminAddTransactionForm);
+    if (adminAddTransactionStatus) adminAddTransactionStatus.textContent = "Adding transaction...";
+
+    try {
+      await apiRequest(`/api/admin/transaction/${encodeURIComponent(data.email)}`, {
+        auth: false,
+        method: "POST",
+        headers: { "X-Admin-Password": password },
+        body: JSON.stringify({
+          type: data.type,
+          amount: Number(data.amount),
+          description: data.description
+        })
+      });
+
+      adminAddTransactionForm.reset();
+      if (adminAddTransactionStatus) {
+        adminAddTransactionStatus.textContent = "Transaction added.";
+        adminAddTransactionStatus.classList.add("is-success");
+      }
+      await loadAdminSummary(password);
+    } catch (error) {
+      if (adminAddTransactionStatus) {
+        adminAddTransactionStatus.textContent = error.message;
+        adminAddTransactionStatus.classList.remove("is-success");
       }
     }
   });

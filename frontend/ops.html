@@ -76,6 +76,33 @@
             <div class="admin-table" id="adminUserDebug"></div>
           </article>
           <article class="admin-panel">
+            <h2>Add Transaction</h2>
+            <form id="adminAddTransactionForm" class="admin-form">
+              <label>
+                User email
+                <input name="email" type="email" placeholder="user@example.com" required>
+              </label>
+              <label>
+                Type
+                <select name="type" required>
+                  <option>Deposit</option>
+                  <option>Withdrawal</option>
+                  <option>Transfer</option>
+                </select>
+              </label>
+              <label>
+                Amount
+                <input name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+              </label>
+              <label>
+                Description
+                <input name="description" placeholder="Payment reference" maxlength="18" required>
+              </label>
+              <button class="primary-button" type="submit">Add Transaction</button>
+            </form>
+            <p class="status" id="adminAddTransactionStatus"></p>
+          </article>
+          <article class="admin-panel">
             <h2>Send Email</h2>
             <form id="adminSendEmailForm" class="admin-form">
               <label>
