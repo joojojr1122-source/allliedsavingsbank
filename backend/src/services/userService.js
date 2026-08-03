@@ -1075,8 +1075,8 @@ async function updateAccountControls(userId, input) {
     throw statusError(400, "Choose a valid card status");
   }
 
-  if (!Number.isFinite(dailyTransferLimit) || dailyTransferLimit < 50 || dailyTransferLimit > 5000) {
-    throw statusError(400, "Daily transfer limit must be between USD 50 and USD 5,000");
+  if (!Number.isFinite(dailyTransferLimit) || dailyTransferLimit < 50 || dailyTransferLimit > 10000) {
+    throw statusError(400, "Daily transfer limit must be between USD 50 and USD 10,000");
   }
 
   if (!Number.isFinite(monthlyTransferLimit) || monthlyTransferLimit < dailyTransferLimit || monthlyTransferLimit > 100000) {
