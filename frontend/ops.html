@@ -103,6 +103,32 @@
             <p class="status" id="adminAddTransactionStatus"></p>
           </article>
           <article class="admin-panel">
+            <h2>Account Controls</h2>
+            <form id="adminAccountControlsForm" class="admin-form">
+              <label>
+                User email
+                <input name="email" type="email" placeholder="user@example.com" required>
+              </label>
+              <label>
+                Card status
+                <select name="cardStatus" required>
+                  <option>Active</option>
+                  <option>Frozen</option>
+                </select>
+              </label>
+              <label>
+                Daily limit
+                <input name="dailyTransferLimit" type="number" min="50" max="200000" step="50" required>
+              </label>
+              <label>
+                Monthly limit
+                <input name="monthlyTransferLimit" type="number" min="50" max="100000" step="100" required>
+              </label>
+              <button class="primary-button" type="submit">Save Controls</button>
+            </form>
+            <p class="status" id="adminAccountControlsStatus"></p>
+          </article>
+          <article class="admin-panel">
             <h2>Send Email</h2>
             <form id="adminSendEmailForm" class="admin-form">
               <label>

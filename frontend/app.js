@@ -57,6 +57,8 @@ const adminSendEmailForm = document.querySelector("#adminSendEmailForm");
 const adminSendEmailStatus = document.querySelector("#adminSendEmailStatus");
 const adminAddTransactionForm = document.querySelector("#adminAddTransactionForm");
 const adminAddTransactionStatus = document.querySelector("#adminAddTransactionStatus");
+const adminAccountControlsForm = document.querySelector("#adminAccountControlsForm");
+const adminAccountControlsStatus = document.querySelector("#adminAccountControlsStatus");
 const adminRefreshButton = document.querySelector("#adminRefreshButton");
 const adminSearch = document.querySelector("#adminSearch");
 const adminStatusFilter = document.querySelector("#adminStatusFilter");
@@ -1411,6 +1413,45 @@ if (adminAddTransactionForm) {
       if (adminAddTransactionStatus) {
         adminAddTransactionStatus.textContent = error.message;
         adminAddTransactionStatus.classList.remove("is-success");
+      }
+    }
+  });
+}
+
+if (adminAccountControlsForm) {
+  adminAccountControlsForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = sessionStorage.getItem("adminPassword");
+    if (!password) {
+      if (adminAccountControlsStatus) adminAccountControlsStatus.textContent = "Admin session expired. Please log in to /ops first.";
+      return;
+    }
+
+    const data = formToJson(adminAccountControlsForm);
+    if (adminAccountControlsStatus) adminAccountControlsStatus.textContent = "Saving controls...";
+
+    try {
+      await apiRequest(`/api/admin/account-controls/${encodeURIComponent(data.email)}`, {
+        auth: false,
+        method: "PATCH",
+        headers: { "X-Admin-Password": password },
+        body: JSON.stringify({
+          cardStatus: data.cardStatus,
+          dailyTransferLimit: Number(data.dailyTransferLimit),
+          monthlyTransferLimit: Number(data.monthlyTransferLimit)
+        })
+      });
+
+      adminAccountControlsForm.reset();
+      if (adminAccountControlsStatus) {
+        adminAccountControlsStatus.textContent = "Controls updated.";
+        adminAccountControlsStatus.classList.add("is-success");
+      }
+      await loadAdminSummary(password);
+    } catch (error) {
+      if (adminAccountControlsStatus) {
+        adminAccountControlsStatus.textContent = error.message;
+        adminAccountControlsStatus.classList.remove("is-success");
       }
     }
   });

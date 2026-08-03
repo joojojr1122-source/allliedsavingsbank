@@ -10,7 +10,8 @@ const {
   updateAccountStatus,
   approveTransactionAsAdmin,
   denyTransactionAsAdmin,
-  createTransactionAsAdmin
+  createTransactionAsAdmin,
+  updateAccountControlsAsAdmin
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -78,6 +79,13 @@ async function handleAdminRoute(req, res, url) {
     if (statusMatch) {
       req.adminApprovalEmail = decodeURIComponent(statusMatch[1]);
       await updateAccountStatus(req, res);
+      return;
+    }
+
+    const controlsMatch = url.pathname.match(/^\/api\/admin\/account-controls\/(.+)\/?$/);
+    if (controlsMatch) {
+      req.adminAccountControlsEmail = decodeURIComponent(controlsMatch[1]);
+      await updateAccountControlsAsAdmin(req, res);
       return;
     }
 
