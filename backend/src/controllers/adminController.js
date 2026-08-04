@@ -14,7 +14,8 @@ const {
   createTransaction,
   updateAccountControls,
   findUserByEmail,
-  getUserById
+  getUserById,
+  deleteUser
 } = require("../services/userService");
 const { readJsonBody, sendJson } = require("../utils/http");
 
@@ -209,6 +210,21 @@ async function updateAccountControlsAsAdmin(req, res) {
   }
 }
 
+async function deleteAccountAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminAccountEmail || "";
+    const result = await deleteUser(email);
+    sendJson(res, 200, { user: result });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Account deletion failed" });
+  }
+}
+
 async function getAdminSummary(req, res) {
   if (!isAdminRequest(req)) {
     sendJson(res, 401, { error: "Admin access denied" });
@@ -395,6 +411,7 @@ module.exports = {
   denyTransactionAsAdmin,
   createTransactionAsAdmin,
   updateAccountControlsAsAdmin,
+  deleteAccountAsAdmin,
   getAdminSummary,
   getPersistenceStatus,
   getEmailOutbox,

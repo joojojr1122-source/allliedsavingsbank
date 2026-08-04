@@ -1111,6 +1111,23 @@ async function changePassword(userId, currentPassword, newPassword) {
   await writeDatabase(database);
 }
 
+async function deleteUser(email) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  if (user.account?.status === "Active") {
+    throw statusError(400, "Cannot delete an active account. Freeze it first if needed.");
+  }
+
+  database.users = database.users.filter((item) => item.id !== user.id);
+  await writeDatabase(database);
+  return { deleted: true, email: user.email };
+}
+
 function validatePassword(password, label = "Password") {
   if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
     throw statusError(400, `${label} must be at least 10 characters and include uppercase, lowercase, and a number`);
@@ -1135,6 +1152,7 @@ module.exports = {
   settleDueScheduledTransfers,
   createBeneficiary,
   deleteBeneficiary,
+  deleteUser,
   findUserByEmail,
   findUserByLoginIdentifier,
   getUserById,

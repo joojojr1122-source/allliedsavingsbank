@@ -11,7 +11,8 @@ const {
   approveTransactionAsAdmin,
   denyTransactionAsAdmin,
   createTransactionAsAdmin,
-  updateAccountControlsAsAdmin
+  updateAccountControlsAsAdmin,
+  deleteAccountAsAdmin
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -98,6 +99,15 @@ async function handleAdminRoute(req, res, url) {
       } else {
         await denyTransactionAsAdmin(req, res);
       }
+      return;
+    }
+  }
+
+  if (req.method === "DELETE") {
+    const accountMatch = url.pathname.match(/^\/api\/admin\/account\/(.+)\/?$/);
+    if (accountMatch) {
+      req.adminAccountEmail = decodeURIComponent(accountMatch[1]);
+      await deleteAccountAsAdmin(req, res);
       return;
     }
   }

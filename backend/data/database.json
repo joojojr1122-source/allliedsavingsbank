@@ -1,206 +1,420 @@
-{
-  "schemaVersion": 5,
-  "updatedAt": "2026-07-09T16:18:29.799Z",
-  "users": [
-    {
-      "id": "acct-offshore-001",
-      "firstName": "Lisa",
-      "lastName": "Bush Brooks",
-      "email": "offshorea704@gmail.com",
-      "password": "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643",
-      "application": {
-        "product": "Checking Account",
-        "phone": "757 981-4493",
-        "address": "2104 Oregon Ave, Portsmouth, VA 23701",
-        "dateOfBirth": "1985-03-14",
-        "employmentStatus": "Employed",
-        "status": "Approved",
-        "decisionReason": "",
-        "submittedAt": "2024-11-08T11:20:00.000Z",
-        "decidedAt": "2024-11-12T09:00:00.000Z"
-      },
-      "account": {
-        "type": "Checking Account",
-        "number": "80420742",
-        "routingNumber": "026009593",
-        "currency": "USD",
-        "balance": 560000.47,
-        "openedAt": "2024-11-12T09:15:00.000Z",
-        "status": "Active",
-        "dailyTransferLimit": 5000,
-        "monthlyTransferLimit": 100000,
-        "cardStatus": "Active",
-        "cardLastFour": "4821",
-        "cardExpiry": "08/28",
-        "overdraft": 0
-      },
-      "beneficiaries": [],
-      "transactions": [
-        {
-          "id": "tx-opening-001",
-          "type": "Account Opening",
-          "description": "Account opened",
-          "amount": 0,
-          "balanceAfter": 0,
-          "createdAt": "2024-11-12T09:15:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "OPENING",
-          "category": "Account",
-          "tags": []
-        },
-        {
-          "id": "tx-opening-deposit-001",
-          "type": "Deposit",
-          "description": "Opening deposit",
-          "amount": 560000.47,
-          "balanceAfter": 560000.47,
-          "createdAt": "2026-05-21T11:42:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "DEP21MAY804207",
-          "category": "Incoming Payment",
-          "tags": [
-            "credit",
-            "savings"
-          ]
-        }
-      ],
-      "notificationState": {
-        "readIds": [],
-        "readAtById": {}
-      },
-      "preferences": {
-        "emailAlerts": true,
-        "smsAlerts": true,
-        "statementFrequency": "Monthly"
-      },
-      "auditLog": [
-        {
-          "id": "audit-login-001",
-          "action": "LOGIN_SUCCESS",
-          "note": "Web browser",
-          "createdAt": "2026-05-22T18:42:00.000Z"
-        },
-        {
-          "id": "audit-deposit-001",
-          "action": "DEPOSIT_CREATED",
-          "note": "Opening deposit - DEP21MAY804207",
-          "createdAt": "2026-05-21T11:42:00.000Z"
-        },
-        {
-          "id": "audit-approved-001",
-          "action": "ACCOUNT_APPROVED",
-          "note": "",
-          "createdAt": "2024-11-12T09:00:00.000Z"
-        }
-      ],
-      "security": {
-        "lastLoginAt": "2026-05-22T18:42:00.000Z",
-        "failedLoginAttempts": 0,
-        "lockedUntil": ""
-      },
-      "createdAt": "2024-11-08T11:20:00.000Z"
-    },
-    {
-      "id": "acct-kelly-001",
-      "firstName": "KELLY",
-      "lastName": "WALLACE",
-      "email": "kellywallace642@gmail.com",
-      "password": "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e",
-      "application": {
-        "product": "Checking Account",
-        "phone": "555-0164",
-        "address": "1200 Commerce Street, Dallas, TX 75202",
-        "dateOfBirth": "1988-07-19",
-        "employmentStatus": "Employed",
-        "status": "Approved",
-        "decisionReason": "",
-        "submittedAt": "2026-06-12T10:00:00.000Z",
-        "decidedAt": "2026-06-12T11:30:00.000Z"
-      },
-      "account": {
-        "type": "Checking Account",
-        "number": "80421642",
-        "routingNumber": "026009593",
-        "currency": "USD",
-        "balance": 5200,
-        "openedAt": "2026-06-12T11:45:00.000Z",
-        "status": "Active",
-        "dailyTransferLimit": 5000,
-        "monthlyTransferLimit": 100000,
-        "cardStatus": "Active",
-        "cardLastFour": "1642",
-        "cardExpiry": "10/29",
-        "overdraft": 0
-      },
-      "beneficiaries": [],
-      "transactions": [
-        {
-          "id": "tx-kelly-opening-001",
-          "type": "Account Opening",
-          "description": "Account opened",
-          "amount": 0,
-          "balanceAfter": 0,
-          "createdAt": "2026-06-12T11:45:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "OPENING",
-          "category": "Account",
-          "tags": []
-        },
-        {
-          "id": "tx-kelly-opening-deposit-001",
-          "type": "Deposit",
-          "description": "Opening deposit",
-          "amount": 5200,
-          "balanceAfter": 5200,
-          "createdAt": "2026-06-12T12:10:00.000Z",
-          "scheduledFor": "",
-          "status": "Completed",
-          "reference": "DEP12JUN804216",
-          "category": "Incoming Payment",
-          "tags": [
-            "credit",
-            "checking"
-          ]
-        }
-      ],
-      "notificationState": {
-        "readIds": [],
-        "readAtById": {}
-      },
-      "preferences": {
-        "emailAlerts": true,
-        "smsAlerts": false,
-        "statementFrequency": "Monthly"
-      },
-      "auditLog": [
-        {
-          "id": "audit-kelly-deposit-001",
-          "action": "DEPOSIT_CREATED",
-          "note": "Opening deposit - DEP12JUN804216",
-          "createdAt": "2026-06-12T12:10:00.000Z"
-        },
-        {
-          "id": "audit-kelly-approved-001",
-          "action": "ACCOUNT_APPROVED",
-          "note": "",
-          "createdAt": "2026-06-12T11:30:00.000Z"
-        }
-      ],
-      "security": {
-        "lastLoginAt": "",
-        "failedLoginAttempts": 0,
-        "lockedUntil": ""
-      },
-      "passwordReset": {
-        "token": "",
-        "expiresAt": "",
-        "requestedAt": ""
-      },
-      "createdAt": "2026-06-12T10:00:00.000Z"
-    }
-  ],
-  "emailOutbox": []
+﻿{
+    "schemaVersion":  5,
+    "updatedAt":  "2026-08-04T19:59:12.403Z",
+    "users":  [
+                  {
+                      "id":  "acct-offshore-001",
+                      "firstName":  "Lisa",
+                      "lastName":  "Bush Brooks",
+                      "email":  "offshorea704@gmail.com",
+                      "password":  "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643",
+                      "application":  {
+                                          "product":  "Checking Account",
+                                          "phone":  "757 981-4493",
+                                          "address":  "2104 Oregon Ave, Portsmouth, VA 23701",
+                                          "dateOfBirth":  "1985-03-14",
+                                          "employmentStatus":  "Employed",
+                                          "status":  "Approved",
+                                          "decisionReason":  "",
+                                          "submittedAt":  "2024-11-08T11:20:00.000Z",
+                                          "decidedAt":  "2024-11-12T09:00:00.000Z"
+                                      },
+                      "account":  {
+                                      "type":  "Checking Account",
+                                      "number":  "80420742",
+                                      "routingNumber":  "026009593",
+                                      "currency":  "USD",
+                                      "balance":  560000.47,
+                                      "openedAt":  "2024-11-12T09:15:00.000Z",
+                                      "status":  "Active",
+                                      "dailyTransferLimit":  5000,
+                                      "monthlyTransferLimit":  100000,
+                                      "cardStatus":  "Active",
+                                      "cardLastFour":  "4821",
+                                      "cardExpiry":  "08/28",
+                                      "overdraft":  0
+                                  },
+                      "beneficiaries":  [
+
+                                        ],
+                      "transactions":  [
+                                           {
+                                               "id":  "tx-opening-001",
+                                               "type":  "Account Opening",
+                                               "description":  "Account opened",
+                                               "amount":  0,
+                                               "balanceAfter":  0,
+                                               "createdAt":  "2024-11-12T09:15:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "OPENING",
+                                               "category":  "Account",
+                                               "tags":  [
+
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "tx-opening-deposit-001",
+                                               "type":  "Deposit",
+                                               "description":  "Opening deposit",
+                                               "amount":  560000.47,
+                                               "balanceAfter":  560000.47,
+                                               "createdAt":  "2026-05-21T11:42:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "DEP21MAY804207",
+                                               "category":  "Incoming Payment",
+                                               "tags":  [
+                                                            "credit",
+                                                            "savings"
+                                                        ]
+                                           }
+                                       ],
+                      "notificationState":  {
+                                                "readIds":  [
+
+                                                            ],
+                                                "readAtById":  {
+
+                                                               }
+                                            },
+                      "preferences":  {
+                                          "emailAlerts":  true,
+                                          "smsAlerts":  true,
+                                          "statementFrequency":  "Monthly"
+                                      },
+                      "auditLog":  [
+                                       {
+                                           "id":  "audit-login-001",
+                                           "action":  "LOGIN_SUCCESS",
+                                           "note":  "Web browser",
+                                           "createdAt":  "2026-05-22T18:42:00.000Z"
+                                       },
+                                       {
+                                           "id":  "audit-deposit-001",
+                                           "action":  "DEPOSIT_CREATED",
+                                           "note":  "Opening deposit - DEP21MAY804207",
+                                           "createdAt":  "2026-05-21T11:42:00.000Z"
+                                       },
+                                       {
+                                           "id":  "audit-approved-001",
+                                           "action":  "ACCOUNT_APPROVED",
+                                           "note":  "",
+                                           "createdAt":  "2024-11-12T09:00:00.000Z"
+                                       }
+                                   ],
+                      "security":  {
+                                       "lastLoginAt":  "2026-05-22T18:42:00.000Z",
+                                       "failedLoginAttempts":  0,
+                                       "lockedUntil":  ""
+                                   },
+                      "createdAt":  "2024-11-08T11:20:00.000Z"
+                  },
+                  {
+                      "id":  "acct-kelly-001",
+                      "firstName":  "KELLY",
+                      "lastName":  "WALLACE",
+                      "email":  "kellywallace642@gmail.com",
+                      "password":  "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e",
+                      "application":  {
+                                          "product":  "Checking Account",
+                                          "phone":  "555-0164",
+                                          "address":  "1200 Commerce Street, Dallas, TX 75202",
+                                          "dateOfBirth":  "1988-07-19",
+                                          "employmentStatus":  "Employed",
+                                          "status":  "Approved",
+                                          "decisionReason":  "",
+                                          "submittedAt":  "2026-06-12T10:00:00.000Z",
+                                          "decidedAt":  "2026-06-12T11:30:00.000Z"
+                                      },
+                      "account":  {
+                                      "type":  "Checking Account",
+                                      "number":  "80421642",
+                                      "routingNumber":  "026009593",
+                                      "currency":  "USD",
+                                      "balance":  5200,
+                                      "openedAt":  "2026-06-12T11:45:00.000Z",
+                                      "status":  "Active",
+                                      "dailyTransferLimit":  5000,
+                                      "monthlyTransferLimit":  100000,
+                                      "cardStatus":  "Active",
+                                      "cardLastFour":  "1642",
+                                      "cardExpiry":  "10/29",
+                                      "overdraft":  0
+                                  },
+                      "beneficiaries":  [
+
+                                        ],
+                      "transactions":  [
+                                           {
+                                               "id":  "tx-kelly-opening-001",
+                                               "type":  "Account Opening",
+                                               "description":  "Account opened",
+                                               "amount":  0,
+                                               "balanceAfter":  0,
+                                               "createdAt":  "2026-06-12T11:45:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "OPENING",
+                                               "category":  "Account",
+                                               "tags":  [
+
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "tx-kelly-opening-deposit-001",
+                                               "type":  "Deposit",
+                                               "description":  "Opening deposit",
+                                               "amount":  5200,
+                                               "balanceAfter":  5200,
+                                               "createdAt":  "2026-06-12T12:10:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "DEP12JUN804216",
+                                               "category":  "Incoming Payment",
+                                               "tags":  [
+                                                            "credit",
+                                                            "checking"
+                                                        ]
+                                           }
+                                       ],
+                      "notificationState":  {
+                                                "readIds":  [
+
+                                                            ],
+                                                "readAtById":  {
+
+                                                               }
+                                            },
+                      "preferences":  {
+                                          "emailAlerts":  true,
+                                          "smsAlerts":  false,
+                                          "statementFrequency":  "Monthly"
+                                      },
+                      "auditLog":  [
+                                       {
+                                           "id":  "audit-kelly-deposit-001",
+                                           "action":  "DEPOSIT_CREATED",
+                                           "note":  "Opening deposit - DEP12JUN804216",
+                                           "createdAt":  "2026-06-12T12:10:00.000Z"
+                                       },
+                                       {
+                                           "id":  "audit-kelly-approved-001",
+                                           "action":  "ACCOUNT_APPROVED",
+                                           "note":  "",
+                                           "createdAt":  "2026-06-12T11:30:00.000Z"
+                                       }
+                                   ],
+                      "security":  {
+                                       "lastLoginAt":  "",
+                                       "failedLoginAttempts":  0,
+                                       "lockedUntil":  ""
+                                   },
+                      "passwordReset":  {
+                                            "token":  "",
+                                            "expiresAt":  "",
+                                            "requestedAt":  ""
+                                        },
+                      "createdAt":  "2026-06-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "d1114051-dd4b-4351-a672-15faaadd7a8b",
+                      "firstName":  "Hilton",
+                      "lastName":  "Anderson Hernandez",
+                      "email":  "stevehilton993@gmail.com",
+                      "password":  "6c530ccd57aabebaa4c17b3bcd50a89e:c60c4948bc12d6171e5641d697d94c9b474c2506996ef978c3ef0376657b156fee6dae83181eef0433dc0e449af8468c623f3269b8b544afd42bba6f3229ecbc",
+                      "application":  {
+                                          "product":  "Savings Account",
+                                          "phone":  "3344560756",
+                                          "address":  "Detroit, Michigan",
+                                          "dateOfBirth":  "1980-01-15",
+                                          "employmentStatus":  "Employed",
+                                          "status":  "Frozen",
+                                          "decisionReason":  "",
+                                          "submittedAt":  "2026-08-04T19:55:02.053Z",
+                                          "decidedAt":  "2026-08-04T19:57:12.820Z"
+                                      },
+                      "account":  {
+                                      "type":  "Savings Account",
+                                      "number":  "80420023",
+                                      "routingNumber":  "026009593",
+                                      "currency":  "USD",
+                                      "balance":  73563,
+                                      "openedAt":  "2011-08-04T09:00:00.000Z",
+                                      "status":  "Frozen",
+                                      "dailyTransferLimit":  5000,
+                                      "monthlyTransferLimit":  50000,
+                                      "cardStatus":  "Active",
+                                      "overdraft":  0
+                                  },
+                      "beneficiaries":  [
+
+                                        ],
+                      "transactions":  [
+                                           {
+                                               "id":  "2bc3f224-cf3b-4f75-94a2-d2089bbd38a7",
+                                               "type":  "Account Opening",
+                                               "description":  "Account opened",
+                                               "amount":  0,
+                                               "balanceAfter":  0,
+                                               "createdAt":  "2011-08-04T09:15:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "OPENING",
+                                               "category":  "Account",
+                                               "tags":  [
+
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "b064b9a8-a3df-41a8-9f96-e2bcb14cecae",
+                                               "type":  "Deposit",
+                                               "description":  "Initial deposit",
+                                               "amount":  50000,
+                                               "balanceAfter":  50000,
+                                               "createdAt":  "2011-08-05T10:00:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "DEP05AUG80420023",
+                                               "category":  "Incoming Payment",
+                                               "tags":  [
+                                                            "credit",
+                                                            "savings"
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "d2965aec-4d00-4b7b-a080-1818a1b81f2c",
+                                               "type":  "Deposit",
+                                               "description":  "Monthly salary deposit",
+                                               "amount":  5000,
+                                               "balanceAfter":  55000,
+                                               "createdAt":  "2026-06-01T09:00:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "DEP01JUN80420023",
+                                               "category":  "Incoming Payment",
+                                               "tags":  [
+                                                            "salary",
+                                                            "credit"
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "b5f6095f-a105-4697-821c-a4c5e1015c7c",
+                                               "type":  "Deposit",
+                                               "description":  "Interest payment",
+                                               "amount":  250.5,
+                                               "balanceAfter":  55250.5,
+                                               "createdAt":  "2026-06-30T09:00:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "INT30JUN80420023",
+                                               "category":  "Interest",
+                                               "tags":  [
+                                                            "interest",
+                                                            "savings"
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "1892af69-3a73-4709-82b1-5adaf357f1dc",
+                                               "type":  "Withdrawal",
+                                               "description":  "ATM withdrawal",
+                                               "amount":  1500,
+                                               "balanceAfter":  53750.5,
+                                               "createdAt":  "2026-07-10T14:30:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "DB10JUL80420023",
+                                               "category":  "ATM",
+                                               "tags":  [
+                                                            "cash",
+                                                            "withdrawal"
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "678075ee-e09a-4620-a4c0-14eba06ac841",
+                                               "type":  "Deposit",
+                                               "description":  "Wire transfer received",
+                                               "amount":  20000,
+                                               "balanceAfter":  73750.5,
+                                               "createdAt":  "2026-07-20T11:00:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "CR20JUL80420023",
+                                               "category":  "Incoming Payment",
+                                               "tags":  [
+                                                            "wire",
+                                                            "credit"
+                                                        ]
+                                           },
+                                           {
+                                               "id":  "1f104718-812a-4356-a25e-9cf211d7361a",
+                                               "type":  "Withdrawal",
+                                               "description":  "Account frozen - last transaction",
+                                               "amount":  187.5,
+                                               "balanceAfter":  73563,
+                                               "createdAt":  "2026-07-25T16:45:00.000Z",
+                                               "scheduledFor":  "",
+                                               "status":  "Completed",
+                                               "reference":  "DB25JUL80420023",
+                                               "category":  "Transfer",
+                                               "tags":  [
+                                                            "frozen",
+                                                            "transfer"
+                                                        ]
+                                           }
+                                       ],
+                      "auditLog":  [
+                                       {
+                                           "id":  "af4c7043-fbc0-442e-84ca-b38e40617d55",
+                                           "action":  "ACCOUNT_FROZEN",
+                                           "note":  "Account frozen by user request",
+                                           "createdAt":  "2026-07-25T16:45:00.000Z"
+                                       },
+                                       {
+                                           "id":  "a1c8306d-86b4-4aa9-831f-51f31b37c343",
+                                           "action":  "TRANSACTION_FROZEN",
+                                           "note":  "Last transaction on 2026-07-25",
+                                           "createdAt":  "2026-07-25T16:45:00.000Z"
+                                       },
+                                       {
+                                           "id":  "62174192-9829-44ca-a140-2db395955af1",
+                                           "action":  "ACCOUNT_APPROVED",
+                                           "note":  "",
+                                           "createdAt":  "2026-08-04T19:57:12.820Z"
+                                       },
+                                       {
+                                           "id":  "2cb38b55-5f8a-4794-96ff-97d6f337f297",
+                                           "action":  "APPLICATION_SUBMITTED",
+                                           "createdAt":  "2026-08-04T19:55:02.056Z"
+                                       }
+                                   ],
+                      "security":  {
+                                       "lastLoginAt":  "",
+                                       "failedLoginAttempts":  0,
+                                       "lockedUntil":  ""
+                                   },
+                      "passwordReset":  {
+                                            "token":  "",
+                                            "expiresAt":  "",
+                                            "requestedAt":  ""
+                                        },
+                      "notificationState":  {
+                                                "readIds":  [
+
+                                                            ],
+                                                "readAtById":  {
+
+                                                               }
+                                            },
+                      "preferences":  {
+                                          "emailAlerts":  true,
+                                          "smsAlerts":  false,
+                                          "statementFrequency":  "Monthly"
+                                      },
+                      "createdAt":  "2026-08-04T19:55:02.056Z"
+                  }
+              ],
+    "emailOutbox":  [
+
+                    ]
 }
