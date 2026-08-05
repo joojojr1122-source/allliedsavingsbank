@@ -12,7 +12,8 @@ const {
   denyTransactionAsAdmin,
   createTransactionAsAdmin,
   updateAccountControlsAsAdmin,
-  deleteAccountAsAdmin
+  deleteAccountAsAdmin,
+  updateBalanceFrozen
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -75,7 +76,23 @@ async function handleAdminRoute(req, res, url) {
     }
   }
 
+  if (req.method === "DELETE") {
+    const accountMatch = url.pathname.match(/^\/api\/admin\/account\/(.+)\/?$/);
+    if (accountMatch) {
+      req.adminAccountEmail = decodeURIComponent(accountMatch[1]);
+      await deleteAccountAsAdmin(req, res);
+      return;
+    }
+  }
+
   if (req.method === "PATCH") {
+    const balanceFrozenMatch = url.pathname.match(/^\/api\/admin\/balance-frozen\/(.+)\/?$/);
+    if (balanceFrozenMatch) {
+      req.adminAccountEmail = decodeURIComponent(balanceFrozenMatch[1]);
+      await updateBalanceFrozen(req, res);
+      return;
+    }
+
     const statusMatch = url.pathname.match(/^\/api\/admin\/account-status\/(.+)\/?$/);
     if (statusMatch) {
       req.adminApprovalEmail = decodeURIComponent(statusMatch[1]);
@@ -99,15 +116,6 @@ async function handleAdminRoute(req, res, url) {
       } else {
         await denyTransactionAsAdmin(req, res);
       }
-      return;
-    }
-  }
-
-  if (req.method === "DELETE") {
-    const accountMatch = url.pathname.match(/^\/api\/admin\/account\/(.+)\/?$/);
-    if (accountMatch) {
-      req.adminAccountEmail = decodeURIComponent(accountMatch[1]);
-      await deleteAccountAsAdmin(req, res);
       return;
     }
   }

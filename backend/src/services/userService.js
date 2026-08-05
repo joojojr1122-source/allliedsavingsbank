@@ -338,6 +338,10 @@ async function createTransaction(userId, input) {
     throw statusError(403, "This account is not active");
   }
 
+  if (user.account.balanceFrozen) {
+    throw statusError(403, "This account balance is frozen. No transactions are allowed.");
+  }
+
   const type = cleanName(input.type);
   const description = cleanName(input.description) || type;
   const amount = Number(input.amount);
@@ -443,6 +447,10 @@ async function approveTransaction(userId, transactionId) {
     throw statusError(400, "Only pending transactions can be approved");
   }
 
+  if (user.account.balanceFrozen) {
+    throw statusError(403, "This account balance is frozen. No transactions can be approved.");
+  }
+
   const now = new Date();
   const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
 
@@ -476,6 +484,10 @@ async function denyTransaction(userId, transactionId) {
 
   if (tx.status !== "Pending") {
     throw statusError(400, "Only pending transactions can be denied");
+  }
+
+  if (user.account.balanceFrozen) {
+    throw statusError(403, "This account balance is frozen. No transactions can be denied.");
   }
 
   const amount = Number(tx.amount || 0);
@@ -762,6 +774,7 @@ function ensureAccountShape(user) {
   user.account.monthlyTransferLimit = user.account.monthlyTransferLimit || 100000;
   user.account.cardStatus = user.account.cardStatus || "Active";
   user.account.overdraft = Number(user.account.overdraft || 0);
+  user.account.balanceFrozen = user.account.balanceFrozen || false;
   user.beneficiaries = user.beneficiaries || [];
   user.auditLog = user.auditLog || [];
   user.application = user.application || {};
@@ -1128,6 +1141,23 @@ async function deleteUser(email) {
   return { deleted: true, email: user.email };
 }
 
+async function updateAccountBalanceFrozen(email, balanceFrozen) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === String(email || "").trim().toLowerCase());
+
+  if (!user) {
+    throw statusError(404, "Account was not found");
+  }
+
+  ensureAccountShape(user);
+
+  user.account.balanceFrozen = Boolean(balanceFrozen);
+  appendAudit(user, balanceFrozen ? "BALANCE_FROZEN" : "BALANCE_UNFROZEN");
+
+  await writeDatabase(database);
+  return user;
+}
+
 function validatePassword(password, label = "Password") {
   if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
     throw statusError(400, `${label} must be at least 10 characters and include uppercase, lowercase, and a number`);
@@ -1153,6 +1183,7 @@ module.exports = {
   createBeneficiary,
   deleteBeneficiary,
   deleteUser,
+  updateAccountBalanceFrozen,
   findUserByEmail,
   findUserByLoginIdentifier,
   getUserById,

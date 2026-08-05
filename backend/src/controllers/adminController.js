@@ -15,7 +15,8 @@ const {
   updateAccountControls,
   findUserByEmail,
   getUserById,
-  deleteUser
+  deleteUser,
+  updateAccountBalanceFrozen
 } = require("../services/userService");
 const { readJsonBody, sendJson } = require("../utils/http");
 
@@ -225,6 +226,23 @@ async function deleteAccountAsAdmin(req, res) {
   }
 }
 
+async function updateBalanceFrozen(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminAccountEmail || "";
+    const body = await readJsonBody(req);
+    const balanceFrozen = body.balanceFrozen;
+    const user = await updateAccountBalanceFrozen(email, balanceFrozen);
+    sendJson(res, 200, { user: publicUser(user) });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Balance freeze update failed" });
+  }
+}
+
 async function getAdminSummary(req, res) {
   if (!isAdminRequest(req)) {
     sendJson(res, 401, { error: "Admin access denied" });
@@ -412,6 +430,7 @@ module.exports = {
   createTransactionAsAdmin,
   updateAccountControlsAsAdmin,
   deleteAccountAsAdmin,
+  updateBalanceFrozen,
   getAdminSummary,
   getPersistenceStatus,
   getEmailOutbox,
