@@ -85,6 +85,8 @@ async function handleAdminRoute(req, res, url) {
       return;
     }
   }
+
+  if (req.method === "DELETE") {
     const accountMatch = url.pathname.match(/^\/api\/admin\/account\/(.+)\/?$/);
     if (accountMatch) {
       req.adminAccountEmail = decodeURIComponent(accountMatch[1]);
