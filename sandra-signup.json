@@ -1,0 +1,12 @@
+{
+  "firstName": "Sandra",
+  "lastName": "Hasnem",
+  "email": "hasnemsandra@gmail.com",
+  "password": "Hasnem1234",
+  "phone": "+1 5672597841",
+  "address": "10886 Lincoln Highway Apt 4, Van Wert Ohio 45891",
+  "dateOfBirth": "1987-07-15",
+  "employmentStatus": "Employed",
+  "product": "Checking Account",
+  "agreeTerms": true
+}
