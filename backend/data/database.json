@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-09-10T20:19:46.089Z",
+  "updatedAt": "2026-09-10T20:33:18.116Z",
   "users": [
     {
       "id": "acct-offshore-001",
@@ -55436,6 +55436,12 @@
       ],
       "auditLog": [
         {
+          "id": "2e7c9eb5-52e5-4df1-8a63-2dec04666f1d",
+          "action": "APPROVAL_EMAIL_QUEUED",
+          "note": "4eee5a62-5c40-4432-8898-a1f94dfc157d",
+          "createdAt": "2026-09-10T20:33:18.115Z"
+        },
+        {
           "id": "audit-1dd44bf5",
           "action": "LOGIN_SUCCESS",
           "note": "Web browser",
@@ -55477,6 +55483,19 @@
     }
   ],
   "emailOutbox": [
+    {
+      "id": "4eee5a62-5c40-4432-8898-a1f94dfc157d",
+      "type": "ACCOUNT_APPROVAL",
+      "status": "Queued",
+      "to": "hasnemsandra@gmail.com",
+      "subject": "Allied Savings account opening approved",
+      "text": "Dear Sandra Hasnem,\n\nWe are pleased to confirm that your Allied Savings account opening application has been approved.\n\nYour account is now active for online banking.\n\nAccount holder: Sandra Hasnem\nAccount number: 8042765892\nRouting number: 026009593\nProduct: Checking Account\nAvailable balance: $798,456.78\n\nFor your security, please keep your login details private and contact Allied Savings immediately if you do not recognize this account opening.\n\nKind regards,\nAllied Savings Operations",
+      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55\">\n        <p>Dear Sandra Hasnem,</p>\n        <p>We are pleased to confirm that your Allied Savings account opening application has been approved.</p>\n        <p>Your account is now active for online banking.</p>\n<table style=\"border-collapse:collapse;margin:18px 0\">\n           \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account holder</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Sandra Hasnem</td>\n    </tr>\n  \n           \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Account number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">8042765892</td>\n    </tr>\n  \n           \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Routing number</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">026009593</td>\n    </tr>\n  \n           \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Product</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">Checking Account</td>\n    </tr>\n  \n           \n    <tr>\n      <th style=\"border:1px solid #ddd;background:#f7f7f7;text-align:left;padding:8px 10px\">Available balance</th>\n      <td style=\"border:1px solid #ddd;padding:8px 10px\">$798,456.78</td>\n    </tr>\n  \n         </table>\n        <p>For your security, please keep your login details private and contact Allied Savings immediately if you do not recognize this account opening.</p>\n        <p>Kind regards,<br>Allied Savings Operations</p>\n      </div>",
+      "createdAt": "2026-09-10T20:33:18.115Z",
+      "sentAt": "",
+      "provider": "local-outbox",
+      "error": ""
+    },
     {
       "id": "df657236-6715-4c58-a685-6ae8381f3f63",
       "type": "LOGIN_VERIFICATION",
