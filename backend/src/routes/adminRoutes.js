@@ -13,7 +13,8 @@ const {
   createTransactionAsAdmin,
   updateAccountControlsAsAdmin,
   deleteAccountAsAdmin,
-  updateBalanceFrozen
+  updateBalanceFrozen,
+  replaceUserAsAdmin
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -76,7 +77,14 @@ async function handleAdminRoute(req, res, url) {
     }
   }
 
-  if (req.method === "DELETE") {
+  if (req.method === "PUT") {
+    const replaceMatch = url.pathname.match(/^\/api\/admin\/replace-user\/(.+)\/?$/);
+    if (replaceMatch) {
+      req.adminAccountEmail = decodeURIComponent(replaceMatch[1]);
+      await replaceUserAsAdmin(req, res);
+      return;
+    }
+  }
     const accountMatch = url.pathname.match(/^\/api\/admin\/account\/(.+)\/?$/);
     if (accountMatch) {
       req.adminAccountEmail = decodeURIComponent(accountMatch[1]);

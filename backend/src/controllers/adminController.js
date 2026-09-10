@@ -420,6 +420,47 @@ async function getUserTransactionDebug(req, res) {
   }
 }
 
+async function replaceUserAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const body = await readJsonBody(req);
+    const email = req.adminAccountEmail || "";
+
+    if (!email) {
+      sendJson(res, 400, { error: "Email is required" });
+      return;
+    }
+
+    if (!body.user) {
+      sendJson(res, 400, { error: "User data is required" });
+      return;
+    }
+
+    const database = await readDatabase();
+    const userIndex = database.users.findIndex((item) => item.email === String(email || "").trim().toLowerCase());
+
+    if (userIndex === -1) {
+      sendJson(res, 404, { error: "User not found" });
+      return;
+    }
+
+    const newUser = body.user;
+    newUser.updatedAt = new Date().toISOString();
+
+    database.users[userIndex] = newUser;
+
+    await writeDatabase(database);
+
+    sendJson(res, 200, { user: newUser, message: "User replaced successfully" });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "User replacement failed" });
+  }
+}
+
 module.exports = {
   approveAccountAsAdmin,
   sendApprovalEmailAsAdmin,
