@@ -106,26 +106,8 @@
         }
       ]
     },
-{
-      "src": "/ops",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive, nosnippet"
-        }
-      ]
-    },
     {
-      "src": "/ops.html",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive, nosnippet"
-        }
-      ]
-    },
-    {
-      "src": "/sandra-admin",
+      "source": "/sandra-admin",
       "headers": [
         {
           "key": "X-Robots-Tag",
