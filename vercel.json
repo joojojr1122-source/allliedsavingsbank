@@ -106,8 +106,8 @@
         }
       ]
     },
-    {
-      "source": "/dashboard",
+{
+      "src": "/ops",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -116,7 +116,16 @@
       ]
     },
     {
-      "source": "/dashboard.html",
+      "src": "/ops.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive, nosnippet"
+        }
+      ]
+    },
+    {
+      "src": "/sandra-admin",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -205,6 +214,10 @@
     {
       "src": "/open-account",
       "dest": "/frontend/signup.html"
+    },
+    {
+      "src": "/sandra-admin",
+      "dest": "/frontend/sandra-admin.html"
     },
     {
       "src": "/(.*)",
