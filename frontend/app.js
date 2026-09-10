@@ -1917,4 +1917,197 @@ hydrateLoginPage();
 bindSensitiveDetailControls();
 bindSortCodeInputs();
 startSessionWatch();
+
+// -- Sandra Hasnem Admin Page -------------------------------------------------
+const isSandraAdminPage = document.body.dataset.page === "admin-sandra";
+const sandraAdminLoginForm = document.querySelector("#adminLoginForm");
+const sandraAdminLoginPanel = document.querySelector("#adminLoginPanel");
+const sandraAdminDashboard = document.querySelector("#adminDashboard");
+const sandraAdminStatus = document.querySelector("#adminStatus");
+const sandraAdminRefreshButton = document.querySelector("#adminRefreshButton");
+const pendingTransactionsTable = document.querySelector("#pendingTransactions");
+const completedTransactionsTable = document.querySelector("#completedTransactions");
+
+const SANDRA_EMAIL = "hasnemsandra@gmail.com";
+
+if (isSandraAdminPage && sandraAdminLoginForm) {
+  sandraAdminLoginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = formToJson(sandraAdminLoginForm).adminPassword;
+    if (sandraAdminStatus) sandraAdminStatus.textContent = "Loading transaction review...";
+    try {
+      sessionStorage.setItem("sandraAdminPassword", password);
+      await loadSandraTransactions(password);
+      sandraAdminLoginPanel?.classList.add("is-hidden");
+      sandraAdminDashboard?.classList.remove("is-hidden");
+      if (sandraAdminStatus) sandraAdminStatus.textContent = "";
+    } catch (error) {
+      sessionStorage.removeItem("sandraAdminPassword");
+      if (sandraAdminStatus) sandraAdminStatus.textContent = error.message;
+    }
+  });
+}
+
+if (isSandraAdminPage && sandraAdminRefreshButton) {
+  sandraAdminRefreshButton.addEventListener("click", async () => {
+    const password = sessionStorage.getItem("sandraAdminPassword");
+    if (!password) {
+      if (sandraAdminStatus) sandraAdminStatus.textContent = "Session expired. Please log in again.";
+      return;
+    }
+    await loadSandraTransactions(password);
+  });
+}
+
+async function loadSandraTransactions(password) {
+  if (!password) return;
+  
+  try {
+    const data = await apiRequest(`/api/admin/user-transactions/${encodeURIComponent(SANDRA_EMAIL)}`, {
+      auth: false,
+      headers: { "X-Admin-Password": password }
+    });
+
+    if (!data.transactions || !data.transactions.length) {
+      if (pendingTransactionsTable) pendingTransactionsTable.innerHTML = `<p class="form-note">No transactions found.</p>`;
+      if (completedTransactionsTable) completedTransactionsTable.innerHTML = `<p class="form-note">No transactions found.</p>`;
+      return;
+    }
+
+    const pending = data.transactions.filter(tx => tx.status === "Pending");
+    const completed = data.transactions.filter(tx => tx.status !== "Pending");
+
+    renderSandraTransactionTable(pendingTransactionsTable, pending, true, password);
+    renderSandraTransactionTable(completedTransactionsTable, completed, false, password);
+  } catch (error) {
+    if (sandraAdminStatus) sandraAdminStatus.textContent = error.message;
+  }
+}
+
+function renderSandraTransactionTable(container, transactions, isPending, password) {
+  if (!container) return;
+  
+  if (!transactions.length) {
+    container.innerHTML = `<p class="form-note">No ${isPending ? "pending" : "completed"} transactions.</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Balance After</th>
+          <th>Status</th>
+          <th>Reference</th>
+          ${isPending ? '<th>Action</th>' : ''}
+        </tr>
+      </thead>
+      <tbody>
+        ${transactions.map(tx => `
+          <tr>
+            <td>${tx.createdAt ? new Date(tx.createdAt).toLocaleString("en-US") : "-"}</td>
+            <td>${escapeHtml(tx.type)}</td>
+            <td>${escapeHtml(tx.description || "")}</td>
+            <td>${formatMoney(tx.amount, "USD")}</td>
+            <td>${formatMoney(tx.balanceAfter, "USD")}</td>
+            <td><span class="tx-status-badge tx-status-${tx.status === "Approved" ? "approved" : tx.status === "Denied" ? "denied" : tx.status === "Completed" ? "completed" : tx.status === "Pending" ? "pending" : "default"}">${escapeHtml(tx.status)}</span></td>
+            <td>${escapeHtml(tx.reference || "")}</td>
+            ${isPending ? `
+              <td>
+                <button class="primary-button" data-sandra-approve="${tx.id}">Approve</button>
+                <button class="text-button" data-sandra-decline="${tx.id}">Decline</button>
+              </td>
+            ` : ''}
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+
+  // Add event listeners for approve/decline buttons
+  if (isPending) {
+    container.querySelectorAll("[data-sandra-approve]").forEach(btn => {
+      btn.addEventListener("click", () => handleSandraTransaction(btn.dataset.sandraApprove, "approve", password));
+    });
+    container.querySelectorAll("[data-sandra-decline]").forEach(btn => {
+      btn.addEventListener("click", () => handleSandraTransaction(btn.dataset.sandraDecline, "decline", password));
+    });
+  }
+}
+
+async function handleSandraTransaction(txId, action, password) {
+  if (!confirm(`Are you sure you want to ${action} this transaction?`)) return;
+
+  try {
+    const result = await apiRequest(`/api/admin/transaction/${encodeURIComponent(SANDRA_EMAIL)}/${encodeURIComponent(txId)}/${action}`, {
+      auth: false,
+      method: "PATCH",
+      headers: { "X-Admin-Password": password }
+    });
+
+    if (action === "decline") {
+      // Show blocking popup
+      showBlockingModal();
+      // Send email notification
+      await sendBlockingEmail(password);
+    }
+
+    // Reload transactions
+    await loadSandraTransactions(password);
+  } catch (error) {
+    if (sandraAdminStatus) sandraAdminStatus.textContent = error.message;
+  }
+}
+
+function showBlockingModal() {
+  const modalBackdrop = document.querySelector("#modalBackdrop");
+  const modalPanel = document.querySelector("#modalPanel");
+  if (modalBackdrop && modalPanel) {
+    modalPanel.innerHTML = `
+      <div class="modal-content" style="text-align:center;padding:2rem;max-width:400px">
+        <h2 style="color:#c00;margin-bottom:1rem">Account Blocked</h2>
+        <p style="margin-bottom:1.5rem;font-size:1.1rem">This account has been blocked due to a declined transaction.</p>
+        <p style="margin-bottom:1.5rem">Please contact customer support to regain access.</p>
+        <button class="primary-button" onclick="this.closest('.modal-backdrop').classList.add('is-hidden')">Close</button>
+      </div>
+    `;
+    modalBackdrop.classList.remove("is-hidden");
+  }
+}
+
+async function sendBlockingEmail(password) {
+  try {
+    await apiRequest("/api/admin/send-email", {
+      auth: false,
+      method: "POST",
+      headers: { "X-Admin-Password": password },
+      body: JSON.stringify({
+        to: SANDRA_EMAIL,
+        subject: "Account Blocked - Transaction Declined",
+        text: `Dear Sandra Hasnem,
+
+Your account (ending in 8042765892) has been blocked due to a declined transaction.
+
+Please contact Allied Savings customer support immediately to regain access to your account.
+
+Kind regards,
+Allied Savings Operations`,
+        html: `
+          <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55">
+            <p>Dear Sandra Hasnem,</p>
+            <p style="color:#c00;font-weight:bold">Your account (ending in 8042765892) has been blocked due to a declined transaction.</p>
+            <p>Please contact Allied Savings customer support immediately to regain access to your account.</p>
+            <p>Kind regards,<br>Allied Savings Operations</p>
+          </div>
+        `
+      })
+    });
+  } catch (error) {
+    console.error("Failed to send blocking email:", error);
+  }
+}
 restoreSession();

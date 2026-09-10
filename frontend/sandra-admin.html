@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Sandra Hasnem - Transaction Review - Allied Savings</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body data-page="admin-sandra">
+    <header class="site-header auth-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="Allied Savings home">
+          <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
+        </a>
+      </div>
+    </header>
+
+    <main class="admin-page wrap">
+      <section class="admin-login" id="adminLoginPanel">
+        <p class="eyebrow">Back Office - Sandra Hasnem</p>
+        <h1>Transaction Review</h1>
+        <p class="form-note">Review and approve/decline transactions for Sandra Hasnem (hasnemsandra@gmail.com). Account: 8042765892</p>
+        <form id="adminLoginForm">
+          <label>
+            Operations password
+            <input name="adminPassword" type="password" autocomplete="current-password" required>
+          </label>
+          <button class="primary-button" type="submit">Sign In</button>
+        </form>
+        <p class="status" id="adminStatus"></p>
+      </section>
+
+      <section class="admin-dashboard is-hidden" id="adminDashboard">
+        <p class="status" id="adminStatus" role="status" aria-live="polite"></p>
+        <div class="dashboard-head">
+          <div>
+            <p class="eyebrow">Back Office</p>
+            <h1>Sandra Hasnem - Transaction Review</h1>
+            <p class="form-note">Account: 8042765892 | Balance: $798,456.78 | Status: Active</p>
+          </div>
+          <div class="dashboard-head__actions">
+            <button class="text-button" id="adminRefreshButton" type="button">Refresh Transactions</button>
+          </div>
+        </div>
+
+        <section class="admin-panel">
+          <h2>Pending Transactions</h2>
+          <div class="admin-table" id="pendingTransactions">
+            <p class="form-note">Loading...</p>
+          </div>
+        </section>
+
+        <section class="admin-panel">
+          <h2>Recent Completed Transactions</h2>
+          <div class="admin-table" id="completedTransactions">
+            <p class="form-note">Loading...</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop is-hidden" id="modalBackdrop">
+      <div class="modal" id="modalPanel"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
