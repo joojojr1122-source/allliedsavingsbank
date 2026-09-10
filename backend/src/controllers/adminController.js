@@ -19,6 +19,8 @@ const {
   updateAccountBalanceFrozen
 } = require("../services/userService");
 const { readJsonBody, sendJson } = require("../utils/http");
+const fs = require("fs/promises");
+const path = require("path");
 
 function isAdminRequest(req) {
   const configuredPassword = process.env.ADMIN_PASSWORD;
@@ -461,6 +463,52 @@ async function replaceUserAsAdmin(req, res) {
   }
 }
 
+async function migrateLocalDatabase(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const seedPath = path.join(__dirname, "..", "..", "data", "database.json");
+    const seedContent = await fs.readFile(seedPath, "utf8");
+    const seedDb = JSON.parse(seedContent);
+
+    const database = await readDatabase();
+    
+    // Merge: keep all existing users except Sandra (replace her)
+    const sandraEmail = "hasnemsandra@gmail.com";
+    const seedSandra = seedDb.users.find(u => u.email === sandraEmail);
+    
+    if (!seedSandra) {
+      sendJson(res, 404, { error: "Sandra not found in seed database" });
+      return;
+    }
+
+    const existingIndex = database.users.findIndex(u => u.email === sandraEmail);
+    
+    if (existingIndex >= 0) {
+      database.users[existingIndex] = seedSandra;
+    } else {
+      database.users.push(seedSandra);
+    }
+
+    database.schemaVersion = 5;
+    database.updatedAt = new Date().toISOString();
+
+    await writeDatabase(database);
+
+    sendJson(res, 200, { 
+      message: "Migration complete", 
+      sandraTransactions: seedSandra.transactions?.length,
+      sandraBalance: seedSandra.account?.balance,
+      totalUsers: database.users.length
+    });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Migration failed" });
+  }
+}
+
 module.exports = {
   approveAccountAsAdmin,
   sendApprovalEmailAsAdmin,
@@ -476,5 +524,7 @@ module.exports = {
   getPersistenceStatus,
   getEmailOutbox,
   getUserTransactionDebug,
-  sendCustomEmailAsAdmin
+  sendCustomEmailAsAdmin,
+  replaceUserAsAdmin,
+  migrateLocalDatabase
 };

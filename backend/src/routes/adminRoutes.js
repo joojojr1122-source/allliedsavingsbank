@@ -14,7 +14,8 @@ const {
   updateAccountControlsAsAdmin,
   deleteAccountAsAdmin,
   updateBalanceFrozen,
-  replaceUserAsAdmin
+  replaceUserAsAdmin,
+  migrateLocalDatabase
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -73,6 +74,12 @@ async function handleAdminRoute(req, res, url) {
     if (createTxMatch) {
       req.adminTransactionUserEmail = decodeURIComponent(createTxMatch[1]);
       await createTransactionAsAdmin(req, res);
+      return;
+    }
+
+    const migrateMatch = url.pathname.match(/^\/api\/admin\/migrate-seed\/?$/);
+    if (migrateMatch) {
+      await migrateLocalDatabase(req, res);
       return;
     }
   }
