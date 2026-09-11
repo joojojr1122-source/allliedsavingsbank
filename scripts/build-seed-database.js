@@ -5,9 +5,12 @@ const offshorePasswordHash =
   "8690c99f8d4566674bc3eacfa9e93807:e2dfde65a733134ea603f7e5ad38c976204372dca136a68d710cd00b037a080c1d99b53258fb32cc143c03491eee6d23b8216c139771b8b957dee8d114507643";
 const kellyPasswordHash =
   "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e";
+const sandraPasswordHash =
+  "f7dcb084d8219f2ea8a99e5ccf1ffcfa:e4c8bc675bf405c2c78f475b0163a43b5af060dfc1e6e26be0b62f3d8891a09719723ac90327cce7bab0cda39b6b60837081181e0c3f6de250884c38eeb12f7c";
 
 const OPENING_DEPOSIT_AMOUNT = 560000.47;
 const KELLY_OPENING_DEPOSIT_AMOUNT = 5200;
+const SANDRA_OPENING_DEPOSIT_AMOUNT = 798456.78;
 const OPENING_DEPOSIT_DATE = "2026-05-21T11:42:00.000Z";
 
 const transactions = [
@@ -208,6 +211,102 @@ account: {
         requestedAt: ""
       },
       createdAt: "2026-06-12T10:00:00.000Z"
+    },
+    {
+      id: "acct-sandra-001",
+      firstName: "Sandra",
+      lastName: "Hasnem",
+      email: "hasnemsandra@gmail.com",
+      password: sandraPasswordHash,
+      application: {
+        product: "Checking Account",
+        phone: "+1 5672597841",
+        address: "10886 Lincoln Highway Apt 4, Van Wert Ohio 45891",
+        dateOfBirth: "1987-07-15",
+        employmentStatus: "Employed",
+        status: "Approved",
+        decisionReason: "",
+        submittedAt: "2016-03-10T10:00:00.000Z",
+        decidedAt: "2016-03-15T10:00:00.000Z"
+      },
+      account: {
+        type: "Checking Account",
+        number: "8042765892",
+        routingNumber: "026009593",
+        currency: "USD",
+        balance: SANDRA_OPENING_DEPOSIT_AMOUNT,
+        openedAt: "2016-03-15T10:00:00.000Z",
+        status: "Active",
+        dailyTransferLimit: 5000,
+        monthlyTransferLimit: 100000,
+        cardStatus: "Active",
+        cardLastFour: "7892",
+        cardExpiry: "12/28",
+        overdraft: 0
+      },
+      beneficiaries: [],
+      transactions: [
+        {
+          id: "tx-sandra-opening-001",
+          type: "Account Opening",
+          description: "Account opened",
+          amount: 0,
+          balanceAfter: 0,
+          createdAt: "2016-03-15T10:00:00.000Z",
+          scheduledFor: "",
+          status: "Completed",
+          reference: "OPENING",
+          category: "Account",
+          tags: []
+        },
+        {
+          id: "tx-sandra-opening-deposit-001",
+          type: "Deposit",
+          description: "Opening deposit",
+          amount: SANDRA_OPENING_DEPOSIT_AMOUNT,
+          balanceAfter: SANDRA_OPENING_DEPOSIT_AMOUNT,
+          createdAt: "2016-03-15T10:15:00.000Z",
+          scheduledFor: "",
+          status: "Completed",
+          reference: "DEP15MAR804276",
+          category: "Incoming Payment",
+          tags: ["credit", "checking"]
+        }
+      ],
+      notificationState: {
+        readIds: [],
+        readAtById: {}
+      },
+      preferences: {
+        emailAlerts: true,
+        smsAlerts: true,
+        statementFrequency: "Monthly"
+      },
+      auditLog: [
+        {
+          id: "audit-sandra-deposit-001",
+          action: "DEPOSIT_CREATED",
+          note: "Opening deposit - DEP15MAR804276",
+          createdAt: "2016-03-15T10:15:00.000Z"
+        },
+        {
+          id: "audit-sandra-approved-001",
+          action: "ACCOUNT_APPROVED",
+          note: "",
+          createdAt: "2016-03-15T10:00:00.000Z"
+        }
+      ],
+      security: {
+        lastLoginAt: "",
+        failedLoginAttempts: 0,
+        lockedUntil: ""
+      },
+      passwordReset: {
+        token: "",
+        expiresAt: "",
+        requestedAt: ""
+      },
+      createdAt: "2016-03-10T10:00:00.000Z"
     }
   ]
 };
