@@ -15,7 +15,8 @@ const {
   deleteAccountAsAdmin,
   updateBalanceFrozen,
   replaceUserAsAdmin,
-  migrateLocalDatabase
+  migrateLocalDatabase,
+  unfreezeAccountAsAdmin
 } = require("../controllers/adminController");
 const { sendJson } = require("../utils/http");
 
@@ -121,6 +122,13 @@ async function handleAdminRoute(req, res, url) {
     if (controlsMatch) {
       req.adminAccountControlsEmail = decodeURIComponent(controlsMatch[1]);
       await updateAccountControlsAsAdmin(req, res);
+      return;
+    }
+
+    const unfreezeMatch = url.pathname.match(/^\/api\/admin\/unfreeze-account\/(.+)\/?$/);
+    if (unfreezeMatch) {
+      req.adminAccountEmail = decodeURIComponent(unfreezeMatch[1]);
+      await unfreezeAccountAsAdmin(req, res);
       return;
     }
 

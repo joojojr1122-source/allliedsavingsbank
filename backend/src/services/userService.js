@@ -209,11 +209,16 @@ async function updateAccountStatusAsAdmin(email, status, note = "") {
   }
 
   user.account.status = status;
+  user.account.balanceFrozen = status === "Frozen";
   user.application.status = status === "Active" ? "Approved" : "Frozen";
   appendAudit(user, status === "Frozen" ? "ACCOUNT_FROZEN" : "ACCOUNT_REACTIVATED", cleanName(note));
 
   await writeDatabase(database);
   return user;
+}
+
+async function unfreezeAccount(email) {
+  return updateAccountStatusAsAdmin(email, "Active", "Unfrozen via Sandra admin panel");
 }
 
 async function getUserById(id) {
@@ -1229,5 +1234,6 @@ module.exports = {
   markNotificationsRead,
   updateAccountControls,
   changePassword,
-  publicUser
+  publicUser,
+  unfreezeAccount
 };

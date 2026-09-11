@@ -16,7 +16,8 @@ const {
   findUserByEmail,
   getUserById,
   deleteUser,
-  updateAccountBalanceFrozen
+  updateAccountBalanceFrozen,
+  unfreezeAccount
 } = require("../services/userService");
 const { readJsonBody, sendJson } = require("../utils/http");
 const fs = require("fs/promises");
@@ -506,6 +507,21 @@ async function migrateLocalDatabase(req, res) {
     });
   } catch (error) {
     sendJson(res, error.status || 500, { error: error.message || "Migration failed" });
+  }
+}
+
+async function unfreezeAccountAsAdmin(req, res) {
+  if (!isAdminRequest(req)) {
+    sendJson(res, 401, { error: "Admin access denied" });
+    return;
+  }
+
+  try {
+    const email = req.adminAccountEmail || "";
+    const result = await unfreezeAccount(email);
+    sendJson(res, 200, { user: result });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || "Unfreeze failed" });
   }
 }
 
