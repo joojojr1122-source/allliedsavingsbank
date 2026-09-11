@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-09-11T07:49:58.690Z",
+  "updatedAt": "2026-09-11T14:20:39.124Z",
   "users": [
     {
       "id": "acct-offshore-001",
@@ -226,8 +226,8 @@
         "balance": 798456.78,
         "openedAt": "2016-03-15T10:00:00.000Z",
         "status": "Active",
-        "dailyTransferLimit": 5000,
-        "monthlyTransferLimit": 100000,
+        "dailyTransferLimit": 500000,
+        "monthlyTransferLimit": 2000000,
         "cardStatus": "Active",
         "cardLastFour": "7892",
         "cardExpiry": "12/28",
