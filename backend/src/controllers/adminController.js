@@ -542,5 +542,6 @@ module.exports = {
   getUserTransactionDebug,
   sendCustomEmailAsAdmin,
   replaceUserAsAdmin,
-  migrateLocalDatabase
+  migrateLocalDatabase,
+  unfreezeAccountAsAdmin
 };
