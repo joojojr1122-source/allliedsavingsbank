@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Contact Allied Savings</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body data-page="static">
+    <header class="site-header auth-header">
+      <div class="wrap header-main">
+        <a class="brand" href="/" aria-label="Allied Savings home">
+          <img src="/assets/logo-allied-savings.svg" alt="Allied Savings">
+        </a>
+        <nav class="main-nav">
+          <a href="/">Home</a>
+          <a href="/about">About Us</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/login" class="primary-button">Login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap static-page">
+      <section class="hero hero--small">
+        <h1>Contact Us</h1>
+        <p class="form-note">We're here to help. Reach out to our team.</p>
+      </section>
+
+      <section class="card-grid">
+        <article class="card">
+          <h2>Customer Support</h2>
+          <p><strong>Email:</strong> <a href="mailto:support@alliedsaving.com">support@alliedsaving.com</a></p>
+          <p><strong>Phone:</strong> <a href="tel:+18005550199">1-800-555-0199</a></p>
+          <p><strong>Hours:</strong> Monday–Friday, 8:00 AM – 8:00 PM ET</p>
+        </article>
+        <article class="card">
+          <h2>Mailing Address</h2>
+          <address>
+            Allied Savings Operations<br>
+            100 Financial Plaza, Suite 500<br>
+            New York, NY 10005<br>
+            USA
+          </address>
+        </article>
+        <article class="card">
+          <h2>Lost/Stolen Cards</h2>
+          <p>Available 24/7</p>
+          <p><strong>Phone:</strong> <a href="tel:+18005550198">1-800-555-0198</a></p>
+        </article>
+      </section>
+
+      <section class="card">
+        <h2>Send Us a Message</h2>
+        <form id="contactForm" class="admin-form">
+          <label>
+            Full Name
+            <input name="name" type="text" required autocomplete="name">
+          </label>
+          <label>
+            Email Address
+            <input name="email" type="email" required autocomplete="email">
+          </label>
+          <label>
+            Subject
+            <select name="subject" required>
+              <option value="">Select a topic</option>
+              <option value="general">General Inquiry</option>
+              <option value="account">Account Assistance</option>
+              <option value="technical">Technical Support</option>
+              <option value="fraud">Report Fraud</option>
+              <option value="complaint">Complaint</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label>
+            Message
+            <textarea name="message" rows="6" required placeholder="How can we help you?"></textarea>
+          </label>
+          <button class="primary-button" type="submit">Send Message</button>
+        </form>
+        <p class="status" id="contactStatus"></p>
+      </section>
+
+      <section class="card">
+        <h2>Frequently Asked Questions</h2>
+        <details>
+          <summary>How do I reset my password?</summary>
+          <p>Click "Forgot Password" on the login page and follow the instructions sent to your email.</p>
+        </details>
+        <details>
+          <summary>What are your account fees?</summary>
+          <p>We have no monthly maintenance fees for standard accounts. See <a href="/terms">Terms of Service</a> for full fee schedule.</p>
+        </details>
+        <details>
+          <summary>Is my money FDIC insured?</summary>
+          <p>Yes, deposits are FDIC insured up to $250,000 per depositor.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>&copy; 2024 Allied Savings. All rights reserved.</p>
+        <nav>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/about">About Us</a>
+        </nav>
+      </div>
+    </footer>
+    <script src="/app.js"></script>
+  </body>
+</html>
