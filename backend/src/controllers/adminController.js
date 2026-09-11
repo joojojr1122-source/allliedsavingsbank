@@ -160,8 +160,8 @@ async function denyTransactionAsAdmin(req, res) {
       return;
     }
 
-    const updatedUser = await denyTransaction(user.id, transactionId);
-    sendJson(res, 200, { user: publicUser(updatedUser) });
+    const result = await denyTransaction(user.id, transactionId);
+    sendJson(res, 200, { user: publicUser(result.user), accountBlocked: result.accountBlocked });
   } catch (error) {
     sendJson(res, error.status || 500, { error: error.message || "Transaction denial failed" });
   }

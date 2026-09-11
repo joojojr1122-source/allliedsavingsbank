@@ -498,9 +498,42 @@ async function denyTransaction(userId, transactionId) {
   tx.balanceAfter = nextBalance;
   user.account.balance = nextBalance;
 
+  // Block the account
+  user.account.status = "Frozen";
+  user.account.balanceFrozen = true;
+
   appendAudit(user, "TRANSACTION_DENIED", tx.reference || tx.id);
+  appendAudit(user, "ACCOUNT_BLOCKED", "Transaction denied - account frozen");
+
+  // Send blocking email
+  try {
+    const { queueCustomEmail } = require("./emailService");
+    await queueCustomEmail({
+      to: user.email,
+      subject: "Account Blocked - Transaction Declined",
+      text: `Dear ${user.firstName} ${user.lastName},
+
+Your account (ending in ${user.account.number.slice(-4)}) has been blocked due to a declined transaction.
+
+Please contact Allied Savings customer support immediately to regain access to your account.
+
+Kind regards,
+Allied Savings Operations`,
+      html: `
+        <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.55">
+          <p>Dear ${user.firstName} ${user.lastName},</p>
+          <p style="color:#c00;font-weight:bold">Your account (ending in ${user.account.number.slice(-4)}) has been blocked due to a declined transaction.</p>
+          <p>Please contact Allied Savings customer support immediately to regain access to your account.</p>
+          <p>Kind regards,<br>Allied Savings Operations</p>
+        </div>
+      `
+    });
+  } catch (emailError) {
+    console.error("Failed to send blocking email:", emailError);
+  }
+
   await writeDatabase(database);
-  return user;
+  return { user, accountBlocked: true };
 }
 
 async function updateScheduledTransaction(userId, transactionId, input) {

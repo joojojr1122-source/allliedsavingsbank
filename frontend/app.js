@@ -2049,11 +2049,10 @@ async function handleSandraTransaction(txId, action, password) {
       headers: { "X-Admin-Password": password }
     });
 
-    if (action === "decline") {
+    if (action === "decline" && result.accountBlocked) {
       // Show blocking popup
       showBlockingModal();
-      // Send email notification
-      await sendBlockingEmail(password);
+      // Email is sent by backend
     }
 
     // Reload transactions
