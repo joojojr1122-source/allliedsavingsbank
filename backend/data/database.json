@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-09-11T14:20:39.124Z",
+  "updatedAt": "2026-09-13T14:07:33.438Z",
   "users": [
     {
       "id": "acct-offshore-001",
@@ -299,6 +299,105 @@
         "requestedAt": ""
       },
       "createdAt": "2016-03-10T10:00:00.000Z"
+    },
+    {
+      "id": "acct-kimberly-001",
+      "firstName": "Kimberly",
+      "lastName": "Wren Begley",
+      "email": "kimberlywrenbegley@gmail.com",
+      "password": "5b74729a32206ad2791595f708780c00:a91a67db188ab4279f50089c608d3019bc1ddc222237e6de2a723d70bf0a65df73516d22322f8c68c239647b220dd4a2ebba65d71c23a46a5ccdd90da4a62c1e",
+      "application": {
+        "product": "Savings Account",
+        "phone": "202-555-0148",
+        "address": "1200 Pennsylvania Avenue NW, Washington, DC 20004",
+        "dateOfBirth": "1952-11-27",
+        "employmentStatus": "Retired",
+        "status": "Approved",
+        "decisionReason": "",
+        "submittedAt": "1998-01-10T10:00:00.000Z",
+        "decidedAt": "1998-01-15T10:00:00.000Z"
+      },
+      "account": {
+        "type": "Savings Account",
+        "number": "80429958",
+        "routingNumber": "000000000",
+        "currency": "USD",
+        "balance": 750000,
+        "openedAt": "1998-01-15T10:15:00.000Z",
+        "status": "Active",
+        "dailyTransferLimit": 5000,
+        "monthlyTransferLimit": 100000,
+        "cardStatus": "Active",
+        "cardLastFour": "9958",
+        "cardExpiry": "12/29",
+        "overdraft": 0
+      },
+      "beneficiaries": [],
+      "transactions": [
+        {
+          "id": "tx-kimberly-opening-001",
+          "type": "Account Opening",
+          "description": "Account opened",
+          "amount": 0,
+          "balanceAfter": 0,
+          "createdAt": "1998-01-15T10:15:00.000Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "OPENING",
+          "category": "Account",
+          "tags": []
+        },
+        {
+          "id": "tx-kimberly-opening-deposit-001",
+          "type": "Deposit",
+          "description": "Opening deposit",
+          "amount": 750000,
+          "balanceAfter": 750000,
+          "createdAt": "1998-01-15T10:30:00.000Z",
+          "scheduledFor": "",
+          "status": "Completed",
+          "reference": "DEP15JAN804299",
+          "category": "Incoming Payment",
+          "tags": [
+            "credit",
+            "savings"
+          ]
+        }
+      ],
+      "notificationState": {
+        "readIds": [],
+        "readAtById": {}
+      },
+      "preferences": {
+        "emailAlerts": true,
+        "smsAlerts": false,
+        "statementFrequency": "Monthly"
+      },
+      "auditLog": [
+        {
+          "id": "audit-kimberly-deposit-001",
+          "action": "DEPOSIT_CREATED",
+          "note": "Opening deposit - DEP15JAN804299",
+          "createdAt": "1998-01-15T10:30:00.000Z"
+        },
+        {
+          "id": "audit-kimberly-approved-001",
+          "action": "ACCOUNT_APPROVED",
+          "note": "",
+          "createdAt": "1998-01-15T10:00:00.000Z"
+        }
+      ],
+      "security": {
+        "lastLoginAt": "",
+        "failedLoginAttempts": 0,
+        "lockedUntil": ""
+      },
+      "passwordReset": {
+        "token": "",
+        "expiresAt": "",
+        "requestedAt": ""
+      },
+      "createdAt": "1998-01-10T10:00:00.000Z"
     }
   ]
 }

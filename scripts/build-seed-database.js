@@ -7,10 +7,13 @@ const kellyPasswordHash =
   "31c59e0c9636abca7dd3fbfc9e185c08:9672566b643950ce0df324d792d03ad0538f1f4aa15aa41eddb26fd7f37c5a03539803b78105063932b7c8ac9f1f8d80a3c93393bd10db83dd3a9ab1ec300f0e";
 const sandraPasswordHash =
   "f7dcb084d8219f2ea8a99e5ccf1ffcfa:e4c8bc675bf405c2c78f475b0163a43b5af060dfc1e6e26be0b62f3d8891a09719723ac90327cce7bab0cda39b6b60837081181e0c3f6de250884c38eeb12f7c";
+const kimberlyPasswordHash =
+  "5b74729a32206ad2791595f708780c00:a91a67db188ab4279f50089c608d3019bc1ddc222237e6de2a723d70bf0a65df73516d22322f8c68c239647b220dd4a2ebba65d71c23a46a5ccdd90da4a62c1e";
 
 const OPENING_DEPOSIT_AMOUNT = 560000.47;
 const KELLY_OPENING_DEPOSIT_AMOUNT = 5200;
 const SANDRA_OPENING_DEPOSIT_AMOUNT = 798456.78;
+const KIMBERLY_OPENING_DEPOSIT_AMOUNT = 750000;
 const OPENING_DEPOSIT_DATE = "2026-05-21T11:42:00.000Z";
 
 const transactions = [
@@ -307,6 +310,102 @@ account: {
         requestedAt: ""
       },
       createdAt: "2016-03-10T10:00:00.000Z"
+    },
+    {
+      id: "acct-kimberly-001",
+      firstName: "Kimberly",
+      lastName: "Wren Begley",
+      email: "kimberlywrenbegley@gmail.com",
+      password: kimberlyPasswordHash,
+      application: {
+        product: "Savings Account",
+        phone: "202-555-0148",
+        address: "1200 Pennsylvania Avenue NW, Washington, DC 20004",
+        dateOfBirth: "1952-11-27",
+        employmentStatus: "Retired",
+        status: "Approved",
+        decisionReason: "",
+        submittedAt: "1998-01-10T10:00:00.000Z",
+        decidedAt: "1998-01-15T10:00:00.000Z"
+      },
+      account: {
+        type: "Savings Account",
+        number: "80429958",
+        routingNumber: "000000000",
+        currency: "USD",
+        balance: KIMBERLY_OPENING_DEPOSIT_AMOUNT,
+        openedAt: "1998-01-15T10:15:00.000Z",
+        status: "Active",
+        dailyTransferLimit: 5000,
+        monthlyTransferLimit: 100000,
+        cardStatus: "Active",
+        cardLastFour: "9958",
+        cardExpiry: "12/29",
+        overdraft: 0
+      },
+      beneficiaries: [],
+      transactions: [
+        {
+          id: "tx-kimberly-opening-001",
+          type: "Account Opening",
+          description: "Account opened",
+          amount: 0,
+          balanceAfter: 0,
+          createdAt: "1998-01-15T10:15:00.000Z",
+          scheduledFor: "",
+          status: "Completed",
+          reference: "OPENING",
+          category: "Account",
+          tags: []
+        },
+        {
+          id: "tx-kimberly-opening-deposit-001",
+          type: "Deposit",
+          description: "Opening deposit",
+          amount: KIMBERLY_OPENING_DEPOSIT_AMOUNT,
+          balanceAfter: KIMBERLY_OPENING_DEPOSIT_AMOUNT,
+          createdAt: "1998-01-15T10:30:00.000Z",
+          scheduledFor: "",
+          status: "Completed",
+          reference: "DEP15JAN804299",
+          category: "Incoming Payment",
+          tags: ["credit", "savings"]
+        }
+      ],
+      notificationState: {
+        readIds: [],
+        readAtById: {}
+      },
+      preferences: {
+        emailAlerts: true,
+        smsAlerts: false,
+        statementFrequency: "Monthly"
+      },
+      auditLog: [
+        {
+          id: "audit-kimberly-deposit-001",
+          action: "DEPOSIT_CREATED",
+          note: "Opening deposit - DEP15JAN804299",
+          createdAt: "1998-01-15T10:30:00.000Z"
+        },
+        {
+          id: "audit-kimberly-approved-001",
+          action: "ACCOUNT_APPROVED",
+          note: "",
+          createdAt: "1998-01-15T10:00:00.000Z"
+        }
+      ],
+      security: {
+        lastLoginAt: "",
+        failedLoginAttempts: 0,
+        lockedUntil: ""
+      },
+      passwordReset: {
+        token: "",
+        expiresAt: "",
+        requestedAt: ""
+      },
+      createdAt: "1998-01-10T10:00:00.000Z"
     }
   ]
 };
