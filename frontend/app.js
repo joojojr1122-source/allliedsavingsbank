@@ -95,6 +95,20 @@ const isHomePage = document.body.dataset.page === "home";
 const isAdminPage = document.body.dataset.page === "admin";
 let signupStep = 0;
 
+function addDemoBanner() {
+  if (document.body.dataset.page === "home") return;
+  if (document.querySelector(".demo-banner")) return;
+
+  const banner = document.createElement("div");
+  banner.className = "demo-banner";
+  banner.setAttribute("role", "note");
+  banner.innerHTML = "<strong>DEMONSTRATION ONLY:</strong> This is not a real bank. Do not enter real personal, financial, or login information.";
+  document.body.prepend(banner);
+}
+
+addDemoBanner();
+
+
 function setStatus(message, isSuccess = false) {
   if (!statusMessage) return;
   statusMessage.textContent = message;
