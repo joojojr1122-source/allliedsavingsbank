@@ -8,7 +8,7 @@ const kellyPasswordHash =
 const sandraPasswordHash =
   "f7dcb084d8219f2ea8a99e5ccf1ffcfa:e4c8bc675bf405c2c78f475b0163a43b5af060dfc1e6e26be0b62f3d8891a09719723ac90327cce7bab0cda39b6b60837081181e0c3f6de250884c38eeb12f7c";
 const kimberlyPasswordHash =
-  "5b74729a32206ad2791595f708780c00:a91a67db188ab4279f50089c608d3019bc1ddc222237e6de2a723d70bf0a65df73516d22322f8c68c239647b220dd4a2ebba65d71c23a46a5ccdd90da4a62c1e";
+  "006fc09458c71825f8f2b27c902eb658:81f47d2b55a6ac5e9339b64174ec291786b0e7dcaa89903d0c57849feaff54ab0ed7309ed3e5cee595a2e2b53df56dac4c12b93f587aa5d86856d10ce9821d5a";
 
 const OPENING_DEPOSIT_AMOUNT = 560000.47;
 const KELLY_OPENING_DEPOSIT_AMOUNT = 5200;
@@ -46,7 +46,7 @@ const transactions = [
 ];
 
 const database = {
-  schemaVersion: 5,
+  schemaVersion: 7,
   updatedAt: new Date().toISOString(),
   users: [
     {
@@ -323,10 +323,10 @@ account: {
         address: "1200 Pennsylvania Avenue NW, Washington, DC 20004",
         dateOfBirth: "1952-11-27",
         employmentStatus: "Retired",
-        status: "Pending Approval",
+        status: "Approved",
         decisionReason: "",
         submittedAt: "1998-01-10T10:00:00.000Z",
-        decidedAt: ""
+        decidedAt: "2026-09-13T22:00:00.000Z"
       },
       account: {
         type: "Savings Account",
@@ -335,7 +335,7 @@ account: {
         currency: "USD",
         balance: KIMBERLY_OPENING_DEPOSIT_AMOUNT,
         openedAt: "1998-01-15T10:15:00.000Z",
-        status: "Pending Approval",
+        status: "Active",
         dailyTransferLimit: 5000,
         monthlyTransferLimit: 100000,
         cardStatus: "Active",

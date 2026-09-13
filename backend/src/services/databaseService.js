@@ -21,7 +21,7 @@ async function blobStreamToText(stream) {
 
 const SEED_DATABASE = require("../../data/database.json");
 const SEED_DATABASE_PATH = path.join(__dirname, "..", "..", "data", "database.json");
-const SEED_SCHEMA_VERSION = 5;
+const SEED_SCHEMA_VERSION = 7;
 const SEED_LOGIN_EMAIL = "offshorea704@gmail.com";
 const DATABASE_PATH = process.env.VERCEL && !process.env.DATABASE_URL
   ? path.join(os.tmpdir(), "bank-portal-database.json")
@@ -197,6 +197,7 @@ async function applySeedIfStale(database) {
   const seed = await readSeedDatabase();
   const existingUsers = Array.isArray(database.users) ? database.users : [];
   const hasSeedUser = existingUsers.some((user) => user.email === SEED_LOGIN_EMAIL);
+  const currentVersion = Number(database?.schemaVersion || 0);
 
   if (hasSeedUser && Number(database.schemaVersion || 0) >= SEED_SCHEMA_VERSION) {
     return database;
@@ -216,6 +217,28 @@ async function applySeedIfStale(database) {
         ]
   };
 
+  // Version 7 restores Kimberly's approved 1998 savings account details.
+  if (currentVersion < 7) {
+    const kimberly = merged.users.find((user) => user.email === "kimberlywrenbegley@gmail.com");
+    if (kimberly) {
+      kimberly.application = kimberly.application || {};
+      kimberly.account = kimberly.account || {};
+      kimberly.firstName = "Kimberly";
+      kimberly.lastName = "Wren Begley";
+      kimberly.password = "006fc09458c71825f8f2b27c902eb658:81f47d2b55a6ac5e9339b64174ec291786b0e7dcaa89903d0c57849feaff54ab0ed7309ed3e5cee595a2e2b53df56dac4c12b93f587aa5d86856d10ce9821d5a";
+      kimberly.application.address = "1200 Pennsylvania Avenue NW, Washington, DC 20004";
+      kimberly.application.dateOfBirth = "1952-11-27";
+      kimberly.application.submittedAt = "1998-01-10T10:00:00.000Z";
+      kimberly.application.status = "Approved";
+      kimberly.application.decisionReason = "";
+      kimberly.application.decidedAt = "2026-09-13T22:00:00.000Z";
+      kimberly.account.type = "Savings Account";
+      kimberly.account.balance = 750000;
+      kimberly.account.openedAt = "1998-01-15T10:15:00.000Z";
+      kimberly.account.status = "Active";
+      kimberly.createdAt = "1998-01-10T10:00:00.000Z";
+    }
+  }
   return merged;
 }
 
