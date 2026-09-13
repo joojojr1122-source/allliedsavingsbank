@@ -143,10 +143,11 @@ async function approvePendingAccount(email) {
     return user;
   }
 
-  const openedAt = new Date().toISOString();
+  const openedAt = user.account.openedAt || new Date().toISOString();
+  const decidedAt = new Date().toISOString();
   user.application.status = "Approved";
   user.application.decisionReason = "";
-  user.application.decidedAt = openedAt;
+  user.application.decidedAt = decidedAt;
   user.account.status = "Active";
   user.account.openedAt = openedAt;
   user.transactions = user.transactions || [];

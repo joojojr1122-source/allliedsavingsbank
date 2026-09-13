@@ -323,10 +323,10 @@ account: {
         address: "1200 Pennsylvania Avenue NW, Washington, DC 20004",
         dateOfBirth: "1952-11-27",
         employmentStatus: "Retired",
-        status: "Approved",
+        status: "Pending Approval",
         decisionReason: "",
         submittedAt: "1998-01-10T10:00:00.000Z",
-        decidedAt: "1998-01-15T10:00:00.000Z"
+        decidedAt: ""
       },
       account: {
         type: "Savings Account",
@@ -335,7 +335,7 @@ account: {
         currency: "USD",
         balance: KIMBERLY_OPENING_DEPOSIT_AMOUNT,
         openedAt: "1998-01-15T10:15:00.000Z",
-        status: "Active",
+        status: "Pending Approval",
         dailyTransferLimit: 5000,
         monthlyTransferLimit: 100000,
         cardStatus: "Active",
@@ -383,16 +383,16 @@ account: {
       },
       auditLog: [
         {
+          id: "audit-kimberly-submitted-001",
+          action: "APPLICATION_SUBMITTED",
+          note: "",
+          createdAt: "1998-01-10T10:00:00.000Z"
+        },
+        {
           id: "audit-kimberly-deposit-001",
           action: "DEPOSIT_CREATED",
           note: "Opening deposit - DEP15JAN804299",
           createdAt: "1998-01-15T10:30:00.000Z"
-        },
-        {
-          id: "audit-kimberly-approved-001",
-          action: "ACCOUNT_APPROVED",
-          note: "",
-          createdAt: "1998-01-15T10:00:00.000Z"
         }
       ],
       security: {
